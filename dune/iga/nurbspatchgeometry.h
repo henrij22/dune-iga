@@ -36,7 +36,8 @@ namespace Dune::IGA {
 
     /** \brief Map the center of the element to the geometry */
     [[nodiscard]] GlobalCoordinate center() const {
-      LocalCoordinate localcenter(0.5);
+      LocalCoordinate localcenter{};
+      std::ranges::copy(domainMidPoint(), std::begin(localcenter));
       return global(localcenter);
     }
 
