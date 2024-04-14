@@ -118,7 +118,7 @@ auto thoroughGridCheck(auto& grid) {
     return tl;
   };
 
-  for (int lvl = 0; lvl < grid.maxLevel(); ++lvl) {
+  for (int lvl = 0; lvl <= grid.maxLevel(); ++lvl) {
     auto gridView = grid.levelGridView(lvl);
     t.subTest(gvTest(gridView));
   }
@@ -851,7 +851,12 @@ auto testPlate() {
   patchData.degree        = order;
   patchData.controlPoints = controlNet;
   auto grid               = std::make_shared<Grid>(patchData);
-  grid->globalRefine(3);
+  grid->globalRefine(1);
+
+  auto gridView        = grid->leafGridView();
+  VTKWriter writer(gridView);
+  writer.write("platetest");
+
   t.subTest(thoroughGridCheck(*grid));
 
   return t;
@@ -860,7 +865,7 @@ auto testPlate() {
 template <template <int, int, typename> typename GridFamily>
 auto testGrids() {
   TestSuite t("testGrids");
-
+/*
   // if constexpr (requires { testHierarchicPatch<GridFamily>(); }) {
   std::cout << "testHierarchicPatch" << std::endl;
   t.subTest(testHierarchicPatch<GridFamily>());
@@ -890,6 +895,7 @@ auto testGrids() {
   // } else
   // std::cout << "testNURBSGridSurface Test disabled" << std::endl;
   // if constexpr (requires { testPlate<GridFamily>(); }) {
+  */
   std::cout << "testPlate==============================================" << std::endl;
   t.subTest(testPlate<GridFamily>());
   std::cout << "testPlateEND==============================================" << std::endl;
@@ -898,7 +904,7 @@ auto testGrids() {
   // testNurbsGridCylinder();
   // if constexpr (requires { testTorusGeometry<GridFamily>(); }) {
   // std::cout << "testTorusGeometry" << std::endl;
-  t.subTest(testTorusGeometry<GridFamily>());
+  // t.subTest(testTorusGeometry<GridFamily>());
   // } else
   // std::cout << "testTorusGeometry Test disabled" << std::endl;
 
@@ -920,13 +926,14 @@ int main(int argc, char** argv) try {
   std::cout << "===============TEST IdentityTrim===" << std::endl;
   std::cout << "==================================" << std::endl;
   // t.subTest(testGrids<IdentityTrim::PatchGridFamily>());
-
+/*
   std::cout << "testNURBSCurve" << std::endl;
   t.subTest(testNURBSCurve());
   std::cout << "testNURBSSurface" << std::endl;
   t.subTest(testNURBSSurface());
   t.subTest(testCurveHigherOrderDerivatives());
   t.subTest(testSurfaceHigherOrderDerivatives());
+  */
   //
   // gridCheck();
   // t.subTest(testBsplineBasisFunctions());

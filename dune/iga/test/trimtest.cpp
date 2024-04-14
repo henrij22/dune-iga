@@ -198,7 +198,6 @@ auto edgeGeometry(const Edge& edge, const HostGrid& grid, const typename Grid::T
       Dune::GeometryTypes::line, std::vector{pair[0], pair[1]}
   };
   return GeomWrapper(edgeCube);
-
 }
 
 template <typename GridElement, typename GridView>
@@ -243,8 +242,7 @@ auto elementTrimDataObstacleCourse(const GridElement& ele, const Grid::Trimmer::
       std::array<Dune::FieldVector<double, 2>, 2> curveCorners;
 
       for (int i = 0; i < 2; ++i)
-        curveCorners[i]                 = edgeGeo.corner(i);
-
+        curveCorners[i] = edgeGeo.corner(i);
 
       if (edgeIndex > 0) {
         std::stringstream ssE, ssS;
@@ -256,9 +254,9 @@ auto elementTrimDataObstacleCourse(const GridElement& ele, const Grid::Trimmer::
             << std::to_string(edgeIndex - 1) << ".\n One of the two edges is in the wrong order.\n";
 
         t.check(Dune::FloatCmp::eq(curveCorners[0], oldVertexCoordPair[1]))
-            << "The start vertex (" << curveCorners[0] << ") of edge " << edgeIndex << " should be the same as the end vertex ("
-            << oldVertexCoordPair[1] << ") of edge " << edgeIndex - 1 << "."
-            << (Dune::FloatCmp::eq(curveCorners[1], oldVertexCoordPair[1]) ? ssE.str() : "")
+            << "The start vertex (" << curveCorners[0] << ") of edge " << edgeIndex
+            << " should be the same as the end vertex (" << oldVertexCoordPair[1] << ") of edge " << edgeIndex - 1
+            << "." << (Dune::FloatCmp::eq(curveCorners[1], oldVertexCoordPair[1]) ? ssE.str() : "")
             << (Dune::FloatCmp::eq(curveCorners[0], oldVertexCoordPair[0]) ? ssS.str() : "");
       }
 
@@ -380,10 +378,10 @@ auto checkTrim(std::string filename, const ExpectedValues& expectedValues, Execu
       try {
         igaGrid = gridFactory.createGrid();
       } catch (Dune::GridError& e) {
-        t.load(std::memory_order_relaxed)->check(false) << "Grid Creation failed ...\n";    
+        t.load(std::memory_order_relaxed)->check(false) << "Grid Creation failed ...\n";
         return;
       }
-  	
+
       auto patchTrimData           = igaGrid->trimmer().patchTrimData();
       const auto tensorCoordinates = GeometryKernel::NURBSPatch{gridFactory.patchData_}.uniqueKnotVector();
       Dune::YaspGrid gridH{tensorCoordinates};
@@ -432,13 +430,13 @@ auto checkTrim(std::string filename, const ExpectedValues& expectedValues, Execu
 
       double comparePrecision = 0.1;
       t.load(std::memory_order_relaxed)
-              ->check(
-                  Dune::FloatCmp::eq(resTrimPatch.trimmingCurveTotalLength, expectedValues.trimmingCurveTotalLength, comparePrecision))
+              ->check(Dune::FloatCmp::eq(resTrimPatch.trimmingCurveTotalLength, expectedValues.trimmingCurveTotalLength,
+                                         comparePrecision))
           << "trimmingCurveTotalLength is " << resTrimPatch.trimmingCurveTotalLength << " but should be "
           << expectedValues.trimmingCurveTotalLength;
       t.load(std::memory_order_relaxed)
-              ->check(
-                  Dune::FloatCmp::eq(resTrimPatch.trimmingCurveCurvedLength, expectedValues.trimmingCurveCurvedLength, comparePrecision))
+              ->check(Dune::FloatCmp::eq(resTrimPatch.trimmingCurveCurvedLength,
+                                         expectedValues.trimmingCurveCurvedLength, comparePrecision))
           << "trimmingCurveCurvedLength is " << resTrimPatch.trimmingCurveCurvedLength << " but should be "
           << expectedValues.trimmingCurveCurvedLength;
       t.load(std::memory_order_relaxed)
@@ -481,22 +479,22 @@ int main(int argc, char** argv) try {
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
-/*
-  t.subTest(checkTrim("auxiliaryfiles/element_trim.ibra",
-                      ExpectedValues({.straightLength            = 2.63795970,
-                                      .trimmingCurveCurvedLength = 0.97649438,
-                                      .trimmingCurveTotalLength  = 3.61445407,
-                                      .firstLoopCurvesSize       = 5,
-                                      .notAffineCounter          = 1}),
-                      std::execution::seq));
-  t.subTest(checkTrim("auxiliaryfiles/element.ibra",
-                      ExpectedValues({.straightLength            = 4,
-                                      .trimmingCurveCurvedLength = 0,
-                                      .trimmingCurveTotalLength  = 4,
-                                      .firstLoopCurvesSize       = 4,
-                                      .notAffineCounter          = 0}),
-                      std::execution::seq));
-                      */
+  /*
+    t.subTest(checkTrim("auxiliaryfiles/element_trim.ibra",
+                        ExpectedValues({.straightLength            = 2.63795970,
+                                        .trimmingCurveCurvedLength = 0.97649438,
+                                        .trimmingCurveTotalLength  = 3.61445407,
+                                        .firstLoopCurvesSize       = 5,
+                                        .notAffineCounter          = 1}),
+                        std::execution::seq));
+    t.subTest(checkTrim("auxiliaryfiles/element.ibra",
+                        ExpectedValues({.straightLength            = 4,
+                                        .trimmingCurveCurvedLength = 0,
+                                        .trimmingCurveTotalLength  = 4,
+                                        .firstLoopCurvesSize       = 4,
+                                        .notAffineCounter          = 0}),
+                        std::execution::seq));
+                        */
   t.subTest(checkTrim("auxiliaryfiles/trim_2edges.ibra",
                       ExpectedValues({.straightLength            = 31.9472585,
                                       .trimmingCurveCurvedLength = 6.3246084,

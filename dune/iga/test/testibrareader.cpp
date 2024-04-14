@@ -13,9 +13,9 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
 #include <dune/iga/hierarchicpatch/patchgridfactory.hh>
+#include <dune/iga/io/griddrawer.hh>
 #include <dune/iga/patchgrid.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
-#include <dune/iga/io/griddrawer.hh>
 
 using namespace Dune::IGANEW;
 
@@ -46,7 +46,7 @@ auto testIbraReader() {
         gridFactory.insertJson(file_name, true, {i, j});
         try {
           auto grid = gridFactory.createGrid();
-          drawGrid(grid.get(), "out/" + name + + "_" + std::to_string(i) + "_" + std::to_string(j) + ".gif");
+          drawGrid(grid.get(), "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(j) + ".gif");
         } catch (Dune::GridError&) {
           t.check(false) << "Grid Creation failed ...\n";
         }
@@ -56,28 +56,28 @@ auto testIbraReader() {
   return t;
 }
 
-auto testIbraReader3d() {
-  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
-
-  using PatchGrid   = PatchGrid<2, 3, DefaultTrim::PatchGridFamily>;
-  using GridFactory = Dune::GridFactory<PatchGrid>;
-
-  auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{200});
-
-  const std::vector testCases{
-      std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
-  };
-
-  for (auto& [name, min, max] : testCases) {
-    for (int i = min; i <= max; i++) {
-      gridFactory.insertJson(name, true, {i, i});
-      gridFactory.createGrid();
-    }
-  }
-
-  return t;
-}
+// auto testIbraReader3d() {
+//   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+//
+//   using PatchGrid   = PatchGrid<2, 3, DefaultTrim::PatchGridFamily>;
+//   using GridFactory = Dune::GridFactory<PatchGrid>;
+//
+//   auto gridFactory = GridFactory();
+//   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{200});
+//
+//   const std::vector testCases{
+//       std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
+//   };
+//
+//   for (auto& [name, min, max] : testCases) {
+//     for (int i = min; i <= max; i++) {
+//       gridFactory.insertJson(name, true, {i, i});
+//       gridFactory.createGrid();
+//     }
+//   }
+//
+//   return t;
+// }
 
 int main(int argc, char** argv) try {
   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
@@ -87,9 +87,9 @@ int main(int argc, char** argv) try {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
   t.subTest(testIbraReader());
-  //t.subTest(testIbraReader3d());
+  // t.subTest(testIbraReader3d());
 
-  // auto success = t.report();
+  t.report();
 
   return t.exit();
 } catch (Dune::Exception& e) {

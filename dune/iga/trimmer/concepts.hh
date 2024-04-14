@@ -34,7 +34,7 @@ concept Trimmer =
       // T::ReferenceElementType>; Uncomment the line above when the referenceElement method is added to the
       // Trimmer concept.
 
-      { typename T::ElementTrimDataContainer() } -> std::convertible_to<typename T::ElementTrimDataContainer>;
+     // { typename T::ElementTrimDataContainer() } -> std::convertible_to<typename T::ElementTrimDataContainer>;
 
       // { trimmer.trimData(std::declval<const EntityType>(), std::declval<const GlobalIdSet>()) } ->
       // std::convertible_to<std::optional<std::reference_wrapper<const typename T::ElementTrimData>>>;

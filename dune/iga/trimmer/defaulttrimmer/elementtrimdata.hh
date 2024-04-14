@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 The Ikarus Developers mueller@ibb.uni-stuttgart.de
+// SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #pragma once
@@ -95,7 +95,9 @@ struct ElementTrimDataImpl
       auto figure = matplot::figure(true);
     matplot::hold("on");
 
-    matplot::text(eleGeometry.center()[0], eleGeometry.center()[1], std::to_string(edges_.size()))->font("Arial").font_size(18);
+    matplot::text(eleGeometry.center()[0], eleGeometry.center()[1], std::to_string(edges_.size()))
+        ->font("Arial")
+        .font_size(18);
 
     constexpr std::array idxLookUp = {0, 1, 3, 2};
 
@@ -122,7 +124,6 @@ struct ElementTrimDataImpl
       if (thin)
         return;
       matplot::text(x.front(), y.front(), "S")->font("Arial").color("blue").font_size(18);
-
     };
 
     for (auto c : edgeLookUp) {

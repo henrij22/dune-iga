@@ -13,12 +13,12 @@
 namespace Dune::IGANEW::DefaultTrim {
 
 template <int dim, int dimworld, typename ScalarType>
-auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const auto& element, const PatchTrimData& patchTrimData) {
-  // std::cout << "START " << std::endl;
+auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const HostEntity<0>& element, const PatchTrimData& patchTrimData) -> ElementTrimData {
   auto geo                             = element.geometry();
+
   static constexpr int numberOfCorners = 4;
   std::array<FieldVector<double, 2>, numberOfCorners> corners; // see dune book page 127 Figure 5.12
-  for (auto i : Dune::range(numberOfCorners))
+  for (const auto i : Dune::range(numberOfCorners))
     corners[i] = geo.corner(Util::vertexIndexMapping[i]);
 
   auto [flag, result] = Util::clipElementRectangle(element, patchTrimData);

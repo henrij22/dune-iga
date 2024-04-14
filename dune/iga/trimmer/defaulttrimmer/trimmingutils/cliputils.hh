@@ -37,7 +37,7 @@ constexpr std::array<std::array<int, 2>, 4> edgeLookUp{
     {2, 0}
 };
 constexpr std::array vertexIndexMapping = {0u, 1u, 3u, 2u};
-
+constexpr std::array edgeIndexMapping = {2u, 1u, 3u, 0u};
 auto isCornerVertex(const auto& pt, const auto& eleRect) -> std::pair<bool, ptrdiff_t> {
   auto it = std::ranges::find_if(eleRect, [&](const auto& vertex) {
     return FloatCmp::eq(vertex.x, pt.x, 1e-8) and FloatCmp::eq(vertex.y, pt.y, 1e-8);

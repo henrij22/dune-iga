@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
+// SPDX-License-Identifier: LGPL-2.1-or-later
 
 #pragma once
 
@@ -18,7 +20,7 @@ namespace IGANEW {
 
       // using TrimmingCurve= typename Trimmer::TrimmingCurve;
       using UntrimmedParameterSpaceGrid = typename Trimmer::UntrimmedParameterSpaceGrid;
-      // using HostIdType= typename Trimmer::HostIdType;
+
 
     public:
       //! constructor stores reference to a grid
@@ -29,6 +31,7 @@ namespace IGANEW {
 
       //! define the type used for persistent indices
       using IdType = typename Trimmer::TrimmerTraits::GlobalIdSetId;
+      using PersistentIndexType = typename Trimmer::TrimmerTraits::PersistentIndexType;
 
       //! get id of an entity
       /*
@@ -55,27 +58,11 @@ namespace IGANEW {
       /** @todo Should be private */
       void update() {}
 
-    public:
-      // using IndexVariant = IdType;
-
-      // auto getStableIndex(IdType thirdPartyIndex) -> IdType {
-      //   auto it = myIndexMapping.find(thirdPartyIndex);
-      //   if (it == myIndexMapping.end()) {
-      //     // If not found, generate a new index
-      //     IdType newIndex{myIndexMapping.size()};
-      //     myIndexMapping[thirdPartyIndex] = newIndex;
-      //     return myIndexMapping[thirdPartyIndex];
-      //   }
-      //   // If found, return the existing index
-      //   return it->second;
-      // };
-
-      IdType newFreeIndex() { return nextFreeIndex_++; }
-
-      // std::map<IdType, IdType> myIndexMapping;
-      IdType nextFreeIndex_;
-
-      // store
+      // \todo This has to be tested if this does the correct thing
+      PersistentIndexType newFreeIndex() {
+        return ++lastFreeIndex_;
+      }
+      PersistentIndexType lastFreeIndex_;
 
       const GridImp* grid_;
     };

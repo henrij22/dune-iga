@@ -46,13 +46,12 @@ struct std::hash<Dune::IGANEW::DefaultTrim::IdType<HostIdType>>
   std::size_t operator()(const Dune::IGANEW::DefaultTrim::IdType<HostIdType>& k) const {
     using std::hash;
 
-    // Compute individual hash values for first,
-    // second and third and combine them using XOR
+    // Compute individual hash values for first, second and third and combine them using XOR
     // and bit shifting:
 
-    return ((hash<HostIdType>()(k.id) ^
-             (hash<typename Dune::IGANEW::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1)) >>
-            1);
+    return (hash<HostIdType>()(k.id) ^
+            hash<typename Dune::IGANEW::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1) >>
+           1;
   }
 };
 
@@ -74,6 +73,7 @@ namespace DefaultTrim {
     };
     EntityIdType entityIdType{EntityIdType::host};
     HostIdType id{};
+    std::optional<HostIdType> hostId{};
 
     bool operator==(const IdType& other) const { return (entityIdType == other.entityIdType) and (id == other.id); }
 
@@ -130,36 +130,43 @@ namespace DefaultTrim {
       return true;
   }
 
-  template <typename HostIdType, int codim>
+  /**
+   *
+   * @tparam GridImpl The host grid implementation
+   * @tparam codim
+   */
+  template <typename GridImpl, int codim>
   struct EntityInfoImpl
   {
     static constexpr int codimension = codim;
-    struct Empty
-    {
-    };
-    int indexInLvlStorage;
-    int lvl;
+    using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
+    using EntitySeedType             = typename GridImpl::template Codim<codim>::Entity::EntitySeed;
+
+    int indexInLvlStorage{};
+    int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id;
+    EntitySeedType hostSeed{};
 
     auto stemsFromTrim() const { return stemFromTrim; }
   };
 
-  template <typename HostIdType>
-  struct EntityInfoImpl<HostIdType, 0>
+  template <typename GridImpl>
+  struct EntityInfoImpl<GridImpl, 0>
   {
     static constexpr int codimension = 0;
-    struct Empty
-    {
-    };
+    using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
+    using EntitySeedType             = typename GridImpl::template Codim<0>::Entity::EntitySeed;
+
     int indexInLvlStorage{-1};
     int unTrimmedIndexInLvl{-1};
     int trimmedIndexInLvl{-1};
-    int lvl;
-    IdType<HostIdType> id;
+    int lvl{};
+    bool stemFromTrim{false};
+    IdType<HostIdType> id{};
+    EntitySeedType hostSeed{};
 
-    // if the element id is new we know that we are trimmed
-    auto stemsFromTrim() const { return id.entityIdType == IdType<HostIdType>::EntityIdType::newId; }
+    auto stemsFromTrim() const { return stemFromTrim; }
 
     std::optional<IdType<HostIdType>> fatherId;
     ReservedVector<IdType<HostIdType>, 4> decendantIds;
@@ -175,29 +182,11 @@ namespace DefaultTrim {
     double trimPrecision = 1e-10; ///< Precision for trimming.
   };
 
-  // /**
-  //  * @brief ElementTrimData struct representing trim data for an element.
-  //  * @tparam mydim_ Dimension of the element.
-  //  * @tparam ScalarType Scalar type for the coordinates.
-  //  */
-  // template <int mydim_, typename ScalarType>
-  // struct ElementTrimDataImpl {};
-
-  /**
-   * @brief ElementTrimDataContainer struct representing a container for element trim data.
-   * @tparam ParameterSpaceGrid Type of the parameter space grid.
-   */
-  template <typename ParameterSpaceGrid>
-  struct ElementTrimDataContainerImpl
-  {
-  };
-
   /**
    * @brief PatchTrimData struct representing trim data for a patch.
    * @tparam dim Dimension of the patch.
    * @tparam ScalarType Scalar type for the coordinates.
    */
-
   template <int dim, int dimworld, typename ScalarType>
   class TrimmerImpl;
   template <int dim, int dimworld, typename ScalarType>
@@ -238,13 +227,15 @@ namespace DefaultTrim {
     struct TrimmerTraits
     {
       using ParameterType = Parameter; ///< Type for trimming parameters.
-      using ParameterSpaceGrid =
-          Dune::SubGrid<dim, YaspGrid<dim, TensorProductCoordinates<ScalarType, dim>>>; ///< Type of the Parametric grid
-      using HostIdType           = typename ParameterSpaceGrid::GlobalIdSet::IdType;
+      using YASPGridType = YaspGrid<dim, TensorProductCoordinates<ScalarType, dim>>;
+      using ParameterSpaceGrid = Dune::SubGrid<dim, YASPGridType>; ///< Type of the Parametric grid
+      using HostIdType = typename ParameterSpaceGrid::GlobalIdSet::IdType;
+      using PersistentIndexType = typename YASPGridType::PersistentIndexType;
+
       using GlobalIdSetId        = IdType<HostIdType>;
       using PatchTrimData        = PatchTrimDataImpl<const Grid>; ///< Patch trim data type.
       using TrimmingCurve        = GeometryKernel::NURBSPatch<dim - 1, dim, ctype>;
-      using ElementInfo          = EntityInfoImpl<HostIdType, 0>;
+      using ElementInfo          = EntityInfoImpl<ParameterSpaceGrid, 0>;
       using ReferenceElementType = TrimmedReferenceElement<2, const Grid>;
 
       using ElementTrimData = ElementTrimDataImpl<const Grid>; ///< Element trim data type.
@@ -252,7 +243,7 @@ namespace DefaultTrim {
       template <int codim>
       struct Codim
       {
-        using EntityInfo = EntityInfoImpl<HostIdType, codim>;
+        using EntityInfo = EntityInfoImpl<ParameterSpaceGrid, codim>;
         // This Geometry maps from the reference Element to knotspans
         using UntrimmedParameterSpaceGeometry = typename ParameterSpaceGrid::template Codim<codim>::Geometry;
         using TrimmedParameterSpaceGeometry =
@@ -271,8 +262,8 @@ namespace DefaultTrim {
         using EntityImp                    = PatchGridEntity<codim, dim, const Grid>;
         using EntitySeedImpl               = PatchGridEntitySeed<codim, const Grid>;
         using HostParameterSpaceGridEntity = typename ParameterSpaceGrid::Traits::template Codim<codim>::Entity;
-        using UnTrimmedHostParameterSpaceGridEntity =
-            typename ParameterSpaceGrid::Traits::template Codim<codim>::Entity;
+        // using UnTrimmedHostParameterSpaceGridEntity =
+        //     typename ParameterSpaceGrid::Traits::template Codim<codim>::Entity;
       };
 
       using HostLeafIntersection                   = typename ParameterSpaceGrid::Traits::LeafIntersection;
@@ -359,6 +350,9 @@ namespace DefaultTrim {
     template <int cd>
     using EntityInfo = typename GridFamily::TrimmerTraits::template Codim<cd>::EntityInfo;
 
+    template <int cd>
+    using HostEntity = typename GridFamily::TrimmerTraits::template Codim<cd>::HostParameterSpaceGridEntity;
+
     static constexpr int mydimension    = GridImp::dimension;      ///< Dimension of the patch.
     static constexpr int dimensionworld = GridImp::dimensionworld; ///< Dimension of the world.
     using ctype                         = ScalarType;
@@ -433,8 +427,6 @@ namespace DefaultTrim {
     using ElementTrimData = typename GridFamily::TrimmerTraits::ElementTrimData; ///< Element trim data type.
     using PatchTrimData   = typename GridFamily::TrimmerTraits::PatchTrimData;   ///< Patch trim data type.
     using TrimmingCurve   = typename GridFamily::TrimmerTraits::TrimmingCurve;   ///< Patch trim data type.
-    using ElementTrimDataContainer =
-        ElementTrimDataContainerImpl<ParameterSpaceGrid>; ///< Container for element trim data.
 
     using EntityContainer = VectorEntityContainer<GridImp>;
     template <int codim, PartitionIteratorType pitype>
@@ -451,9 +443,8 @@ namespace DefaultTrim {
 
     using ParameterType = Parameter; ///< Type for trimming parameters.
 
-    // \todo replace auto with typename GridFamily::TrimmerTraits::template
-    // Codim<0>::UnTrimmedHostParameterSpaceGridEntity
-    static auto trimElement(const auto& element, const PatchTrimData& patchTrimData);
+    using GlobalIdType = typename GridFamily::TrimmerTraits::GlobalIdSetId;
+
 
     /**
      * @brief Get the reference element for a given entity.
@@ -470,9 +461,6 @@ namespace DefaultTrim {
 
     /**
      * @brief Create the parameter space grid based on the patch and trim data.
-     * @tparam dimworld Dimension of the world.
-     * @param patchData NURBS patch data.
-     * @param trimData Optional patch trim data.
      */
     void createParameterSpaceGrid() {
       untrimmedParameterSpaceGrid_ =
@@ -485,8 +473,7 @@ namespace DefaultTrim {
 
     /**
      * @brief Constructor for Trimmer with patch and trim data.
-     * @tparam dimworld Dimension of the world.
-     * @param patch NURBS patch data.
+     * @param grid patch grid
      * @param trimData Optional patch trim data.
      */
     TrimmerImpl(GridImp& grid, const std::optional<PatchTrimData>& trimData, const ParameterType& par = {})
@@ -539,7 +526,7 @@ namespace DefaultTrim {
 
     /**
      * @brief Refine the grid globally.
-     * @param ref Number of refinement levels.
+     * @param refCount Number of refinement levels.
      */
     void globalRefine(int refCount) {
       if (refCount == 0)
@@ -561,7 +548,7 @@ namespace DefaultTrim {
     std::vector<ElementTrimData> trimElements(std::optional<int> level_ = std::nullopt) const {
       int level = level_.value_or(maxLevel());
       std::vector<ElementTrimData> elementTrimDatas;
-      auto gv  = parameterSpaceGrid_->levelGridView(level);
+      auto gv = parameterSpaceGrid_->levelGridView(level);
       for (const auto& ele : elements(gv)) {
         if (trimData_.has_value())
           elementTrimDatas.push_back(trimElement(ele, trimData_.value()));
@@ -571,8 +558,6 @@ namespace DefaultTrim {
       return elementTrimDatas;
     }
 
-  protected:
-  protected:
     //! compute the grid indices and ids
     void update(GridImp* grid) {
       grid_ = grid;
@@ -595,9 +580,17 @@ namespace DefaultTrim {
       leafIndexSet_->update(*grid_);
     }
 
-    // void createLevel(GridImp& grid, int lvl);
-
     void refineParameterSpaceGrid(int refCount, bool initFlag = false);
+
+    // The following are helper methods for `refineParameterSpaceGrid`
+    static ElementTrimData trimElement(const HostEntity<0>& element, const PatchTrimData& patchTrimData);
+
+
+    GlobalIdType makeElementID(const HostEntity<0>& ele);
+    void createAndSaveElementInfo(const std::tuple<int, int, int>& indices, const HostEntity<0>& ele, bool trimmed);
+
+    void collectElementEdges(int level, const HostEntity<0>& ele,  const ElementTrimData& trimData);
+    void collectElementVertices(int level, const HostEntity<0>& ele,  const ElementTrimData& trimData);
 
     /** @brief Return maximum level defined in this grid.
      *
@@ -610,13 +603,10 @@ namespace DefaultTrim {
     //! Our set of level indices
     std::vector<std::unique_ptr<typename GridFamily::LevelIndexSet>> levelIndexSets_;
 
-    //! @todo Please doc me !
     std::unique_ptr<LeafIndexSet> leafIndexSet_;
 
-    //! @todo Please doc me !
     std::unique_ptr<GlobalIdSet> globalIdSet_;
 
-    //! @todo Please doc me !
     std::unique_ptr<LocalIdSet> localIdSet_;
 
     std::unique_ptr<ParameterSpaceGrid> parameterSpaceGrid_; ///< The parameter space grid.
@@ -632,4 +622,5 @@ namespace DefaultTrim {
 } // namespace Dune::IGANEW
 
 #include "createlevel.hh"
+#include "createentities.hh"
 #include "trimelement.hh"

@@ -114,9 +114,9 @@ namespace IGANEW {
         else
           return hostEntity_;
       }
+      EntityInfo entityInfo_;
 
     private:
-      EntityInfo entityInfo_;
       struct Empty
       {
       };

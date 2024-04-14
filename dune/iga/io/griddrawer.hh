@@ -7,19 +7,18 @@
 
 namespace Dune::IGANEW {
 
-  template <typename PatchGrid>
-  void drawGrid(PatchGrid* grid, std::string&& file_name) {
-    const typename PatchGrid::Trimmer& trimmer = grid->trimmer();
-    auto eleTrimDatas = trimmer.trimElements();
+template <typename PatchGrid>
+void drawGrid(PatchGrid* grid, std::string&& file_name) {
+  const typename PatchGrid::Trimmer& trimmer = grid->trimmer();
+  auto eleTrimDatas                          = trimmer.trimElements();
 
-    auto figure = matplot::figure(true);
-    figure->size(1000, 1000);
+  auto figure = matplot::figure(true);
+  figure->size(1000, 1000);
 
+  for (auto& eleTrimData : eleTrimDatas)
+    eleTrimData.drawResult("resName", false, false);
 
-    for (auto& eleTrimData : eleTrimDatas)
-      eleTrimData.drawResult("resName", false, false);
-
-    matplot::save(file_name, "gif");
-  }
-
+  matplot::save(file_name, "gif");
 }
+
+} // namespace Dune::IGANEW
