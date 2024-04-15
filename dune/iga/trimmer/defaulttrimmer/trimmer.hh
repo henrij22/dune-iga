@@ -142,7 +142,7 @@ namespace DefaultTrim {
     using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
     using EntitySeedType             = typename GridImpl::template Codim<codim>::Entity::EntitySeed;
 
-    int indexInLvlStorage{};
+    unsigned int indexInLvlStorage{};
     int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id;
@@ -158,9 +158,9 @@ namespace DefaultTrim {
     using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
     using EntitySeedType             = typename GridImpl::template Codim<0>::Entity::EntitySeed;
 
-    int indexInLvlStorage{-1};
-    int unTrimmedIndexInLvl{-1};
-    int trimmedIndexInLvl{-1};
+    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::infinity()};
+    unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::infinity()};
+    unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::infinity()};
     int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id{};
@@ -587,10 +587,13 @@ namespace DefaultTrim {
 
 
     GlobalIdType makeElementID(const HostEntity<0>& ele);
-    void createAndSaveElementInfo(const std::tuple<int, int, int>& indices, const HostEntity<0>& ele, bool trimmed);
+    void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele, bool trimmed);
 
-    void collectElementEdges(int level, const HostEntity<0>& ele,  const ElementTrimData& trimData);
-    void collectElementVertices(int level, const HostEntity<0>& ele,  const ElementTrimData& trimData);
+    void collectElementEdges(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
+    void collectElementVertices(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
+    void createSubEntities(int level);
+
+    GlobalIdType idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge);
 
     /** @brief Return maximum level defined in this grid.
      *

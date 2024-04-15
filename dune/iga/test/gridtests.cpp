@@ -61,6 +61,33 @@ auto checkUniqueEdges(const auto& gridView) {
   }
 }
 
+template <typename GridView> requires (GridView::dimension == 2)
+auto checkUniqueVertices(const GridView& gridView)  {
+  Dune::TestSuite t;
+
+  constexpr int gridDimensionworld = GridView::dimensionworld;
+  constexpr int gridDimension      = GridView::dimension;
+
+  std::set<std::array<FieldVector<double, gridDimensionworld>, 1>, Compare<double, gridDimensionworld, 1>>
+      elementVertexPairSet;
+  for (int eleIndex = 0; auto&& element : elements(gridView)) {
+    elementVertexPairSet.clear();
+    for (auto vertexIdx : Dune::range(element.subEntities(gridDimension))) {
+      auto vertex = element.template subEntity<gridDimension>(vertexIdx);
+
+      std::array<FieldVector<double, gridDimensionworld>, 1> pair;
+      for (auto c : Dune::range(vertex.geometry().corners()))
+        pair[c] = vertex.geometry().corner(c);
+
+      bool inserted = elementVertexPairSet.insert(pair).second;
+      t.require(inserted) << "Duplicate vertex detected in Element " << eleIndex << " Vertex: " << pair[0];
+    }
+    ++eleIndex;
+  }
+  return t;
+
+}
+
 auto checkUniqueSurfaces(const auto& gridView) {
   TestSuite t;
 
@@ -95,8 +122,13 @@ auto thoroughGridCheck(auto& grid) {
   auto gvTest                 = [&](auto&& gv) {
     TestSuite tl;
 
+    using GV = std::remove_cvref_t<decltype(gv)>;
+
     tl.subTest(checkUniqueEdges(gv));
     tl.subTest(checkUniqueSurfaces(gv));
+
+    if constexpr (GV::dimension == 2)
+      tl.subTest(checkUniqueVertices(gv));
 
     auto extractGeo = std::views::transform([](const auto& ent) { return ent.geometry(); });
     for (auto&& elegeo : elements(gv) | extractGeo)
@@ -119,13 +151,13 @@ auto thoroughGridCheck(auto& grid) {
   };
 
   for (int lvl = 0; lvl <= grid.maxLevel(); ++lvl) {
-    auto gridView = grid.levelGridView(lvl);
-    t.subTest(gvTest(gridView));
+    t.subTest(gvTest(grid.levelGridView(lvl)));
   }
   t.subTest(gvTest(grid.leafGridView()));
 
+  gridcheck(grid);
+
   try {
-    gridcheck(grid);
     checkIntersectionIterator(grid);
     checkLeafIntersections(grid);
   } catch (const Dune::NotImplemented& e) {
@@ -865,7 +897,7 @@ auto testPlate() {
 template <template <int, int, typename> typename GridFamily>
 auto testGrids() {
   TestSuite t("testGrids");
-/*
+
   // if constexpr (requires { testHierarchicPatch<GridFamily>(); }) {
   std::cout << "testHierarchicPatch" << std::endl;
   t.subTest(testHierarchicPatch<GridFamily>());
@@ -895,7 +927,7 @@ auto testGrids() {
   // } else
   // std::cout << "testNURBSGridSurface Test disabled" << std::endl;
   // if constexpr (requires { testPlate<GridFamily>(); }) {
-  */
+
   std::cout << "testPlate==============================================" << std::endl;
   t.subTest(testPlate<GridFamily>());
   std::cout << "testPlateEND==============================================" << std::endl;

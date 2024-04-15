@@ -10,17 +10,13 @@ namespace Dune::IGANEW::DefaultTrim {
 template <int dim, int dimworld, typename ScalarType>
 void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCount, bool initFlag) {
 
-  using EdgeHostType           = typename UntrimmedParameterSpaceGrid::template Codim<1>::Entity;
-  using EdgeGridType           = typename GridImp::template Codim<1>::Entity;
-  using EleGridType            = typename GridImp::template Codim<0>::Entity;
-  using EdgeParameterSpaceType = typename TrimmerTraits::template Codim<1>::ParameterSpaceGridEntity;
-  using EleParameterSpaceType  = typename TrimmerTraits::template Codim<2>::ParameterSpaceGridEntity;
   const int oldLevel           = untrimmedParameterSpaceGrid_->maxLevel();
   untrimmedParameterSpaceGrid_->globalRefine(refCount);
   auto gvu = untrimmedParameterSpaceGrid_->leafGridView();
   parameterSpaceGrid_->createBegin();
   parameterSpaceGrid_->insertLeaf();
   parameterSpaceGrid_->createEnd();
+
   assert((initFlag and oldLevel == 0 and refCount == 0) or
          !initFlag && "If we initialize the grid, the untrimmedParameterSpaceGrid_ should only have one level");
   // if we init we start at 0 otherwise at 1
@@ -29,21 +25,17 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
     const int newLevel = oldLevel + i;
     entityContainer_.entityImps_.emplace_back();
     auto& entityContainer  = entityContainer_;
-    // auto& elementContainer = std::get<0>(entityContainer_.entityImps_.back());
-    // auto& edgeContainer    = std::get<1>(entityContainer_.entityImps_.back());
-    // auto& vertexContainer  = std::get<2>(entityContainer_.entityImps_.back());
 
     auto gv                         = parameterSpaceGrid_->levelGridView(newLevel);
     auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
-    int unTrimmedElementIndex       = 0;
-    int trimmedElementIndex         = 0;
+    unsigned int unTrimmedElementIndex       = 0;
+    unsigned int trimmedElementIndex         = 0;
 
     auto indices = [&]() { return std::make_tuple(unTrimmedElementIndex, trimmedElementIndex, newLevel); };
 
     auto& indexSet              = gv.indexSet();
     const auto elementTrimDatas = trimElements(newLevel);
 
-    // Add a new level for vertices
     entityContainer.idToVertexInfoMap.emplace_back();
 
     for (const auto& ele : elements(gv)) {
@@ -76,6 +68,8 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
     entityContainer.numberOfTrimmedElements.push_back(trimmedElementIndex);
     entityContainer.numberOfUnTrimmedElements.push_back(unTrimmedElementIndex);
 
+    // Add a new level for vertices
+    createSubEntities(newLevel);
   }
 }
 } // namespace Dune::IGANEW::DefaultTrim

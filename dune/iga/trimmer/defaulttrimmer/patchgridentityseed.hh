@@ -55,13 +55,13 @@ public:
   /**
    * @brief Check whether it is safe to create an Entity from this Seed
    */
-  bool isValid() const { return indexInLvlStorage_ != -1; }
+  bool isValid() const { return indexInLvlStorage_ != std::numeric_limits<unsigned int>::max(); }
 
 private:
   auto data() const { return std::make_pair(lvl_, indexInLvlStorage_); }
 
-  int lvl_;
-  int indexInLvlStorage_{-1};
+  int lvl_{};
+  unsigned int indexInLvlStorage_{std::numeric_limits<unsigned int>::max()};
 };
 
 } // namespace Dune::IGANEW::DefaultTrim

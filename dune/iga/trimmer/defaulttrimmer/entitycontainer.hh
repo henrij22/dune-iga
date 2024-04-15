@@ -171,6 +171,23 @@ struct VectorEntityContainer
     return 0;
   }
 
+
+  std::size_t sizeOfInfos(int codim, int lvl) const {
+    if (codim == 2)
+      return idToVertexInfoMap[lvl].size();
+
+    auto count = [=](auto&& range) -> std::size_t {
+      return std::ranges::count_if(range, [=](const auto& entityInfoPair) {
+        return entityInfoPair.second.lvl == lvl;
+      });
+    };
+    if (codim == 0)
+      return count(idToElementInfoMap);
+    if (codim == 1)
+      return count(idToEdgeInfoMap);
+    __builtin_unreachable();
+  }
+
   // The vector type for tuple of lists of vertices, edges, elements for each level
   using EntityImps = std::decay_t<decltype(makeEntityImps_())>;
 

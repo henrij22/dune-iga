@@ -15,7 +15,20 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::makeElementID(const HostEntity<0>& 
 }
 
 template <int dim, int dimworld, typename ScalarType>
-void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(const std::tuple<int, int, int>& indices,
+auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge) -> GlobalIdType {
+  auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
+
+  // We have to check weather the edgeId is already there
+
+  GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId,
+                         .id           = globalIdSet_->newFreeIndex(),
+                         .hostId       = std::make_optional(hostEdgeId)};
+
+  return edgeId;
+}
+
+template <int dim, int dimworld, typename ScalarType>
+void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices,
                                                                       const HostEntity<0>& ele, bool trimmed) {
   auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
 
@@ -25,8 +38,8 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(const std:
 
   GlobalIdType elementId = makeElementID(ele);
 
-  const int unTrimmedElementIndex = std::get<0>(indices);
-  const int trimmedElementIndex   = std::get<1>(indices);
+  const unsigned int unTrimmedElementIndex = std::get<0>(indices);
+  const unsigned int trimmedElementIndex   = std::get<1>(indices);
   const int newLevel              = std::get<2>(indices);
   EntityInfo<0> elementInfo       = {
             .indexInLvlStorage   = trimmedElementIndex + unTrimmedElementIndex,
@@ -68,14 +81,13 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
       return;
 
     auto edge = ele.template subEntity<1>(localEdgeIndex);
-    EntityInfo<1> edgeInfo{.indexInLvlStorage = indexSet.index(edge), .lvl = level, .stemFromTrim = false, .id = edgeId};
+    EntityInfo<1> edgeInfo{
+      .indexInLvlStorage = indexSet.index(edge), .lvl = level, .stemFromTrim = false, .id = edgeId, .hostSeed = edge.seed()};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
-
-    auto& edgeContainer    = std::get<1>(entityContainer_.entityImps_.back());
-    edgeContainer.emplace_back(grid_, edge, edgeInfo);
 
     // store vertex ids of edges, for subIndex method of indexSet
     auto& edgeVertexIndices = entityContainer_.globalVertexIdOfEdgesMap_[edgeId];
+
     if (edgeVertexIndices.size() < 2) {
       const auto& cube = ReferenceElements<ctype, mydimension>::cube();
       for (auto vertexLocalIndexWRTElement : cube.subEntities(localEdgeIndex, 1, 2)) {
@@ -89,13 +101,15 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
   auto addTrimmedHostEdge = [&](int localEdgeIndex, const typename ElementTrimData::EdgeInfo& edgeOfTrimmedElement) {
     // To get neighborhoud information we save the original hostId
     auto hostEdgeId = globalIdSetParameterSpace.subId(ele, localEdgeIndex, 1);
+    GlobalIdType edgeId = idForTrimmedHostEdge(hostEdgeId, edgeOfTrimmedElement);
 
     // \todo We have to somehow check if this edge is already present in the idSet
     // Check for hostId, then for coordinates
+    // We have to get a unique .id
 
-    GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId,
-                           .id           = globalIdSet_->newFreeIndex(),
-                           .hostId       = std::make_optional(hostEdgeId)};
+    // GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId,
+    //                        .id           = globalIdSet_->newFreeIndex(),
+    //                        .hostId       = std::make_optional(hostEdgeId)};
 
   };
 
@@ -128,26 +142,50 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
   auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
 
   if (eleTrimData.flag() == ElementTrimFlag::full) {
-    for (int localVertexId = 0; localVertexId < ele.subEntities(2); ++localVertexId) {
-      // setup all vertex indices for given element
-      auto hostVertexId = globalIdSetParameterSpace.subId(ele, localVertexId, 2);
-      IdType vertexId   = {.entityIdType = GlobalIdType::EntityIdType::host, .id = hostVertexId};
+    // Save eleVertices in local order
+    for (auto localVertexIndex : Dune::range(ele.subEntities(2))) {
+      auto hostVertexId = globalIdSetParameterSpace.subId(ele, localVertexIndex, 2);
+      GlobalIdType vertexId   = {.entityIdType = GlobalIdType::EntityIdType::host, .id = hostVertexId};
       elementVertexIndices.emplace_back(vertexId);
 
-      if (entityContainer_.idToVertexInfoMap.back().contains(vertexId))
-        continue;
-
-      auto vertex = ele.template subEntity<2>(localVertexId);
+      auto vertex = ele.template subEntity<2>(localVertexIndex);
       EntityInfo<2> vertexInfo{
-        .indexInLvlStorage = indexSet.index(vertex), .lvl = level, .stemFromTrim = false, .id = vertexId};
+        .indexInLvlStorage = indexSet.index(vertex), .lvl = level, .stemFromTrim = false, .id = vertexId, .hostSeed = vertex.seed()};
       entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
-
-      auto& vertexContainer  = std::get<2>(entityContainer_.entityImps_.back());
-      vertexContainer.emplace_back(grid_, vertex, vertexInfo);
     }
+
   } else /* trimmed */ {
 
   }
 }
 
+template <int dim, int dimworld, typename ScalarType>
+void TrimmerImpl<dim, dimworld, ScalarType>::createSubEntities(int level) {
+  using EdgeEntity = typename TrimmerTraits::template Codim<1>::ParameterSpaceGridEntity;
+  using VertexEntity = typename TrimmerTraits::template Codim<2>::ParameterSpaceGridEntity;
+
+  auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
+  auto& indexSet = parameterSpaceGrid_->levelGridView(level).indexSet();
+  auto& vertexMap = entityContainer_.idToVertexInfoMap.back();
+  auto& edgeMap = entityContainer_.idToEdgeInfoMap;
+
+  // we are resizing the containers, so we can add the entities in the indexSet order, the index is obtained from
+  // the infos (also this is a bit more efficient as pushing back all the time)
+
+  auto& vertexContainer  = std::get<2>(entityContainer_.entityImps_.back());
+  vertexContainer.resize(vertexMap.size());
+  for (auto& [vertexId, vertexInfo] : vertexMap) {
+    auto vertex = parameterSpaceGrid_->entity(vertexInfo.hostSeed);
+    vertexContainer[vertexInfo.indexInLvlStorage] = VertexEntity{grid_, vertex, vertexInfo};
+  }
+
+  auto& edgeContainer    = std::get<1>(entityContainer_.entityImps_.back());
+  edgeContainer.resize(entityContainer_.sizeOfInfos(1, level));
+  for (auto& [edgeId, edgeInfo] : edgeMap) {
+    if (edgeInfo.lvl != level)
+      continue;
+    auto edge = parameterSpaceGrid_->entity(edgeInfo.hostSeed);
+    edgeContainer[edgeInfo.indexInLvlStorage] = EdgeEntity{grid_, edge, edgeInfo};
+  }
+}
 } // namespace Dune::IGANEW::DefaultTrim
