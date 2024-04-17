@@ -3,7 +3,7 @@
 
 #pragma once
 #include <map>
-
+#include <set>
 #include <dune/common/reservedvector.hh>
 namespace Dune::IGANEW::DefaultTrim {
 template <typename GridImp>
@@ -215,5 +215,8 @@ struct VectorEntityContainer
   // store information to know what geometry types we have to return.
   std::vector<int> numberOfTrimmedElements{};
   std::vector<int> numberOfUnTrimmedElements{};
+
+  // We store trimmed vertexIds for each level
+  std::vector<std::set<IdType>> trimmedVertexIds_;
 };
 } // namespace Dune::IGANEW::DefaultTrim

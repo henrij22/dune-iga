@@ -132,15 +132,16 @@ namespace DefaultTrim {
 
   /**
    *
-   * @tparam GridImpl The host grid implementation
+   * @tparam Traits The trimmer traits
    * @tparam codim
    */
-  template <typename GridImpl, int codim>
+  template <typename Traits, int codim>
   struct EntityInfoImpl
   {
     static constexpr int codimension = codim;
-    using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
-    using EntitySeedType             = typename GridImpl::template Codim<codim>::Entity::EntitySeed;
+    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
+    using EntitySeedType             = typename Traits::ParameterSpaceGrid::template Codim<codim>::Entity::EntitySeed;
+    using TrimmedEntityGeometry      = typename Traits::template Codim<codim>::TrimmedParameterSpaceGeometry::PatchGeometry;
 
     unsigned int indexInLvlStorage{};
     int lvl{};
@@ -148,15 +149,23 @@ namespace DefaultTrim {
     IdType<HostIdType> id;
     EntitySeedType hostSeed{};
 
+    struct GeometryMap
+    {
+      unsigned int indexOfInsideElementinLvl;
+      TrimmedEntityGeometry geometry;
+    };
+
+    std::vector<GeometryMap> trimmedEntityGeometries{};
+
     auto stemsFromTrim() const { return stemFromTrim; }
   };
 
-  template <typename GridImpl>
-  struct EntityInfoImpl<GridImpl, 0>
+  template <typename Traits>
+  struct EntityInfoImpl<Traits, 0>
   {
     static constexpr int codimension = 0;
-    using HostIdType                 = typename GridImpl::GlobalIdSet::IdType;
-    using EntitySeedType             = typename GridImpl::template Codim<0>::Entity::EntitySeed;
+    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
+    using EntitySeedType             = typename Traits::ParameterSpaceGrid::template Codim<0>::Entity::EntitySeed;
 
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::infinity()};
     unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::infinity()};
@@ -235,7 +244,7 @@ namespace DefaultTrim {
       using GlobalIdSetId        = IdType<HostIdType>;
       using PatchTrimData        = PatchTrimDataImpl<const Grid>; ///< Patch trim data type.
       using TrimmingCurve        = GeometryKernel::NURBSPatch<dim - 1, dim, ctype>;
-      using ElementInfo          = EntityInfoImpl<ParameterSpaceGrid, 0>;
+      using ElementInfo          = EntityInfoImpl<TrimmerTraits, 0>;
       using ReferenceElementType = TrimmedReferenceElement<2, const Grid>;
 
       using ElementTrimData = ElementTrimDataImpl<const Grid>; ///< Element trim data type.
@@ -243,7 +252,7 @@ namespace DefaultTrim {
       template <int codim>
       struct Codim
       {
-        using EntityInfo = EntityInfoImpl<ParameterSpaceGrid, codim>;
+        using EntityInfo = EntityInfoImpl<TrimmerTraits, codim>;
         // This Geometry maps from the reference Element to knotspans
         using UntrimmedParameterSpaceGeometry = typename ParameterSpaceGrid::template Codim<codim>::Geometry;
         using TrimmedParameterSpaceGeometry =
@@ -551,7 +560,7 @@ namespace DefaultTrim {
       auto gv = parameterSpaceGrid_->levelGridView(level);
       for (const auto& ele : elements(gv)) {
         if (trimData_.has_value())
-          elementTrimDatas.push_back(trimElement(ele, trimData_.value()));
+          elementTrimDatas.emplace_back(trimElement(ele, trimData_.value()));
         else
           elementTrimDatas.emplace_back(ElementTrimFlag::full, ele);
       }
@@ -592,8 +601,8 @@ namespace DefaultTrim {
     void collectElementEdges(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
     void collectElementVertices(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
     void createSubEntities(int level);
-
     GlobalIdType idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge);
+    GlobalIdType idForTrimmedVertex(const typename ElementTrimData::VertexInfo& vertex);
 
     /** @brief Return maximum level defined in this grid.
      *

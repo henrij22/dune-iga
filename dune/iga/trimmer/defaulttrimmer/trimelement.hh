@@ -180,6 +180,6 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const HostEntity<0>& el
     }
   }
   elementTrimData.finalize();
-  return elementTrimData;
+  return std::move(elementTrimData);
 }
 } // namespace Dune::IGANEW::DefaultTrim

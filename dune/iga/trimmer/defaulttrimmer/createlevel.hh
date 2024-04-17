@@ -37,9 +37,10 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
     const auto elementTrimDatas = trimElements(newLevel);
 
     entityContainer.idToVertexInfoMap.emplace_back();
+    entityContainer_.trimmedVertexIds_.emplace_back();
 
     for (const auto& ele : elements(gv)) {
-      const ElementTrimData eleTrimData = elementTrimDatas[indexSet.index(ele)];
+      const ElementTrimData& eleTrimData = elementTrimDatas[indexSet.index(ele)];
       const ElementTrimFlag eleTrimFlag = eleTrimData.flag();
 
       // For now we are exiting if ele is empty

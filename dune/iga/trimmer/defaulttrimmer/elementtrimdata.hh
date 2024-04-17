@@ -36,6 +36,12 @@ struct ElementTrimDataImpl
 
   using Vertex = FieldVector<ctype, dim>;
 
+  enum class TrimmedHostEdgeDirection
+  {
+    HostNew, NewHost
+  };
+
+
   struct VertexInfo
   {
     bool isHost;
@@ -56,6 +62,11 @@ struct ElementTrimDataImpl
   explicit ElementTrimDataImpl(auto flag, const HostEntity& hostEntity)
       : flag_(flag),
         hostEntity_(hostEntity) {}
+
+  // Delete default and copy constructor
+  // ElementTrimDataImpl() = delete;
+  // ElementTrimDataImpl(const ElementTrimDataImpl& other) = delete;
+  // ElementTrimDataImpl& operator=(const ElementTrimDataImpl& other) = delete;
 
   void addEdge(int idx) {
     edges_.emplace_back(EdgeInfo{.isHost = true, .isTrimmed = false, .idx = idx});
@@ -231,7 +242,7 @@ private:
   ElementTrimFlag flag_;
   HostEntity hostEntity_;
   std::vector<VertexInfo> vertices_{};
-  std::vector<EdgeInfo> edges_;
+  std::vector<EdgeInfo> edges_{};
   Clipper2Lib::PathD path_;
 
   int newVertexCounter_ = 4;

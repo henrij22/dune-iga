@@ -4,6 +4,7 @@
 
 set(TESTS
         gridtests
+        gridteststrimmed
         testbsplines
         testnurbsbasis
         factorytest
