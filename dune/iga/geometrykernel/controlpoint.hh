@@ -3,6 +3,7 @@
 
 #pragma once
 #include <dune/iga/hierarchicpatch/concepts.hh>
+
 namespace Dune::IGANEW {
 
 /**

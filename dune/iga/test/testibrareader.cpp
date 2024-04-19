@@ -80,7 +80,7 @@ auto testIbraReader() {
 // }
 
 int main(int argc, char** argv) try {
-  feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+  //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
 
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);

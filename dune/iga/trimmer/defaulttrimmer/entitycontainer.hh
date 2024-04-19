@@ -217,6 +217,10 @@ struct VectorEntityContainer
   std::vector<int> numberOfUnTrimmedElements{};
 
   // We store trimmed vertexIds for each level
-  std::vector<std::set<IdType>> trimmedVertexIds_;
+  std::vector<std::map<IdType, FieldVector<double, 2>>> trimmedVertexIds_;
+  // Store current amound of vertices and edges (untrimmed configuration + n) per lvl
+  std::vector<unsigned int> edgeCount;
+  std::vector<unsigned int> vertexCount;
+
 };
 } // namespace Dune::IGANEW::DefaultTrim

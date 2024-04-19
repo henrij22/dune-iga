@@ -12,7 +12,7 @@ namespace Dune::IGANEW {
  * @brief Struct that holds all data regarding the NURBS geometric structure
  *
  * @tparam dim Dimension of the patch
- * @tparam dimworld Dimension of the control point coordinates, i.e., where the patch lives in
+ * @tparam dimworld_ Dimension of the control point coordinates, i.e., where the patch lives in
  * @tparam ScalarType The type for the functions values and arguments, defaults to double
  */
 template <int dim, int dimworld_, typename ScalarType = double>

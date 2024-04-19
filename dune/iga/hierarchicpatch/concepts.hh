@@ -4,7 +4,7 @@
 #pragma once
 
 #include <dune/grid/concepts/geometry.hh>
-#include <dune/iga/geometrykernel/geohelper.hh>
+// #include <dune/iga/geometrykernel/geohelper.hh>
 
 namespace Dune::IGANEW::Concept {
 

@@ -138,12 +138,42 @@ namespace DefaultTrim {
   template <typename Traits, int codim>
   struct EntityInfoImpl
   {
-    static constexpr int codimension = codim;
-    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
-    using EntitySeedType             = typename Traits::ParameterSpaceGrid::template Codim<codim>::Entity::EntitySeed;
-    using TrimmedEntityGeometry      = typename Traits::template Codim<codim>::TrimmedParameterSpaceGeometry::PatchGeometry;
+  };
 
-    unsigned int indexInLvlStorage{};
+  template <typename Traits>
+  struct EntityInfoImpl<Traits, 2>
+  {
+    static constexpr int codimension = 2;
+    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
+    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
+    // using TrimmedEntityGeometry =
+    //     typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
+
+    using TrimInfo = typename Traits::ElementTrimData::VertexInfo;
+
+    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
+    int lvl{};
+    bool stemFromTrim{false};
+    IdType<HostIdType> id;
+    EntitySeedType hostSeed{};
+
+    std::optional<TrimInfo> trimInfo{};
+
+    auto stemsFromTrim() const { return stemFromTrim; }
+  };
+
+  template <typename Traits>
+  struct EntityInfoImpl<Traits, 1>
+  {
+    static constexpr int codimension = 1;
+    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
+    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
+    using TrimmedEntityGeometry =
+        typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
+
+    using TrimInfo = typename Traits::ElementTrimData::EdgeInfo;
+
+    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id;
@@ -156,6 +186,7 @@ namespace DefaultTrim {
     };
 
     std::vector<GeometryMap> trimmedEntityGeometries{};
+    std::optional<TrimInfo> trimInfo{};
 
     auto stemsFromTrim() const { return stemFromTrim; }
   };
@@ -165,11 +196,11 @@ namespace DefaultTrim {
   {
     static constexpr int codimension = 0;
     using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
-    using EntitySeedType             = typename Traits::ParameterSpaceGrid::template Codim<0>::Entity::EntitySeed;
+    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
 
-    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::infinity()};
-    unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::infinity()};
-    unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::infinity()};
+    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
+    unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
+    unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
     int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id{};
@@ -235,10 +266,10 @@ namespace DefaultTrim {
 
     struct TrimmerTraits
     {
-      using ParameterType = Parameter; ///< Type for trimming parameters.
-      using YASPGridType = YaspGrid<dim, TensorProductCoordinates<ScalarType, dim>>;
-      using ParameterSpaceGrid = Dune::SubGrid<dim, YASPGridType>; ///< Type of the Parametric grid
-      using HostIdType = typename ParameterSpaceGrid::GlobalIdSet::IdType;
+      using ParameterType       = Parameter; ///< Type for trimming parameters.
+      using YASPGridType        = YaspGrid<dim, TensorProductCoordinates<ScalarType, dim>>;
+      using ParameterSpaceGrid  = Dune::SubGrid<dim, YASPGridType>; ///< Type of the Parametric grid
+      using HostIdType          = typename ParameterSpaceGrid::GlobalIdSet::IdType;
       using PersistentIndexType = typename YASPGridType::PersistentIndexType;
 
       using GlobalIdSetId        = IdType<HostIdType>;
@@ -454,7 +485,6 @@ namespace DefaultTrim {
 
     using GlobalIdType = typename GridFamily::TrimmerTraits::GlobalIdSetId;
 
-
     /**
      * @brief Get the reference element for a given entity.
      * @tparam EntityType Type of the entity.
@@ -594,15 +624,16 @@ namespace DefaultTrim {
     // The following are helper methods for `refineParameterSpaceGrid`
     static ElementTrimData trimElement(const HostEntity<0>& element, const PatchTrimData& patchTrimData);
 
-
     GlobalIdType makeElementID(const HostEntity<0>& ele);
-    void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele, bool trimmed);
+    void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele,
+                                  bool trimmed);
 
-    void collectElementEdges(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
-    void collectElementVertices(int level, const HostEntity<0>& ele,  const ElementTrimData& eleTrimData);
+    void collectElementEdges(int level, const HostEntity<0>& ele, const ElementTrimData& eleTrimData);
+    void collectElementVertices(int level, const HostEntity<0>& ele, const ElementTrimData& eleTrimData);
     void createSubEntities(int level);
-    GlobalIdType idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge);
-    GlobalIdType idForTrimmedVertex(const typename ElementTrimData::VertexInfo& vertex);
+    GlobalIdType idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId,
+                                      const typename ElementTrimData::EdgeInfo& trimmedEdge);
+    GlobalIdType idForTrimmedVertex(const FieldVector<double, 2>& vertex);
 
     /** @brief Return maximum level defined in this grid.
      *
@@ -633,6 +664,6 @@ namespace DefaultTrim {
 } // namespace DefaultTrim
 } // namespace Dune::IGANEW
 
-#include "createlevel.hh"
 #include "createentities.hh"
+#include "createlevel.hh"
 #include "trimelement.hh"

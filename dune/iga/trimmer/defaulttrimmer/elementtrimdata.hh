@@ -38,9 +38,10 @@ struct ElementTrimDataImpl
 
   enum class TrimmedHostEdgeDirection
   {
-    HostNew, NewHost
+    HostNew,
+    NewHost,
+    NewNew
   };
-
 
   struct VertexInfo
   {
@@ -57,6 +58,7 @@ struct ElementTrimDataImpl
     int idx{};
 
     std::optional<EdgePatchGeometry> geometry{};
+    TrimmedHostEdgeDirection direction{};
   };
 
   explicit ElementTrimDataImpl(auto flag, const HostEntity& hostEntity)
@@ -74,7 +76,11 @@ struct ElementTrimDataImpl
   }
 
   void addEdgeHostNew(int idx, EdgePatchGeometry& geometry, Vertex& v2) {
-    edges_.emplace_back(true, true, idx, geometry);
+    edges_.emplace_back(EdgeInfo{.isHost    = true,
+                                 .isTrimmed = true,
+                                 .idx       = idx,
+                                 .geometry  = geometry,
+                                 .direction = TrimmedHostEdgeDirection::HostNew});
     vertices_.emplace_back(false, newVertexCounter_++, v2);
   }
 
@@ -84,11 +90,19 @@ struct ElementTrimDataImpl
   }
 
   void addEdgeNewHost(int idx, EdgePatchGeometry& geometry, int v2Idx) {
-    edges_.emplace_back(true, true, idx, geometry);
+    edges_.emplace_back(EdgeInfo{.isHost    = true,
+                                 .isTrimmed = true,
+                                 .idx       = idx,
+                                 .geometry  = geometry,
+                                 .direction = TrimmedHostEdgeDirection::NewHost});
     vertices_.emplace_back(true, v2Idx, std::nullopt);
   }
   void addEdgeNewNewOnHost(int idx, EdgePatchGeometry& geometry, Vertex& v2) {
-    edges_.emplace_back(true, true, idx, geometry);
+    edges_.emplace_back(EdgeInfo{.isHost    = true,
+                                 .isTrimmed = true,
+                                 .idx       = idx,
+                                 .geometry  = geometry,
+                                 .direction = TrimmedHostEdgeDirection::NewNew});
     vertices_.emplace_back(false, newVertexCounter_++, v2);
   }
 

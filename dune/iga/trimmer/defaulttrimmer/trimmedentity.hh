@@ -24,7 +24,11 @@ namespace IGANEW {
       friend Trimmer;
       using GlobalIdSetIdType = typename Trimmer::TrimmerTraits::GlobalIdSetId;
       using EntityInfo        = typename Trimmer::TrimmerTraits::template Codim<codim_>::EntityInfo;
-      using ElementTrimData   = typename Trimmer::ElementTrimData;
+
+      using TrimInfo = std::conditional_t<codim_ == 0, typename Trimmer::ElementTrimData,
+                                          std::conditional_t<codim_ == 1, typename Trimmer::ElementTrimData::EdgeInfo,
+                                                             typename Trimmer::ElementTrimData::VertexInfo>>;
+
       using HostParameterSpaceGridEntity =
           typename Trimmer::TrimmerTraits::template Codim<codim_>::HostParameterSpaceGridEntity;
       using UntrimmedParameterSpaceGeometry =
@@ -50,7 +54,7 @@ namespace IGANEW {
       template <typename = void>
       requires(codim_ == 0)
       TrimmedParameterSpaceGridEntity(const GridImp* grid, const HostParameterSpaceGridEntity& untrimmedElement,
-                                      EntityInfo entInfo, const ElementTrimData& trimData)
+                                      EntityInfo entInfo, const TrimInfo& trimData)
           : grid_{grid},
             hostEntity_{untrimmedElement},
             trimmedlocalGeometry_{},
@@ -75,9 +79,9 @@ namespace IGANEW {
       // Entity with codim!=0 but trimmed does need trimdata but no untrimmedElement
       template <typename = void>
       requires(codim_ != 0)
-      TrimmedParameterSpaceGridEntity(const GridImp* grid, const ElementTrimData& trimData, EntityInfo entInfo)
+      TrimmedParameterSpaceGridEntity(const GridImp* grid, EntityInfo entInfo)
           : grid_{grid},
-            trimData_{trimData},
+            trimData_{entInfo.trimInfo},
             entityInfo_{entInfo} {
         trimmedlocalGeometry_ = std::make_optional<TrimmedParameterSpaceGeometry>();
         // DUNE_THROW(NotImplemented,"This constructor should accept a geometry object");
@@ -124,7 +128,7 @@ namespace IGANEW {
       // The optional is only here since geometries are not default constructable
       std::optional<TrimmedParameterSpaceGeometry> trimmedlocalGeometry_;
 
-      std::optional<std::reference_wrapper<const ElementTrimData>> trimData_;
+      std::optional<std::reference_wrapper<const TrimInfo>> trimData_;
 
     public:
       [[nodiscard]] bool operator==(const TrimmedParameterSpaceGridEntity& other) const {
@@ -222,7 +226,7 @@ namespace IGANEW {
         //   {
         //     if (isTrimmed)
         //       return TrimmedParameterSpaceGridEntity<cc, mydimension, GridImp>(grid_, hostEntity_,
-        //       entityInfo_,ElementTrimData()); // trimmed element with trimdata
+        //       entityInfo_,TrimInfo()); // trimmed element with trimdata
         //     else {
         //       return TrimmedParameterSpaceGridEntity<cc, mydimension, GridImp>(grid_, hostEntity_, entityInfo_); //
         //       untrimmed element without trimdata
@@ -235,7 +239,7 @@ namespace IGANEW {
         //   {
         //     DUNE_THROW(Dune::NotImplemented, "trimmed subEntity can not be requested");
         //     return TrimmedParameterSpaceGridEntity<cc, mydimension, GridImp>(grid_,
-        //     ElementTrimData(),grid_->trimmer().entityContainer_.idToSubEntityInfoMap[cc+1].at( subId(i,cc))); //
+        //     TrimInfo(),grid_->trimmer().entityContainer_.idToSubEntityInfoMap[cc+1].at( subId(i,cc))); //
         //     Trimmed subentity without trimdata
         //
         //   }

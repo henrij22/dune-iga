@@ -38,6 +38,8 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
 
     entityContainer.idToVertexInfoMap.emplace_back();
     entityContainer_.trimmedVertexIds_.emplace_back();
+    entityContainer_.edgeCount.emplace_back(gv.size(1));
+    entityContainer_.vertexCount.emplace_back(gv.size(2));
 
     for (const auto& ele : elements(gv)) {
       const ElementTrimData& eleTrimData = elementTrimDatas[indexSet.index(ele)];
