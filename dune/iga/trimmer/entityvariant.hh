@@ -117,11 +117,14 @@ public:
   using TrimmerType                 = TrimmerType_;
   using LocalParameterSpaceGeometry = typename TrimmerType::template LocalParameterSpaceGeometry<codim_>;
 
-  auto visit(auto&& lambda) const { return std::visit(lambda, impl_); }
+  auto visit(auto&& lambda) const {
+    return std::visit(lambda, impl_);
+  }
 
   template <class Implementation>
   ParameterSpaceGridEntityVariant(const Implementation& impl)
-      : impl_(impl) {}
+      : impl_(impl) {
+  }
 
   ParameterSpaceGridEntityVariant()                                             = default;
   ParameterSpaceGridEntityVariant(const ParameterSpaceGridEntityVariant& other) = default;
@@ -135,7 +138,9 @@ public:
   ParameterSpaceGridEntityVariant& operator=(const ParameterSpaceGridEntityVariant& other)     = default;
   ParameterSpaceGridEntityVariant& operator=(ParameterSpaceGridEntityVariant&& other) noexcept = default;
 
-  [[nodiscard]] bool equals(const ParameterSpaceGridEntityVariant& other) const { return *this == other; }
+  [[nodiscard]] bool equals(const ParameterSpaceGridEntityVariant& other) const {
+    return *this == other;
+  }
 
   //! returns true if father entity exists
   [[nodiscard]] bool hasFather() const {

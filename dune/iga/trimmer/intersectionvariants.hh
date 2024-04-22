@@ -33,11 +33,14 @@ class IntersectionVariant
   using LocalCoordinate = FieldVector<ctype, mydimension>;
 
 public:
-  auto visit(auto&& lambda) const { return std::visit(lambda, impl_); }
+  auto visit(auto&& lambda) const {
+    return std::visit(lambda, impl_);
+  }
 
   template <class Implementation>
   IntersectionVariant(const Implementation& impl)
-      : impl_(impl) {}
+      : impl_(impl) {
+  }
 
   IntersectionVariant()                                 = default;
   IntersectionVariant(const IntersectionVariant& other) = default;

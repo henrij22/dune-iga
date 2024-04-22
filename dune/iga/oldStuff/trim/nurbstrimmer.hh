@@ -44,7 +44,9 @@ class NURBSPatchTrimmer
 public:
   static constexpr auto dim  = 2;
   static constexpr int scale = sc_;
-  inline static double scaleFactor() { return std::pow(10, scale); };
+  inline static double scaleFactor() {
+    return std::pow(10, scale);
+  };
 
   /// Parameters
   static constexpr int pathSamples  = 800;
@@ -603,11 +605,19 @@ private:
     return clipPaths;
   }
 
-  static intType toIntDomain(double x) { return x * scaleFactor(); }
-  static FieldVector<intType, 2> toIntDomain(const FieldVector<double, 2>& x) { return x * scaleFactor(); }
+  static intType toIntDomain(double x) {
+    return x * scaleFactor();
+  }
+  static FieldVector<intType, 2> toIntDomain(const FieldVector<double, 2>& x) {
+    return x * scaleFactor();
+  }
 
-  static double toFloatDomain(intType x) { return x / scaleFactor(); }
-  static FieldVector<double, 2> toFloatDomain(const FieldVector<intType, 2>& x) { return x / scaleFactor(); }
+  static double toFloatDomain(intType x) {
+    return x / scaleFactor();
+  }
+  static FieldVector<double, 2> toFloatDomain(const FieldVector<intType, 2>& x) {
+    return x / scaleFactor();
+  }
 
   static std::vector<Boundary> extractBoundaries(TrimData* trimData) {
     std::vector<Boundary> boundaries;
@@ -623,13 +633,21 @@ private:
     return std::hypot(p1.x - p2.x, p1.y - p2.y);
   }
 
-  static inline double distance(const Point p1, const Point p2) { return std::hypot(p1[0] - p2[0], p1[1] - p2[1]); }
+  static inline double distance(const Point p1, const Point p2) {
+    return std::hypot(p1[0] - p2[0], p1[1] - p2[1]);
+  }
 
-  static inline bool samePoint(const IntPoint& a, const ClipperPoint& b) { return a == IntPoint{b.x, b.y}; }
+  static inline bool samePoint(const IntPoint& a, const ClipperPoint& b) {
+    return a == IntPoint{b.x, b.y};
+  }
 
-  static inline int getEdgeOrientation(const int edge) { return (edge == 0 || edge == 2) ? 0 : 1; }
+  static inline int getEdgeOrientation(const int edge) {
+    return (edge == 0 || edge == 2) ? 0 : 1;
+  }
 
-  static inline int nextEntityIdx(const int i, const int x) { return (i + x) % 4; }
+  static inline int nextEntityIdx(const int i, const int x) {
+    return (i + x) % 4;
+  }
 
   template <std::integral T>
   static inline bool intCmpEq(T i1, T i2, T tol = 0) {
@@ -886,8 +904,12 @@ private:
     Point currentNodePoint;
 
     // Helper Functions
-    bool hasIntersectionPointOnEdgeNr(int nr) { return edgeCounter[nr] > 0; };
-    bool hasIntersectionPointOnNodeNr(int nr) { return nodeCounter[nr] > 0; };
+    bool hasIntersectionPointOnEdgeNr(int nr) {
+      return edgeCounter[nr] > 0;
+    };
+    bool hasIntersectionPointOnNodeNr(int nr) {
+      return nodeCounter[nr] > 0;
+    };
 
     FindNextBoundaryLoopState(int _nodeToBegin, std::vector<IntPoint>& _corners, ClippingResult& _result)
         : nodeToBegin(_nodeToBegin),

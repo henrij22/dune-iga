@@ -75,7 +75,9 @@ namespace DefaultTrim {
     HostIdType id{};
     std::optional<HostIdType> hostId{};
 
-    bool operator==(const IdType& other) const { return (entityIdType == other.entityIdType) and (id == other.id); }
+    bool operator==(const IdType& other) const {
+      return (entityIdType == other.entityIdType) and (id == other.id);
+    }
 
     friend std::ostream& operator<<(std::ostream& stream, const IdType& id) {
       stream << "Type: " << std::string(id.entityIdType == EntityIdType::host ? "Host" : "new") << ", Key: " << id.id
@@ -159,7 +161,9 @@ namespace DefaultTrim {
 
     std::optional<TrimInfo> trimInfo{};
 
-    auto stemsFromTrim() const { return stemFromTrim; }
+    auto stemsFromTrim() const {
+      return stemFromTrim;
+    }
   };
 
   template <typename Traits>
@@ -188,7 +192,9 @@ namespace DefaultTrim {
     std::vector<GeometryMap> trimmedEntityGeometries{};
     std::optional<TrimInfo> trimInfo{};
 
-    auto stemsFromTrim() const { return stemFromTrim; }
+    auto stemsFromTrim() const {
+      return stemFromTrim;
+    }
   };
 
   template <typename Traits>
@@ -201,12 +207,15 @@ namespace DefaultTrim {
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
     unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
+    unsigned int hostIndexInLvl{std::numeric_limits<unsigned int>::max()};
     int lvl{};
     bool stemFromTrim{false};
     IdType<HostIdType> id{};
     EntitySeedType hostSeed{};
 
-    auto stemsFromTrim() const { return stemFromTrim; }
+    auto stemsFromTrim() const {
+      return stemFromTrim;
+    }
 
     std::optional<IdType<HostIdType>> fatherId;
     ReservedVector<IdType<HostIdType>, 4> decendantIds;
@@ -549,19 +558,25 @@ namespace DefaultTrim {
      * @brief Change the parameters to the trimmer.
      * @param par The parameters.
      */
-    void setParameters(const ParameterType& par) { parameters_ = par; }
+    void setParameters(const ParameterType& par) {
+      parameters_ = par;
+    }
 
     /**
      * @brief Get a const reference to the parameter space grid.
      * @return Const reference to the parameter space grid.
      */
-    const ParameterSpaceGrid& parameterSpaceGrid() const { return *parameterSpaceGrid_; }
+    const ParameterSpaceGrid& parameterSpaceGrid() const {
+      return *parameterSpaceGrid_;
+    }
 
     /**
      * @brief Get a reference to the parameter space grid.
      * @return Reference to the parameter space grid.
      */
-    ParameterSpaceGrid& parameterSpaceGrid() { return *parameterSpaceGrid_; }
+    ParameterSpaceGrid& parameterSpaceGrid() {
+      return *parameterSpaceGrid_;
+    }
 
     /**
      * @brief Refine the grid globally.
@@ -576,7 +591,9 @@ namespace DefaultTrim {
       // @todo Trim move the refine here from the grid
       ;
     }
-    auto& patchTrimData() const { return *trimData_; }
+    auto& patchTrimData() const {
+      return *trimData_;
+    }
 
     /**
      * Creates trimInfos for each element at the requested level (or max level if not specified)
@@ -631,6 +648,7 @@ namespace DefaultTrim {
     void collectElementEdges(int level, const HostEntity<0>& ele, const ElementTrimData& eleTrimData);
     void collectElementVertices(int level, const HostEntity<0>& ele, const ElementTrimData& eleTrimData);
     void createSubEntities(int level);
+    void createElements(int level, const std::vector<ElementTrimData>& trimDatas);
     GlobalIdType idForTrimmedHostEdge(typename TrimmerTraits::PersistentIndexType hostEdgeId,
                                       const typename ElementTrimData::EdgeInfo& trimmedEdge);
     GlobalIdType idForTrimmedVertex(const FieldVector<double, 2>& vertex);
@@ -639,7 +657,9 @@ namespace DefaultTrim {
      *
      * Levels are numbered 0 ... maxlevel with 0 the coarsest level.
      */
-    [[nodiscard]] int maxLevel() const { return parameterSpaceGrid().maxLevel(); }
+    [[nodiscard]] int maxLevel() const {
+      return parameterSpaceGrid().maxLevel();
+    }
 
     EntityContainer entityContainer_;
 

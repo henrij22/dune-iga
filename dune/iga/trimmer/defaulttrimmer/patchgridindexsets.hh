@@ -62,7 +62,9 @@ public:
   }
 
   /** @brief Deliver all geometry types used in this grid */
-  GeoTypes types(int codim) const { return grid_->trimmer().entityContainer_.types(codim, level_); }
+  GeoTypes types(int codim) const {
+    return grid_->trimmer().entityContainer_.types(codim, level_);
+  }
 
   /** @brief Return true if the given entity is contained in the index set */
   template <class EntityType>
@@ -104,7 +106,8 @@ public:
 
   //! constructor stores reference to a grid and level
   explicit PatchGridLeafIndexSet(const GridImp& grid)
-      : grid_(&grid) {}
+      : grid_(&grid) {
+  }
 
   //! get index of an entity
   /*
@@ -167,55 +170,12 @@ public:
   }
 
   /** @todo Currently we support only vertex and element indices */
-  void update(const GridImp& grid) { grid_ = &grid; }
+  void update(const GridImp& grid) {
+    grid_ = &grid;
+  }
 
   const GridImp* grid_;
 };
-//
-//   template <class GridImp>
-//   class PatchGridGlobalIdSet
-//       : public IdSet<GridImp, PatchGridGlobalIdSet<GridImp>,
-//                      typename std::remove_const<GridImp>::type::ParameterSpaceGrid::Traits::GlobalIdSet::IdType> {
-//     typedef typename std::remove_const<GridImp>::type::ParameterSpaceGrid ParameterSpaceGrid;
-//
-//    public:
-//     //! constructor stores reference to a grid
-//     explicit PatchGridGlobalIdSet(const GridImp& g) : grid_(&g) {}
-//
-//     //! define the type used for persistent indices
-//     typedef typename ParameterSpaceGrid::Traits::GlobalIdSet::IdType IdType;
-//
-//     //! get id of an entity
-//     /*
-//        We use the remove_const to extract the Type from the mutable class,
-//        because the const class is not instantiated yet.
-//      */
-//     template <int cd>
-//     IdType id(const typename std::remove_const<GridImp>::type::Traits::template Codim<cd>::Entity& e) const {
-//       // Return id of the host entity
-//       // DUNE_THROW(NotImplemented, "id not implemented");
-//       // return {};
-//       return grid_->parameterSpaceGrid().globalIdSet().id(e.impl().getHostEntity().getHostEntity());
-//     }
-//
-//     //! get id of subEntity
-//     /*
-//
-//      */
-//     IdType subId(const typename std::remove_const<GridImp>::type::Traits::template Codim<0>::Entity& e, int i,
-//                  int codim) const {
-//       // @todo Trim, the sub indeces are wrong!!!
-//       //  Return sub id of the host entity
-//       // DUNE_THROW(NotImplemented, "subId not implemented");
-//       // return {};
-//       return grid_->parameterSpaceGrid().globalIdSet().subId(e.impl().getHostEntity().getHostEntity(), i, codim);
-//     }
-//
-//     /** @todo Should be private */
-//     void update() {}
-//
-//     const GridImp* grid_;
-//   };
 
 template <class GridImp>
 class PatchGridLocalIdSet
@@ -231,7 +191,8 @@ public:
 
   //! constructor stores reference to a grid
   PatchGridLocalIdSet(const GridImp& g)
-      : grid_(&g) {}
+      : grid_(&g) {
+  }
 
   //! get id of an entity
   /*
@@ -268,7 +229,8 @@ public:
   }
 
   /** @todo Should be private */
-  void update() {}
+  void update() {
+  }
 
   const GridImp* grid_;
 };

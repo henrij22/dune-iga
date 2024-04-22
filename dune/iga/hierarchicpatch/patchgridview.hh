@@ -30,18 +30,25 @@ struct PatchGridLevelGridView : DefaultLevelGridView<const GridImp>
   using TrimmerType = typename GridImp::Trimmer;
 
   PatchGridLevelGridView(const typename DefaultLevelGridView<const GridImp>::Grid& grid, int level)
-      : DefaultLevelGridView<const GridImp>(grid, level) {}
+      : DefaultLevelGridView<const GridImp>(grid, level) {
+  }
 
-  const auto& patchData() const { return this->grid().patchGeometries[this->level_].patchData(); }
+  const auto& patchData() const {
+    return this->grid().patchGeometries[this->level_].patchData();
+  }
 
   const auto& unTrimmedPatch() const {
     // @todo Trim
     return this->grid().patchGeometries[this->level_];
   }
 
-  auto untrimmedElementNumbers() const { return this->grid().untrimmedElementNumbers(this->level_); }
+  auto untrimmedElementNumbers() const {
+    return this->grid().untrimmedElementNumbers(this->level_);
+  }
 
-  const auto& tensorProductCoordinates() const { return this->grid().tensorProductCoordinates(this->level_); }
+  const auto& tensorProductCoordinates() const {
+    return this->grid().tensorProductCoordinates(this->level_);
+  }
 };
 
 template <class GridImp>
@@ -56,10 +63,13 @@ struct PatchGridLeafGridView : public DefaultLeafGridView<const GridImp>
   typedef PatchGridLeafGridView ThisType;
 
   PatchGridLeafGridView(const typename DefaultLeafGridView<const GridImp>::Grid& grid)
-      : DefaultLeafGridView<const GridImp>(grid) {}
+      : DefaultLeafGridView<const GridImp>(grid) {
+  }
 
   using TrimmerType = typename GridImp::Trimmer;
-  const auto& patchData() const { return this->grid().patchGeometries_[this->grid().maxLevel()].patchData(); }
+  const auto& patchData() const {
+    return this->grid().patchGeometries_[this->grid().maxLevel()].patchData();
+  }
 
   const auto& unTrimmedPatch() const {
     // @todo Trim

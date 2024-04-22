@@ -109,9 +109,12 @@ public:
 
   BsplineBasis(const std::vector<ScalarType>& knots, const int degree)
       : knots_{knots},
-        degree_{degree} {}
+        degree_{degree} {
+  }
 
-  auto operator()(ScalarType u) { return basisFunctions(u, knots_, degree_); }
+  auto operator()(ScalarType u) {
+    return basisFunctions(u, knots_, degree_);
+  }
 
   /** @brief The evaluation function modified version of The Nurbs Book Algorithm A2.2
    *

@@ -98,7 +98,8 @@ public:
   explicit NURBSPatch(const NURBSPatchData<dim_, dimworld_, ScalarType>& patchData)
       : patchData_(patchData),
         uniqueKnotSpans_{Splines::createUniqueKnotSpans(patchData.knotSpans)},
-        nurbs_{patchData_} {}
+        nurbs_{patchData_} {
+  }
 
   /**
    * @brief Explicit constructor for NURBSPatch with unique knot spans.
@@ -109,13 +110,16 @@ public:
                       const std::array<std::vector<ctype>, dim_>& uniqueKnotSpans)
       : patchData_(patchData),
         uniqueKnotSpans_{uniqueKnotSpans},
-        nurbs_{patchData_} {}
+        nurbs_{patchData_} {
+  }
 
   /**
    * @brief Get the center of the element mapped to the geometry.
    * @return Global coordinate of the center.
    */
-  [[nodiscard]] GlobalCoordinate center() const { return global(domainMidPoint()); }
+  [[nodiscard]] GlobalCoordinate center() const {
+    return global(domainMidPoint());
+  }
 
   /**
    * @brief Get the local coordinate corresponding to a given global coordinate.
@@ -170,7 +174,9 @@ public:
    * @brief Get the number of corners of the patch.
    * @return Number of corners.
    */
-  [[nodiscard]] int corners() const { return 1 << mydimension; }
+  [[nodiscard]] int corners() const {
+    return 1 << mydimension;
+  }
 
   /**
    * @brief Get the world coordinates of the k-th corner of the patch.
@@ -242,7 +248,9 @@ public:
    * @param u Local coordinates for each dimension in the [knotSpan.front(), knotSpan.back()] domain.
    * @return Jacobian matrix.
    */
-  [[nodiscard]] Jacobian jacobian(const LocalCoordinate& local) const { return transpose(jacobianTransposed(local)); }
+  [[nodiscard]] Jacobian jacobian(const LocalCoordinate& local) const {
+    return transpose(jacobianTransposed(local));
+  }
 
   /**
    * @brief Get the inverse Jacobian matrix at a local coordinate.
@@ -267,7 +275,9 @@ public:
   /**
    * @brief Get the type of the element: a hypercube of the correct dimension.
    */
-  [[nodiscard]] GeometryType type() const { return GeometryTypes::cube(mydimension); }
+  [[nodiscard]] GeometryType type() const {
+    return GeometryTypes::cube(mydimension);
+  }
 
   /**
    * @brief Get the domain of the element in parameter space.
@@ -284,7 +294,9 @@ public:
    * @brief Get the polynomial degree of the patch in each dimension.
    * @return Array of degrees for each dimension.
    */
-  [[nodiscard]] std::array<int, mydimension> degree() const { return patchData_.degree; }
+  [[nodiscard]] std::array<int, mydimension> degree() const {
+    return patchData_.degree;
+  }
 
   /**
    * @brief Check if the patch is affine.
@@ -314,7 +326,9 @@ public:
    * @brief Get the number of control points in each direction.
    * @return Array containing the number of control points in each direction.
    */
-  auto numberOfControlPoints() const { return patchData_.controlPoints.strideSizes(); }
+  auto numberOfControlPoints() const {
+    return patchData_.controlPoints.strideSizes();
+  }
 
   /**
    * @brief Get the number of non-zero measure spans in each direction.
@@ -331,19 +345,27 @@ public:
    * @brief Get the patch data of the NURBS patch.
    * @return Reference to the NURBSPatchData.
    */
-  const auto& patchData() const { return patchData_; }
+  const auto& patchData() const {
+    return patchData_;
+  }
 
   /* @brief Get the unique knot vector spans of the NURBS patch. */
-  const TensorProductCoordinatesType& uniqueKnotVector() const { return uniqueKnotSpans_; }
+  const TensorProductCoordinatesType& uniqueKnotVector() const {
+    return uniqueKnotSpans_;
+  }
 
   /* @brief Get the patch data of the NURBS patch. */
-  auto& patchData() { return patchData_; }
+  auto& patchData() {
+    return patchData_;
+  }
 
   struct ConnectionResult
   {
     bool isConnected;
     int boundary;
-    operator bool() const { return isConnected; }
+    operator bool() const {
+      return isConnected;
+    }
   };
 
   /**

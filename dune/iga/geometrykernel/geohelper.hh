@@ -17,28 +17,42 @@ struct Domain : std::array<ScalarType, 2>
 {
   using Base = std::array<ScalarType, 2>;
   Domain(ScalarType l, ScalarType r)
-      : Base({l, r}) {}
+      : Base({l, r}) {
+  }
 
   Domain()
-      : Base({0.0, 1.0}) {}
+      : Base({0.0, 1.0}) {
+  }
 
   /** @brief Returns the left border of the domain by mutable reference */
-  ScalarType& left() { return Base::operator[](0); }
+  ScalarType& left() {
+    return Base::operator[](0);
+  }
 
   /** @brief Returns the left border of the domain by const reference */
-  const ScalarType& left() const { return Base::operator[](0); }
+  const ScalarType& left() const {
+    return Base::operator[](0);
+  }
 
   /** @brief Returns the right border of the domain by mutable reference */
-  ScalarType& right() { return Base::operator[](1); }
+  ScalarType& right() {
+    return Base::operator[](1);
+  }
 
   /** @brief Returns the right border of the domain by const reference */
-  const ScalarType& right() const { return Base::operator[](1); };
+  const ScalarType& right() const {
+    return Base::operator[](1);
+  };
 
   /** @brief Returns the center of the domain */
-  ScalarType center() const { return (left() + right()) / ScalarType(2.0); }
+  ScalarType center() const {
+    return (left() + right()) / ScalarType(2.0);
+  }
 
   /** @brief Returns the volume of the domain */
-  ScalarType volume() const { return right() - left(); }
+  ScalarType volume() const {
+    return right() - left();
+  }
 
   constexpr typename std::array<ScalarType, 2>::size_type size() const noexcept
   requires(0 == 2)
@@ -47,7 +61,9 @@ struct Domain : std::array<ScalarType, 2>
   }
 
   /** @brief Checks if value in inside*/
-  bool checkInside(ScalarType val) const { return val > left() and val < right(); }
+  bool checkInside(ScalarType val) const {
+    return val > left() and val < right();
+  }
 };
 
 /**

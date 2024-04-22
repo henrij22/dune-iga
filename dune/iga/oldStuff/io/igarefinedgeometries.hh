@@ -131,7 +131,9 @@ private:
     }
   }
 
-  [[nodiscard]] bool isTrimmed(Index eIndex) const { return trimmedElementData_.contains(eIndex); }
+  [[nodiscard]] bool isTrimmed(Index eIndex) const {
+    return trimmedElementData_.contains(eIndex);
+  }
 };
 
 } // namespace Dune::IGA

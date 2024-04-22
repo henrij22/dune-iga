@@ -55,20 +55,30 @@ public:
 
   /** @brief Return the element type identifier
    */
-  [[nodiscard]] GeometryType type() const { return geometryLocalView_.type(); }
+  [[nodiscard]] GeometryType type() const {
+    return geometryLocalView_.type();
+  }
 
   // return whether we have an affine mapping
-  [[nodiscard]] bool affine() const { return geometryLocalView_.affine(); }
+  [[nodiscard]] bool affine() const {
+    return geometryLocalView_.affine();
+  }
 
   //! return the number of corners of this element. Corners are numbered 0...n-1
-  [[nodiscard]] int corners() const { return geometryLocalView_.corners(); }
+  [[nodiscard]] int corners() const {
+    return geometryLocalView_.corners();
+  }
 
   //! access to coordinates of corners. Index is the number of the corner
-  [[nodiscard]] GlobalCoordinate corner(int i) const { return geometryLocalView_.corner(i); }
+  [[nodiscard]] GlobalCoordinate corner(int i) const {
+    return geometryLocalView_.corner(i);
+  }
 
   /** @brief Maps a local coordinate within reference element to
    * global coordinate in element  */
-  [[nodiscard]] GlobalCoordinate global(const LocalCoordinate& local) const { return geometryLocalView_.global(local); }
+  [[nodiscard]] GlobalCoordinate global(const LocalCoordinate& local) const {
+    return geometryLocalView_.global(local);
+  }
 
   /** @brief Return the transposed of the Jacobian
    */
@@ -77,11 +87,15 @@ public:
   }
 
   /** @brief Return the Hessian */
-  [[nodiscard]] Hessian hessian(const LocalCoordinate& local) const { return geometryLocalView_.hessian(local); }
+  [[nodiscard]] Hessian hessian(const LocalCoordinate& local) const {
+    return geometryLocalView_.hessian(local);
+  }
 
   /** @brief Maps a global coordinate to a
    * local coordinate in its reference element */
-  [[nodiscard]] LocalCoordinate local(const GlobalCoordinate& global) const { return geometryLocalView_.local(global); }
+  [[nodiscard]] LocalCoordinate local(const GlobalCoordinate& global) const {
+    return geometryLocalView_.local(global);
+  }
 
   //! Returns true if the point is in the current element
   [[nodiscard]] bool checkInside(const FieldVector<ctype, mydim>& local) const {

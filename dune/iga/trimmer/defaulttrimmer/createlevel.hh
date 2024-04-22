@@ -9,10 +9,9 @@ namespace Dune::IGANEW::DefaultTrim {
 
 template <int dim, int dimworld, typename ScalarType>
 void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCount, bool initFlag) {
-
-  const int oldLevel           = untrimmedParameterSpaceGrid_->maxLevel();
+  const int oldLevel = untrimmedParameterSpaceGrid_->maxLevel();
   untrimmedParameterSpaceGrid_->globalRefine(refCount);
-  auto gvu = untrimmedParameterSpaceGrid_->leafGridView();
+  // auto gvu = untrimmedParameterSpaceGrid_->leafGridView();
   parameterSpaceGrid_->createBegin();
   parameterSpaceGrid_->insertLeaf();
   parameterSpaceGrid_->createEnd();
@@ -24,26 +23,25 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
   for (int i = !initFlag; i < refCount + 1; ++i) {
     const int newLevel = oldLevel + i;
     entityContainer_.entityImps_.emplace_back();
-    auto& entityContainer  = entityContainer_;
 
-    auto gv                         = parameterSpaceGrid_->levelGridView(newLevel);
-    auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
-    unsigned int unTrimmedElementIndex       = 0;
-    unsigned int trimmedElementIndex         = 0;
+    auto gv                            = parameterSpaceGrid_->levelGridView(newLevel);
+    auto& globalIdSetParameterSpace    = parameterSpaceGrid_->globalIdSet();
+    unsigned int unTrimmedElementIndex = 0;
+    unsigned int trimmedElementIndex   = 0;
 
     auto indices = [&]() { return std::make_tuple(unTrimmedElementIndex, trimmedElementIndex, newLevel); };
 
     auto& indexSet              = gv.indexSet();
     const auto elementTrimDatas = trimElements(newLevel);
 
-    entityContainer.idToVertexInfoMap.emplace_back();
+    entityContainer_.idToVertexInfoMap.emplace_back();
     entityContainer_.trimmedVertexIds_.emplace_back();
     entityContainer_.edgeCount.emplace_back(gv.size(1));
     entityContainer_.vertexCount.emplace_back(gv.size(2));
 
     for (const auto& ele : elements(gv)) {
       const ElementTrimData& eleTrimData = elementTrimDatas[indexSet.index(ele)];
-      const ElementTrimFlag eleTrimFlag = eleTrimData.flag();
+      const ElementTrimFlag eleTrimFlag  = eleTrimData.flag();
 
       // For now we are exiting if ele is empty
       if (eleTrimFlag == ElementTrimFlag::empty)
@@ -68,10 +66,10 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
     }
 
     // save numbers of untrimmed and trimmed elements per level
-    entityContainer.numberOfTrimmedElements.push_back(trimmedElementIndex);
-    entityContainer.numberOfUnTrimmedElements.push_back(unTrimmedElementIndex);
+    entityContainer_.numberOfTrimmedElements.push_back(trimmedElementIndex);
+    entityContainer_.numberOfUnTrimmedElements.push_back(unTrimmedElementIndex);
 
-    // Add a new level for vertices
+    createElements(newLevel, elementTrimDatas);
     createSubEntities(newLevel);
   }
 }

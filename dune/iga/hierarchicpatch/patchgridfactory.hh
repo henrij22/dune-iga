@@ -39,9 +39,13 @@ public:
   @param patchTrimData Trimming data for this patch
 */
   // @todo this does not really add the trimming curve to anything
-  void insertTrimmingCurve(const IGANEW::NURBSPatchData<dim - 1, dim, ctype>& curve) { trimCurves.push_back(curve); }
+  void insertTrimmingCurve(const IGANEW::NURBSPatchData<dim - 1, dim, ctype>& curve) {
+    trimCurves.push_back(curve);
+  }
 
-  void insertTrimParameters(const TrimParameterType& par) { parameters_ = par; }
+  void insertTrimParameters(const TrimParameterType& par) {
+    parameters_ = par;
+  }
 
   /** @brief Insert a patch into the grid
   @param patchData The patch data

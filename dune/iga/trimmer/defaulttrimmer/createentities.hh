@@ -4,8 +4,8 @@
 #pragma once
 #include <ranges>
 
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
 
 namespace Dune::IGANEW::DefaultTrim {
 
@@ -46,6 +46,8 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const FieldVecto
       foundIndex   = vertexId.id;
     }
   }
+  if (not alreadyThere)
+    foundIndex = globalIdSet_->newFreeIndex();
 
   GlobalIdType vertexId{.entityIdType = GlobalIdType::EntityIdType::newId, .id = foundIndex};
   if (not alreadyThere)
@@ -55,8 +57,8 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const FieldVecto
 
 template <int dim, int dimworld, typename ScalarType>
 auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(
-    typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge)
-    -> GlobalIdType {
+    typename TrimmerTraits::PersistentIndexType hostEdgeId,
+    const typename ElementTrimData::EdgeInfo& trimmedEdge) -> GlobalIdType {
   using HostEdge            = typename TrimmerTraits::template Codim<1>::HostParameterSpaceGridEntity;
   using PersistentIndexType = typename TrimmerTraits::PersistentIndexType;
 
@@ -86,7 +88,12 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(
 template <int dim, int dimworld, typename ScalarType>
 void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
     const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele, bool trimmed) {
+  const unsigned int unTrimmedElementIndex = std::get<0>(indices);
+  const unsigned int trimmedElementIndex   = std::get<1>(indices);
+  const int newLevel                       = std::get<2>(indices);
+
   auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
+  auto& indexSet                  = parameterSpaceGrid_->levelGridView(newLevel).indexSet();
 
   std::optional<GlobalIdType> fatherId{};
   if (ele.hasFather())
@@ -94,17 +101,16 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
 
   GlobalIdType elementId = makeElementID(ele);
 
-  const unsigned int unTrimmedElementIndex = std::get<0>(indices);
-  const unsigned int trimmedElementIndex   = std::get<1>(indices);
-  const int newLevel                       = std::get<2>(indices);
-  EntityInfo<0> elementInfo                = {
-                     .indexInLvlStorage   = trimmedElementIndex + unTrimmedElementIndex,
-                     .unTrimmedIndexInLvl = unTrimmedElementIndex,
-                     .lvl                 = newLevel,
-                     .stemFromTrim        = trimmed,
-                     .id                  = elementId,
-                     .hostSeed            = ele.seed(),
-                     .fatherId            = fatherId,
+  EntityInfo<0> elementInfo = {
+      .indexInLvlStorage   = trimmedElementIndex + unTrimmedElementIndex,
+      .unTrimmedIndexInLvl = unTrimmedElementIndex,
+      .trimmedIndexInLvl   = trimmedElementIndex,
+      .hostIndexInLvl      = indexSet.index(ele),
+      .lvl                 = newLevel,
+      .stemFromTrim        = trimmed,
+      .id                  = elementId,
+      .hostSeed            = ele.seed(),
+      .fatherId            = fatherId,
   };
 
   entityContainer_.idToElementInfoMap.insert({elementId, elementInfo});
@@ -115,7 +121,6 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
     entityContainer_.idToElementInfoMap.at(fatherId.value()).decendantIds.push_back(elementId);
     entityContainer_.template entity<0>(fatherId.value(), newLevel - 1).entityInfo_.decendantIds.push_back(elementId);
   }
-  std::get<0>(entityContainer_.entityImps_.back()).emplace_back(grid_, ele, elementInfo);
 }
 
 template <int dim, int dimworld, typename ScalarType>
@@ -172,7 +177,8 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
                            .lvl               = level,
                            .stemFromTrim      = true,
                            .id                = edgeId,
-                           .hostSeed          = edge.seed()};
+                           .hostSeed          = edge.seed(),
+                           .trimInfo          = edgeOfTrimmedElement};
     edgeInfo.trimmedEntityGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
 
@@ -205,12 +211,11 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId, .id = globalIdSet_->newFreeIndex()};
     elementEdgeIndices.emplace_back(edgeId);
 
-    EntityInfo<1> edgeInfo{
-        .indexInLvlStorage = entityContainer_.edgeCount.back()++,
-        .lvl               = level,
-        .stemFromTrim      = true,
-        .id                = edgeId,
-    };
+    EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
+                           .lvl               = level,
+                           .stemFromTrim      = true,
+                           .id                = edgeId,
+                           .trimInfo          = edgeOfTrimmedElement};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
 
     auto& edgeVertexIndices = entityContainer_.globalVertexIdOfEdgesMap_[edgeId];
@@ -265,12 +270,13 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
   };
 
   auto addNewVertex = [&](const typename ElementTrimData::VertexInfo& vertex) {
-    GlobalIdType vertexId = {.entityIdType = GlobalIdType::EntityIdType::newId, .id = globalIdSet_->newFreeIndex()};
+    GlobalIdType vertexId = idForTrimmedVertex(vertex.geometry.value());
+    elementVertexIndices.emplace_back(vertexId);
     EntityInfo<2> vertexInfo{.indexInLvlStorage = entityContainer_.vertexCount.back()++,
                              .lvl               = level,
                              .stemFromTrim      = true,
                              .id                = vertexId,
-                             .trimInfo          = vertex };
+                             .trimInfo          = vertex};
     entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
   };
 
@@ -292,19 +298,43 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
 }
 
 template <int dim, int dimworld, typename ScalarType>
+void TrimmerImpl<dim, dimworld, ScalarType>::createElements(int level, const std::vector<ElementTrimData>& trimDatas) {
+  using ElementEntity = typename TrimmerTraits::template Codim<0>::ParameterSpaceGridEntity;
+
+  auto& elementMap       = entityContainer_.idToElementInfoMap;
+  auto& elementContainer = std::get<0>(entityContainer_.entityImps_.back());
+
+  elementContainer.resize(entityContainer_.numberOfTrimmedElements.back() +
+                          entityContainer_.numberOfUnTrimmedElements.back());
+  for (auto& [eleId, eleInfo] :
+       elementMap | std::ranges::views::filter([level](const auto& pair) { return pair.second.lvl == level; })) {
+    auto ele = parameterSpaceGrid_->entity(eleInfo.hostSeed);
+    if (not eleInfo.stemFromTrim) {
+      elementContainer[eleInfo.indexInLvlStorage] = ElementEntity{grid_, ele, eleInfo};
+    } else {
+      elementContainer[eleInfo.indexInLvlStorage] =
+          ElementEntity{grid_, ele, eleInfo, trimDatas[eleInfo.hostIndexInLvl]};
+    }
+  }
+}
+
+template <int dim, int dimworld, typename ScalarType>
 void TrimmerImpl<dim, dimworld, ScalarType>::createSubEntities(int level) {
   using EdgeEntity   = typename TrimmerTraits::template Codim<1>::ParameterSpaceGridEntity;
   using VertexEntity = typename TrimmerTraits::template Codim<2>::ParameterSpaceGridEntity;
 
-  auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
-  auto& indexSet                  = parameterSpaceGrid_->levelGridView(level).indexSet();
-  auto& vertexMap                 = entityContainer_.idToVertexInfoMap.back();
-  auto& edgeMap                   = entityContainer_.idToEdgeInfoMap;
+  // auto& globalIdSetParameterSpace = parameterSpaceGrid_->globalIdSet();
+  // auto& indexSet                  = parameterSpaceGrid_->levelGridView(level).indexSet();
+
+  auto& vertexMap = entityContainer_.idToVertexInfoMap.back();
+  auto& edgeMap   = entityContainer_.idToEdgeInfoMap;
+
+  auto& vertexContainer = std::get<2>(entityContainer_.entityImps_.back());
+  auto& edgeContainer   = std::get<1>(entityContainer_.entityImps_.back());
 
   // we are resizing the containers, so we can add the entities in the indexSet order, the index is obtained from
   // the infos (also this is a bit more efficient as pushing back all the time)
 
-  auto& vertexContainer = std::get<2>(entityContainer_.entityImps_.back());
   vertexContainer.resize(entityContainer_.vertexCount.back());
   for (auto& [vertexId, vertexInfo] : vertexMap) {
     if (not vertexInfo.stemFromTrim) {
@@ -315,14 +345,15 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createSubEntities(int level) {
     }
   }
 
-  auto& edgeContainer = std::get<1>(entityContainer_.entityImps_.back());
-  edgeContainer.resize(entityContainer_.sizeOfInfos(1, level));
-  for (auto& [edgeId, edgeInfo] : edgeMap) {
-    if (edgeInfo.lvl != level)
-      continue;
-    auto edge                                 = parameterSpaceGrid_->entity(edgeInfo.hostSeed);
-    // @todo Fallunterscheidung
-    edgeContainer[edgeInfo.indexInLvlStorage] = EdgeEntity{grid_, edge, edgeInfo};
+  edgeContainer.resize(entityContainer_.edgeCount.back());
+  for (auto& [edgeId, edgeInfo] :
+       edgeMap | std::ranges::views::filter([level](const auto& pair) { return pair.second.lvl == level; })) {
+    if (not edgeInfo.stemFromTrim) {
+      auto edge                                 = parameterSpaceGrid_->entity(edgeInfo.hostSeed);
+      edgeContainer[edgeInfo.indexInLvlStorage] = EdgeEntity{grid_, edge, edgeInfo};
+    } else {
+      edgeContainer[edgeInfo.indexInLvlStorage] = EdgeEntity{grid_, edgeInfo};
+    }
   }
 }
 } // namespace Dune::IGANEW::DefaultTrim

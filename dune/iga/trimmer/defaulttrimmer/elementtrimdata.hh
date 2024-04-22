@@ -63,10 +63,11 @@ struct ElementTrimDataImpl
 
   explicit ElementTrimDataImpl(auto flag, const HostEntity& hostEntity)
       : flag_(flag),
-        hostEntity_(hostEntity) {}
+        hostEntity_(hostEntity) {
+  }
 
-  // Delete default and copy constructor
-  // ElementTrimDataImpl() = delete;
+  // Delete default constructor
+  ElementTrimDataImpl() = delete;
   // ElementTrimDataImpl(const ElementTrimDataImpl& other) = delete;
   // ElementTrimDataImpl& operator=(const ElementTrimDataImpl& other) = delete;
 
@@ -203,13 +204,35 @@ struct ElementTrimDataImpl
     return result == Clipper2Lib::PointInPolygonResult::IsInside or result == Clipper2Lib::PointInPolygonResult::IsOn;
   }
 
-  double volume() const { return Clipper2Lib::Area(path_); }
+  double volume() const {
+    return Clipper2Lib::Area(path_);
+  }
 
   // Getter
-  [[nodiscard]] ElementTrimFlag flag() const { return flag_; }
-  [[nodiscard]] const HostEntity& hostEntity() const { return hostEntity_; }
-  [[nodiscard]] const std::vector<VertexInfo>& vertices() const { return vertices_; }
-  [[nodiscard]] const std::vector<EdgeInfo>& edges() const { return edges_; }
+  [[nodiscard]] ElementTrimFlag flag() const {
+    return flag_;
+  }
+  [[nodiscard]] const HostEntity& hostEntity() const {
+    return hostEntity_;
+  }
+  [[nodiscard]] const std::vector<VertexInfo>& vertices() const {
+    return vertices_;
+  }
+  [[nodiscard]] const std::vector<EdgeInfo>& edges() const {
+    return edges_;
+  }
+
+  VertexInfo vertex(int i) const {
+    return vertices_[i];
+  }
+
+  [[nodiscard]] unsigned int size(unsigned int codim) const {
+    if (codim == 2)
+      return vertices_.size();
+    if (codim == 1)
+      return edges_.size();
+    DUNE_THROW(NotImplemented, "Size Function is only implemented for edges and vertices");
+  }
 
 private:
   static constexpr std::array<std::array<int, 2>, 4> edgeLookUp{

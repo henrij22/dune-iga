@@ -43,7 +43,8 @@ public:
   explicit PatchGridLeafIterator(const GridImp* patchGrid)
       : patchGrid_(patchGrid),
         parameterSpaceLeafIterator(
-            patchGrid_->trimmer().entityContainer_.template begin<codim>(patchGrid_->maxLevel())) {}
+            patchGrid_->trimmer().entityContainer_.template begin<codim>(patchGrid_->maxLevel())) {
+  }
 
   /** @brief Constructor which create the end iterator
    *  @param endDummy      Here only to distinguish it from the other constructor
@@ -61,7 +62,9 @@ public:
   }
 
   //! prefix increment
-  void increment() { ++parameterSpaceLeafIterator; }
+  void increment() {
+    ++parameterSpaceLeafIterator;
+  }
 
   using GlobalIdSetId = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
   //! dereferencing

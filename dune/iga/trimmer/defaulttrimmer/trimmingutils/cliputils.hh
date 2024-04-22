@@ -37,7 +37,7 @@ constexpr std::array<std::array<int, 2>, 4> edgeLookUp{
     {2, 0}
 };
 constexpr std::array vertexIndexMapping = {0u, 1u, 3u, 2u};
-constexpr std::array edgeIndexMapping = {2u, 1u, 3u, 0u};
+constexpr std::array edgeIndexMapping   = {2u, 1u, 3u, 0u};
 auto isCornerVertex(const auto& pt, const auto& eleRect) -> std::pair<bool, ptrdiff_t> {
   auto it = std::ranges::find_if(eleRect, [&](const auto& vertex) {
     return FloatCmp::eq(vertex.x, pt.x, 1e-8) and FloatCmp::eq(vertex.y, pt.y, 1e-8);
@@ -48,7 +48,8 @@ auto isCornerVertex(const auto& pt, const auto& eleRect) -> std::pair<bool, ptrd
 struct ClippingResult
 {
   explicit ClippingResult(const std::vector<Clipper2Lib::PointD>& oldV)
-      : originalVertices_(oldV) {}
+      : originalVertices_(oldV) {
+  }
 
   struct Vertex
   {
@@ -73,9 +74,15 @@ struct ClippingResult
     // std::optional<size_t> hostIdx;
     // std::optional<size_t> onEdgeIdx;
 
-    bool isHost() const { return std::holds_alternative<HostVertexImpl>(vertexData); }
-    bool isInside() const { return std::holds_alternative<InsideVertexImpl>(vertexData); }
-    bool isNew() const { return std::holds_alternative<NewVertexImpl>(vertexData); }
+    bool isHost() const {
+      return std::holds_alternative<HostVertexImpl>(vertexData);
+    }
+    bool isInside() const {
+      return std::holds_alternative<InsideVertexImpl>(vertexData);
+    }
+    bool isNew() const {
+      return std::holds_alternative<NewVertexImpl>(vertexData);
+    }
     auto loop() const {
       assert(isInside());
       return std::get<InsideVertexImpl>(vertexData).loopIdx;

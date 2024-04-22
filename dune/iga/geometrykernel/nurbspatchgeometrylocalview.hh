@@ -136,13 +136,16 @@ namespace GeometryKernel {
 
     PatchGeometryLocalView() = default;
     explicit PatchGeometryLocalView(const PatchGeometry& patchGeometry)
-        : patchGeometry_{&patchGeometry} {}
+        : patchGeometry_{&patchGeometry} {
+    }
 
     /**
      * @brief Get the center of the patch geometry.
      * @return Global coordinates of the center.
      */
-    [[nodiscard]] GlobalCoordinate center() const { return global(LocalCoordinate(0.5)); }
+    [[nodiscard]] GlobalCoordinate center() const {
+      return global(LocalCoordinate(0.5));
+    }
 
     /**
      * @brief Bind the local view to a parameter space geometry.
@@ -186,7 +189,9 @@ namespace GeometryKernel {
      * dimension
      * @return Jacobian matrix.
      */
-    [[nodiscard]] Jacobian jacobian(const LocalCoordinate& local) const { return transpose(jacobianTransposed(local)); }
+    [[nodiscard]] Jacobian jacobian(const LocalCoordinate& local) const {
+      return transpose(jacobianTransposed(local));
+    }
 
     /**
      * @brief Compute the integration element at a local coordinate.
@@ -218,10 +223,14 @@ namespace GeometryKernel {
     }
 
     /** @brief Type of the type of the parameter space element */
-    [[nodiscard]] GeometryType type() const { return GeometryTypes::cube(mydimension); }
+    [[nodiscard]] GeometryType type() const {
+      return parameterSpaceGeometry->type();
+    }
 
     /** @brief Return the number of corners of the element */
-    [[nodiscard]] int corners() const { return 1 << mydimension; }
+    [[nodiscard]] int corners() const {
+      return parameterSpaceGeometry->corners();
+    }
 
     /** @brief Return world coordinates of the k-th corner of the element */
     [[nodiscard]] GlobalCoordinate corner(int k) const {
@@ -387,7 +396,9 @@ namespace GeometryKernel {
     }
 
     /* @brief returns the domain, i.e. [0,1] */
-    [[nodiscard]] std::array<Utilities::Domain<double>, mydimension> domain() const { return {}; }
+    [[nodiscard]] std::array<Utilities::Domain<double>, mydimension> domain() const {
+      return {};
+    }
 
     [[nodiscard]] bool affine() const {
       // @todo check when this is true
@@ -399,14 +410,18 @@ namespace GeometryKernel {
      * \remark This does return the degree of the underlying patch and not of the mapping of the local view.
      * @return Array of degrees for each dimension.
      */
-    [[nodiscard]] std::array<int, mydimension> degree() const { return patchGeometry_->degree(); }
+    [[nodiscard]] std::array<int, mydimension> degree() const {
+      return patchGeometry_->degree();
+    }
 
     friend auto referenceElement(const PatchGeometryLocalView& geo) {
       return referenceElement(*geo.parameterSpaceGeometry);
     }
 
   private:
-    void checkState() const { assert(parameterSpaceGeometry && "Bind the local view first!"); }
+    void checkState() const {
+      assert(parameterSpaceGeometry && "Bind the local view first!");
+    }
     GlobalInParameterSpace globalInParameterSpace(const LocalCoordinate& local) const {
       checkState();
       return parameterSpaceGeometry->global(local);

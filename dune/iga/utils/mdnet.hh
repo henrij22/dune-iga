@@ -140,11 +140,13 @@ public:
    */
   MultiDimensionalNet(std::array<int, netdim> dimSize, const container_type& values)
       : values_(values),
-        dimSize_{dimSize} {}
+        dimSize_{dimSize} {
+  }
 
   MultiDimensionalNet(std::array<int, netdim> dimSize, std::ranges::range auto values)
       : values_(values.begin(), values.end()),
-        dimSize_{dimSize} {}
+        dimSize_{dimSize} {
+  }
 
   /** @brief constructor intended for the 2-D if the values are already in a matrix
    *
@@ -198,9 +200,13 @@ public:
   }
 
   /** @brief sets a value at the multiindex */
-  void directSet(int index, const value_type& value) { values_[index] = value; }
+  void directSet(int index, const value_type& value) {
+    values_[index] = value;
+  }
 
-  void directSet(int index, value_type&& value) { values_[index] = std::move(value); }
+  void directSet(int index, value_type&& value) {
+    values_[index] = std::move(value);
+  }
 
   template <typename... Args>
   auto& operator()(const Args... args) {
@@ -246,13 +252,21 @@ public:
   /** @brief returns a value at an index (unmapped)
    * \note only to be used when the mapping is known
    */
-  value_type& directGet(const int index) { return values_[index]; }
+  value_type& directGet(const int index) {
+    return values_[index];
+  }
 
-  const value_type& directGet(const int index) const { return values_[index]; }
+  const value_type& directGet(const int index) const {
+    return values_[index];
+  }
 
-  auto& directGetAll() { return values_; }
+  auto& directGetAll() {
+    return values_;
+  }
 
-  const auto& directGetAll() const { return values_; }
+  const auto& directGetAll() const {
+    return values_;
+  }
 
   /** @brief returns a multiindex for a scalar index */
   template <typename ReturnType = std::array<int, netdim>>
@@ -275,7 +289,9 @@ public:
   }
 
   /** @brief returns an array with the strideSizes of each dimension */
-  std::array<int, netdim> strideSizes() const { return dimSize_; }
+  std::array<int, netdim> strideSizes() const {
+    return dimSize_;
+  }
 
   /** @brief returns an array with the strideSizes of each dimension */
   template <std::integral T>
@@ -286,7 +302,9 @@ public:
     return sizeUI;
   }
 
-  [[nodiscard]] std::size_t size() const { return values_.size(); }
+  [[nodiscard]] std::size_t size() const {
+    return values_.size();
+  }
 
   void resize(std::array<int, netdim> dimSize) {
     dimSize_  = dimSize;
@@ -536,13 +554,17 @@ namespace Impl {
       return std::ranges::transform_view(viewOverIndices_, objectExtractor);
     }
 
-    auto operator->() { return *this; }
+    auto operator->() {
+      return *this;
+    }
 
     friend HyperSurfaceIterator operator+(const HyperSurfaceIterator& l, int inc) {
       return HyperSurfaceIterator(*(l.net_), l.direction_, l.at_ + inc);
     }
 
-    friend HyperSurfaceIterator operator-(const HyperSurfaceIterator& l, int inc) { return l + (-inc); }
+    friend HyperSurfaceIterator operator-(const HyperSurfaceIterator& l, int inc) {
+      return l + (-inc);
+    }
 
   private:
     MDNetType* net_;
@@ -646,7 +668,9 @@ public:
     return index;
   }
 
-  int size() const { return size_; }
+  int size() const {
+    return size_;
+  }
 
 private:
   std::array<int, netdim> dimSize_;

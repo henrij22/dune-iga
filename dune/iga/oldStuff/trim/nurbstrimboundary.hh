@@ -42,12 +42,14 @@ public:
   explicit Boundary(Ibra::BrepTrim& _trim)
       : nurbsGeometry(geometryFromTrim(_trim.geometry)),
         domain(_trim.domain),
-        endPoints({nurbsGeometry(domain.left()), nurbsGeometry(domain.right())}) {}
+        endPoints({nurbsGeometry(domain.left()), nurbsGeometry(domain.right())}) {
+  }
 
   explicit Boundary(const Point& a, const Point& b)
       : nurbsGeometry(lineGeometryFromPoints(a, b)),
         domain(nurbsGeometry.domain()[0]),
-        endPoints({a, b}) {}
+        endPoints({a, b}) {
+  }
 
   // Helper classes for construction of nurbsGeometry
 private:
@@ -81,7 +83,9 @@ private:
   }
 
 public:
-  [[nodiscard]] int degree() const { return nurbsGeometry.degree()[0]; };
+  [[nodiscard]] int degree() const {
+    return nurbsGeometry.degree()[0];
+  };
 
   enum class EdgeOrientation
   {
@@ -129,7 +133,9 @@ public:
 
   TrimData() = default;
 
-  void addLoop(const std::vector<Boundary>& _boundaries) { boundaryLoops.push_back({_boundaries}); }
+  void addLoop(const std::vector<Boundary>& _boundaries) {
+    boundaryLoops.push_back({_boundaries});
+  }
 
   [[nodiscard]] size_t numBoundaries() const {
     const auto joinedView = std::ranges::join_view(boundaryLoops);

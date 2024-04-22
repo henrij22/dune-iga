@@ -32,11 +32,6 @@ class PatchGridLeafIntersectionIterator;
 template <class Grid>
 struct HostGridAccess;
 
-//**********************************************************************
-//
-// --PatchGridEntity
-// --Entity
-//
 /** @brief The implementation of entities in a PatchGrid
  *   @ingroup PatchGrid
  *
@@ -69,8 +64,6 @@ private:
   using Trimmer                  = typename GridImp::Trimmer;
   using ParameterSpaceGridEntity = typename Trimmer::template Codim<codim>::ParameterSpaceGridEntity;
 
-  //@todo Trimmer should also provide a
-
 public:
   typedef typename GridImp::ctype ctype;
 
@@ -80,26 +73,29 @@ public:
   typedef typename GridImp::template Codim<codim>::EntitySeed EntitySeed;
 
   PatchGridEntity()
-      : patchGrid_(nullptr) {}
+      : patchGrid_(nullptr) {
+  }
 
   PatchGridEntity(const GridImp* patchGrid, const ParameterSpaceGridEntity& hostEntity)
       : hostEntity_(hostEntity),
-        patchGrid_(patchGrid) {}
+        patchGrid_(patchGrid) {
+  }
 
   PatchGridEntity(const GridImp* patchGrid, ParameterSpaceGridEntity&& hostEntity)
       : hostEntity_(std::move(hostEntity)),
-        patchGrid_(patchGrid) {}
+        patchGrid_(patchGrid) {
+  }
 
-  //! @todo Please doc me !
   PatchGridEntity(const PatchGridEntity& original)
       : hostEntity_(original.hostEntity_),
-        patchGrid_(original.patchGrid_) {}
+        patchGrid_(original.patchGrid_) {
+  }
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
       : hostEntity_(std::move(original.hostEntity_)),
-        patchGrid_(original.patchGrid_) {}
+        patchGrid_(original.patchGrid_) {
+  }
 
-  //! @todo Please doc me !
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
       patchGrid_  = original.patchGrid_;
@@ -108,7 +104,6 @@ public:
     return *this;
   }
 
-  //! @todo Please doc me !
   PatchGridEntity& operator=(PatchGridEntity&& original) noexcept {
     if (this != &original) {
       patchGrid_  = original.patchGrid_;
@@ -117,24 +112,36 @@ public:
     return *this;
   }
 
-  bool equals(const PatchGridEntity& other) const { return getHostEntity() == other.getHostEntity(); }
+  bool equals(const PatchGridEntity& other) const {
+    return getHostEntity() == other.getHostEntity();
+  }
 
   //! returns true if father entity exists
-  bool hasFather() const { return hostEntity_.hasFather(); }
+  bool hasFather() const {
+    return hostEntity_.hasFather();
+  }
 
   //! Create EntitySeed
-  EntitySeed seed() const { return patchGrid_->trimmer_->seed(*this); }
+  EntitySeed seed() const {
+    return patchGrid_->trimmer_->seed(*this);
+  }
 
   //! level of this element
-  int level() const { return hostEntity_.level(); }
+  int level() const {
+    return hostEntity_.level();
+  }
 
   /** @brief The partition type for parallel computing
    */
-  PartitionType partitionType() const { return hostEntity_.partitionType(); }
+  PartitionType partitionType() const {
+    return hostEntity_.partitionType();
+  }
 
   /** @brief Return the number of subEntities of codimension codim.
    */
-  unsigned int subEntities(unsigned int cc) const { return hostEntity_.subEntities(cc); }
+  unsigned int subEntities(unsigned int cc) const {
+    return hostEntity_.subEntities(cc);
+  }
 
   // using ParameterSpaceGeometry = typename Trimmer::template LocalParameterSpaceGeometry<codim>;
 
@@ -145,7 +152,9 @@ public:
     return Geometry(geo);
   }
 
-  const auto& getHostEntity() const { return hostEntity_; }
+  const auto& getHostEntity() const {
+    return hostEntity_;
+  }
 
   // const auto& getHostEntity()const {
   //     return hostEntity_;
@@ -203,72 +212,84 @@ public:
   // typedef typename GridImp::Trimmer::TrimmerTraits::template Codim<0>::EntitySeedImpl EntitySeedImpl;
 
   PatchGridEntity()
-      : patchGrid_(nullptr) {}
+      : patchGrid_(nullptr) {
+  }
 
   PatchGridEntity(const GridImp* patchGrid, const ParameterSpaceGridEntity& hostEntity)
-      : hostEntity_(hostEntity),
-        patchGrid_(patchGrid) {}
+      : localEntity_(hostEntity),
+        patchGrid_(patchGrid) {
+  }
 
   PatchGridEntity(const GridImp* patchGrid, ParameterSpaceGridEntity&& hostEntity)
-      : hostEntity_(std::move(hostEntity)),
-        patchGrid_(patchGrid) {}
+      : localEntity_(std::move(hostEntity)),
+        patchGrid_(patchGrid) {
+  }
 
-  //! @todo Please doc me !
   PatchGridEntity(const PatchGridEntity& original)
-      : hostEntity_(original.hostEntity_),
-        patchGrid_(original.patchGrid_) {}
+      : localEntity_(original.hostEntity_),
+        patchGrid_(original.patchGrid_) {
+  }
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
-      : hostEntity_(std::move(original.hostEntity_)),
-        patchGrid_(original.patchGrid_) {}
+      : localEntity_(std::move(original.hostEntity_)),
+        patchGrid_(original.patchGrid_) {
+  }
 
-  //! @todo Please doc me !
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
-      patchGrid_  = original.patchGrid_;
-      hostEntity_ = original.hostEntity_;
+      patchGrid_   = original.patchGrid_;
+      localEntity_ = original.hostEntity_;
     }
     return *this;
   }
 
-  //! @todo Please doc me !
   PatchGridEntity& operator=(PatchGridEntity&& original) noexcept {
     if (this != &original) {
-      patchGrid_  = original.patchGrid_;
-      hostEntity_ = std::move(original.hostEntity_);
+      patchGrid_   = original.patchGrid_;
+      localEntity_ = std::move(original.hostEntity_);
     }
     return *this;
   }
 
-  [[nodiscard]] bool equals(const PatchGridEntity& other) const { return hostEntity_ == other.hostEntity_; }
+  [[nodiscard]] bool equals(const PatchGridEntity& other) const {
+    return localEntity_ == other.hostEntity_;
+  }
 
   //! returns true if father entity exists
-  [[nodiscard]] bool hasFather() const { return hostEntity_.hasFather(); }
+  [[nodiscard]] bool hasFather() const {
+    return localEntity_.hasFather();
+  }
 
   //! Create EntitySeed
-  [[nodiscard]] EntitySeed seed() const { return patchGrid_->trimmer_->seed(*this); }
+  [[nodiscard]] EntitySeed seed() const {
+    return patchGrid_->trimmer_->seed(*this);
+  }
 
   //! Level of this element
-  [[nodiscard]] int level() const { return getHostEntity().level(); }
+  [[nodiscard]] int level() const {
+    return getHostEntity().level();
+  }
 
   /** @brief The partition type for parallel computing */
-  [[nodiscard]] PartitionType partitionType() const { return getHostEntity().partitionType(); }
+  [[nodiscard]] PartitionType partitionType() const {
+    return getHostEntity().partitionType();
+  }
 
   //! Geometry of this entity
   [[nodiscard]] Geometry geometry() const {
-    //@todo Trim not hostEntity_
     static_assert(std::is_same_v<
                   decltype(patchGrid_->patchGeometries_[this->level()].template localView<0, Trimmer>()),
                   typename GeometryKernel::NURBSPatch<dim, dimworld, ctype>::template GeometryLocalView<0, Trimmer>>);
-    // auto referenceEle= referenceElement(*this);
     auto geo = typename Geometry::Implementation(
-        hostEntity_.geometry(), patchGrid_->patchGeometries_[this->level()].template localView<0, Trimmer>());
+        localEntity_.geometry(), patchGrid_->patchGeometries_[this->level()].template localView<0, Trimmer>());
     return Geometry(geo);
   }
 
   /** @brief Return the number of subEntities of codimension codim.
    */
-  [[nodiscard]] unsigned int subEntities(unsigned int codim) const { return hostEntity_.subEntities(codim); }
+  [[nodiscard]] unsigned int subEntities(unsigned int codim) const {
+    return localEntity_.subEntities(codim);
+  }
 
   /** @brief Provide access to sub entity i of given codimension. Entities
    *  are numbered 0 ... subEntities(cc)-1
@@ -276,24 +297,33 @@ public:
   template <int cc>
   [[nodiscard]] typename GridImp::template Codim<cc>::Entity subEntity(int i) const {
     //@todo how to handout vertices and edges?
-    // trimData().subEntity(int i)
-    return PatchGridEntity<cc, dim, GridImp>(patchGrid_, hostEntity_.template subEntity<cc>(i));
+    return PatchGridEntity<cc, dim, GridImp>(patchGrid_, localEntity_.template subEntity<cc>(i));
   }
 
   //! First level intersection
-  [[nodiscard]] LevelIntersectionIterator ilevelbegin() const { return patchGrid_->trimmer_->ilevelbegin(*this); }
+  [[nodiscard]] LevelIntersectionIterator ilevelbegin() const {
+    return patchGrid_->trimmer_->ilevelbegin(*this);
+  }
 
   //! Reference to one past the last neighbor
-  LevelIntersectionIterator ilevelend() const { return patchGrid_->trimmer_->ilevelend(*this); }
+  LevelIntersectionIterator ilevelend() const {
+    return patchGrid_->trimmer_->ilevelend(*this);
+  }
 
   //! First leaf intersection
-  LeafIntersectionIterator ileafbegin() const { return patchGrid_->trimmer_->ileafbegin(*this); }
+  LeafIntersectionIterator ileafbegin() const {
+    return patchGrid_->trimmer_->ileafbegin(*this);
+  }
 
   //! Reference to one past the last leaf intersection
-  LeafIntersectionIterator ileafend() const { return patchGrid_->trimmer_->ileafend(*this); }
+  LeafIntersectionIterator ileafend() const {
+    return patchGrid_->trimmer_->ileafend(*this);
+  }
 
   //! returns true if Entity has NO children
-  bool isLeaf() const { return getHostEntity().isLeaf(); }
+  bool isLeaf() const {
+    return getHostEntity().isLeaf();
+  }
 
   //! Inter-level access to father element on coarser grid.
   //! Assumes that meshes are nested.
@@ -305,23 +335,27 @@ public:
    * This is sufficient to interpolate all dofs in conforming case.
    * Nonconforming may require access to neighbors of father and
    * computations with local coordinates.
-   * On the fly case is somewhat inefficient since dofs  are visited several times.
+   * On the fly case is somewhat inefficient since dofs are visited several times.
    * If we store interpolation matrices, this is tolerable. We assume that on-the-fly
    * implementation of numerical algorithms is only done for simple discretizations.
    * Assumes that meshes are nested.
    */
   LocalGeometry geometryInFather() const {
-    return LocalGeometry(typename LocalGeometry::Implementation(hostEntity_.geometryInFather()));
+    return LocalGeometry(typename LocalGeometry::Implementation(localEntity_.geometryInFather()));
   }
 
   /** @brief Inter-level access to son elements on higher levels<=maxlevel.
    * This is provided for sparsely stored nested unstructured meshes.
    * Returns iterator to first son.
    */
-  HierarchicIterator hbegin(int maxLevel) const { return HierarchicIterator(patchGrid_, *this, maxLevel); }
+  HierarchicIterator hbegin(int maxLevel) const {
+    return HierarchicIterator(patchGrid_, *this, maxLevel);
+  }
 
   //! Returns iterator to one past the last son
-  HierarchicIterator hend(int maxLevel) const { return HierarchicIterator(patchGrid_, *this, maxLevel, true); }
+  HierarchicIterator hend(int maxLevel) const {
+    return HierarchicIterator(patchGrid_, *this, maxLevel, true);
+  }
 
   //! @todo Please doc me !
   bool wasRefined() const {
@@ -334,9 +368,13 @@ public:
   }
 
   //! @todo Please doc me !
-  bool mightBeCoarsened() const { return true; }
+  bool mightBeCoarsened() const {
+    return true;
+  }
 
-  auto trimData() const { return patchGrid_->trimData(*this); }
+  auto trimData() const {
+    return patchGrid_->trimData(*this);
+  }
 
   // /////////////////////////////////////////
   //   Internal stuff
@@ -348,10 +386,12 @@ public:
   //   else
   //   return hostEntity_;
   // }
-  const auto& getHostEntity() const { return hostEntity_; }
+  const auto& getHostEntity() const {
+    return localEntity_;
+  }
 
 private:
-  ParameterSpaceGridEntity hostEntity_;
+  ParameterSpaceGridEntity localEntity_;
   const GridImp* patchGrid_;
 
 }; // end of PatchGridEntity codim = 0

@@ -43,7 +43,6 @@ public:
     setCurrentEntity();
   }
 
-  //! @todo Please doc me !
   explicit PatchGridHierarchicIterator(const GridImp* parameterSpaceGrid, const Entity& startEntity, int maxLevel,
                                        [[maybe_unused]] bool endDummy)
       : parameterSpaceGrid_(parameterSpaceGrid),
@@ -54,7 +53,6 @@ public:
     setCurrentEntity();
   }
 
-  //! @todo Please doc me !
   void increment() {
     // exit if no further descendants exist
     if (parameterSpaceElementStack_.empty())

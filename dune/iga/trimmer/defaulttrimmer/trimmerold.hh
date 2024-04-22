@@ -133,7 +133,8 @@ namespace IGANEW {
       Trimmer(const GeometryKernel::NURBSPatch<dim, dimworld, ctype>& patch,
               const std::optional<PatchTrimData>& trimData)
           : patch_{patch},
-            patchTrimData_{trimData} {}
+            patchTrimData_{trimData} {
+      }
 
     private:
       template <int codim_, int dim_, class GridImp_>
@@ -225,13 +226,17 @@ namespace IGANEW {
        * @brief Get a const reference to the parameter space grid.
        * @return Const reference to the parameter space grid.
        */
-      const ParameterSpaceGrid& parameterSpaceGrid() const { return *parameterSpaceGrid_; }
+      const ParameterSpaceGrid& parameterSpaceGrid() const {
+        return *parameterSpaceGrid_;
+      }
 
       /**
        * @brief Get a reference to the parameter space grid.
        * @return Reference to the parameter space grid.
        */
-      ParameterSpaceGrid& parameterSpaceGrid() { return *parameterSpaceGrid_; }
+      ParameterSpaceGrid& parameterSpaceGrid() {
+        return *parameterSpaceGrid_;
+      }
 
       /**
        * @brief Get a const reference to the untrimmed parameter space grid.
@@ -250,7 +255,9 @@ namespace IGANEW {
        * @brief Pass parameters to the trimmer.
        * @param par The parameters.
        */
-      void setup(const ParameterType& par) { parameter = par; }
+      void setup(const ParameterType& par) {
+        parameter = par;
+      }
 
       /**
        * @brief Create the parameter space grid based on the patch and trim data.
@@ -404,7 +411,8 @@ namespace IGANEW {
       }
 
       template <typename LevelIndexSets, typename LeafIndexSet>
-      void updateIndices(LevelIndexSets& lvlIndexSets, LeafIndexSet& leafIndexSet) {}
+      void updateIndices(LevelIndexSets& lvlIndexSets, LeafIndexSet& leafIndexSet) {
+      }
 
     private:
       std::unique_ptr<UntrimmedParameterSpaceGrid>

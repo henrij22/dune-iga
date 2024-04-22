@@ -266,16 +266,21 @@ namespace IGANEW {
               c_{c},
               cc_{cc}
 
-        {}
+        {
+        }
 
         SubEntityRangeImpl(const iterator& begin, const iterator& end)
             : Base(begin, end),
-              size_(end - begin) {}
+              size_(end - begin) {
+        }
 
         SubEntityRangeImpl()
-            : size_(0) {}
+            : size_(0) {
+        }
 
-        std::size_t size() const { return size_; }
+        std::size_t size() const {
+          return size_;
+        }
 
         bool contains(std::size_t i) const {
           if (host_)
@@ -449,7 +454,9 @@ namespace IGANEW {
       }
 
       //! Compares for inequality with another reference element.
-      bool operator!=(const TrimmedReferenceElement& r) const { return not(*this == r); }
+      bool operator!=(const TrimmedReferenceElement& r) const {
+        return not(*this == r);
+      }
 
       //! Yields a hash value suitable for storing the reference element a in hash table
       friend std::size_t hash_value(const TrimmedReferenceElement& r) {

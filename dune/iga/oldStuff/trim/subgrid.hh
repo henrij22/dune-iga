@@ -97,7 +97,9 @@ PathD // SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-st
     }
 
   private:
-    auto splitBoundaries() const { return std::make_pair(splitOuterBoundaries(), splitInnerBoundaryLoops()); }
+    auto splitBoundaries() const {
+      return std::make_pair(splitOuterBoundaries(), splitInnerBoundaryLoops());
+    }
     auto splitOuterBoundaries(int maxDivisions       = maxOuterBoundaryDivisions,
                               double targetTolerance = outerTargetTolerance) const {
       return splitBoundariesImpl(outerBoundaries_, maxDivisions, targetTolerance, transformer);

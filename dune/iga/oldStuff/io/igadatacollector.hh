@@ -30,7 +30,8 @@ public:
 public:
   DiscontinuousIgaDataCollector(const GridView& gridView, int subSampleFull, int subSampleTrimmed)
       : Super(gridView),
-        geometries_(gridView, subSampleFull, subSampleTrimmed) {}
+        geometries_(gridView, subSampleFull, subSampleTrimmed) {
+  }
   // Does not subsample
   explicit DiscontinuousIgaDataCollector(const GridView& gridView)
       : DiscontinuousIgaDataCollector(gridView, 0, 0){};
@@ -68,7 +69,9 @@ public:
   }
 
   /// Return number of Lagrange nodes
-  [[nodiscard]] std::uint64_t numPointsImpl() const { return numPoints_; }
+  [[nodiscard]] std::uint64_t numPointsImpl() const {
+    return numPoints_;
+  }
 
   /// Return a vector of point coordinates.
   /**
@@ -99,7 +102,9 @@ public:
   }
 
   /// Return number of grid cells
-  [[nodiscard]] std::uint64_t numCellsImpl() const { return numCells_; }
+  [[nodiscard]] std::uint64_t numCellsImpl() const {
+    return numCells_;
+  }
 
   /// @brief Return cell types, offsets, and connectivity. \see Cells
   /**
@@ -188,7 +193,9 @@ public:
 protected:
 #if DUNE_VERSION_LT(DUNE_VTK, 2, 10)
   using Super::gridView_;
-  const auto& gridView() const { return gridView_; }
+  const auto& gridView() const {
+    return gridView_;
+  }
 
   std::uint64_t numPoints_ = 0;
   std::uint64_t numCells_  = 0;

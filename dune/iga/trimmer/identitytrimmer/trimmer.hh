@@ -306,20 +306,26 @@ namespace IdentityTrim {
      * @brief Pass parameters to the trimmer.
      * @param par The parameters.
      */
-    void setup() {}
-    void setParameters(const ParameterType&) {}
+    void setup() {
+    }
+    void setParameters(const ParameterType&) {
+    }
 
     /**
      * @brief Get a const reference to the parameter space grid.
      * @return Const reference to the parameter space grid.
      */
-    const ParameterSpaceGrid& parameterSpaceGrid() const { return *parameterSpaceGrid_; }
+    const ParameterSpaceGrid& parameterSpaceGrid() const {
+      return *parameterSpaceGrid_;
+    }
 
     /**
      * @brief Get a reference to the parameter space grid.
      * @return Reference to the parameter space grid.
      */
-    ParameterSpaceGrid& parameterSpaceGrid() { return *parameterSpaceGrid_; }
+    ParameterSpaceGrid& parameterSpaceGrid() {
+      return *parameterSpaceGrid_;
+    }
 
     template <class EntitySeed>
     typename GridFamily::Traits::template Codim<EntitySeed::codimension>::Entity entity(const EntitySeed& seed) const {
@@ -375,7 +381,9 @@ namespace IdentityTrim {
      *
      * Levels are numbered 0 ... maxlevel with 0 the coarsest level.
      */
-    [[nodiscard]] int maxLevel() const { return parameterSpaceGrid().maxLevel(); }
+    [[nodiscard]] int maxLevel() const {
+      return parameterSpaceGrid().maxLevel();
+    }
 
     //! Our set of level indices
     std::vector<std::unique_ptr<LevelIndexSet>> levelIndexSets_;

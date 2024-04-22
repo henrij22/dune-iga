@@ -175,7 +175,9 @@ public:
    *
    * Levels are numbered 0 ... maxlevel with 0 the coarsest level.
    */
-  [[nodiscard]] int maxLevel() const { return trimmer_->maxLevel(); }
+  [[nodiscard]] int maxLevel() const {
+    return trimmer_->maxLevel();
+  }
 
   //! Iterator to first entity of given codim on level
   template <int codim>
@@ -227,7 +229,9 @@ public:
 
   /** @brief Number of grid entities per level and codim
    */
-  [[nodiscard]] int size(int level, int codim) const { return levelIndexSet(level).size(codim); }
+  [[nodiscard]] int size(int level, int codim) const {
+    return levelIndexSet(level).size(codim);
+  }
 
   /** @brief returns the number of boundary segments within the macro grid
    */
@@ -237,19 +241,29 @@ public:
   }
 
   //! number of leaf entities per codim in this process
-  [[nodiscard]] int size(int codim) const { return leafIndexSet().size(codim); }
+  [[nodiscard]] int size(int codim) const {
+    return leafIndexSet().size(codim);
+  }
 
   //! number of entities per level, codim and geometry type in this process
-  int size(int level, GeometryType type) const { return levelIndexSet(level).size(type); }
+  int size(int level, GeometryType type) const {
+    return levelIndexSet(level).size(type);
+  }
 
   //! number of leaf entities per codim and geometry type in this process
-  int size(GeometryType type) const { return leafIndexSet().size(type); }
+  int size(GeometryType type) const {
+    return leafIndexSet().size(type);
+  }
 
   /** @brief Access to the GlobalIdSet */
-  const typename Traits::GlobalIdSet& globalIdSet() const { return *trimmer_->globalIdSet_; }
+  const typename Traits::GlobalIdSet& globalIdSet() const {
+    return *trimmer_->globalIdSet_;
+  }
 
   /** @brief Access to the LocalIdSet */
-  const typename Traits::LocalIdSet& localIdSet() const { return *trimmer_->localIdSet_; }
+  const typename Traits::LocalIdSet& localIdSet() const {
+    return *trimmer_->localIdSet_;
+  }
 
   /** @brief Access to the LevelIndexSets */
   const typename Traits::LevelIndexSet& levelIndexSet(int level) const {
@@ -260,7 +274,9 @@ public:
   }
 
   /** @brief Access to the LeafIndexSet */
-  const typename Traits::LeafIndexSet& leafIndexSet() const { return *trimmer_->leafIndexSet_; }
+  const typename Traits::LeafIndexSet& leafIndexSet() const {
+    return *trimmer_->leafIndexSet_;
+  }
 
   /** @brief Create Entity from EntitySeed */
   template <class EntitySeed>
@@ -382,21 +398,31 @@ public:
   }
 
   /** @brief returns true, if at least one entity is marked for adaption */
-  bool preAdapt() { return trimmer_->paramterSpaceGrid().preAdapt(); }
+  bool preAdapt() {
+    return trimmer_->paramterSpaceGrid().preAdapt();
+  }
 
   //! Triggers the grid refinement process
-  bool adapt() { return trimmer_->paramterSpaceGrid().adapt(); }
+  bool adapt() {
+    return trimmer_->paramterSpaceGrid().adapt();
+  }
 
   /** @brief Clean up refinement markers */
-  void postAdapt() { return trimmer_->paramterSpaceGrid().postAdapt(); }
+  void postAdapt() {
+    return trimmer_->paramterSpaceGrid().postAdapt();
+  }
 
   /*@}*/
 
   /** @brief Size of the overlap on the leaf level */
-  unsigned int overlapSize(int codim) const { return trimmer_->parameterSpaceGrid().leafGridView().overlapSize(codim); }
+  unsigned int overlapSize(int codim) const {
+    return trimmer_->parameterSpaceGrid().leafGridView().overlapSize(codim);
+  }
 
   /** @brief Size of the ghost cell layer on the leaf level */
-  unsigned int ghostSize(int codim) const { return trimmer_->parameterSpaceGrid().leafGridView().ghostSize(codim); }
+  unsigned int ghostSize(int codim) const {
+    return trimmer_->parameterSpaceGrid().leafGridView().ghostSize(codim);
+  }
 
   /** @brief Size of the overlap on a given level */
   unsigned int overlapSize(int level, int codim) const {
@@ -420,7 +446,9 @@ public:
 #endif
 
   /** @brief dummy communication */
-  const Communication<No_Comm>& comm() const { return ccobj; }
+  const Communication<No_Comm>& comm() const {
+    return ccobj;
+  }
 
   /** @brief Communicate data of level gridView */
   template <class DataHandle>
@@ -439,8 +467,12 @@ public:
   // **********************************************************
 
   //! Returns the hostgrid this PatchGrid lives in
-  const ParameterSpaceGrid& parameterSpaceGrid() const { return trimmer_->parameterSpaceGrid(); }
-  ParameterSpaceGrid& parameterSpaceGrid() { return trimmer_->parameterSpaceGrid(); }
+  const ParameterSpaceGrid& parameterSpaceGrid() const {
+    return trimmer_->parameterSpaceGrid();
+  }
+  ParameterSpaceGrid& parameterSpaceGrid() {
+    return trimmer_->parameterSpaceGrid();
+  }
 
   //! Returns the hostgrid entity encapsulated in given PatchGrid entity
   template <int codim>
@@ -450,10 +482,16 @@ public:
     return e.impl().getHostEntity();
   }
 
-  auto untrimmedElementNumbers(int lvl) const { return patchGeometries_[lvl].numberOfSpans(); }
+  auto untrimmedElementNumbers(int lvl) const {
+    return patchGeometries_[lvl].numberOfSpans();
+  }
 
-  const auto& trimmer() const { return *trimmer_; }
-  const auto& patchGeometry(int i) const { return patchGeometries_.at(i); }
+  const auto& trimmer() const {
+    return *trimmer_;
+  }
+  const auto& patchGeometry(int i) const {
+    return patchGeometries_.at(i);
+  }
 
 private:
   PatchGrid() = default;

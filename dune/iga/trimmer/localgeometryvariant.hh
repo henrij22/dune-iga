@@ -26,11 +26,14 @@ public:
   using JacobianInverse           = std::common_type_t<typename Implementations::JacobianInverse...>;
   using Volume                    = ctype;
 
-  auto visit(auto&& lambda) const { return std::visit(lambda, impl_); }
+  auto visit(auto&& lambda) const {
+    return std::visit(lambda, impl_);
+  }
 
   template <class Implementation>
   LocalGeometryVariant(const Implementation& impl)
-      : impl_(impl) {}
+      : impl_(impl) {
+  }
 
   LocalGeometryVariant()                                  = default;
   LocalGeometryVariant(const LocalGeometryVariant& other) = default;

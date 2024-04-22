@@ -53,15 +53,18 @@ public:
 
   using IntersectionGeometry = GeometryKernel::NURBSPatch<mydim, dim, ctype>;
 
-  TrimmedLeafIntersection() {}
+  TrimmedLeafIntersection() {
+  }
 
   TrimmedLeafIntersection(const GridImp* parameterSpaceGrid, const HostLeafIntersection& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        hostIntersection_{hostIntersection} {}
+        hostIntersection_{hostIntersection} {
+  }
 
   TrimmedLeafIntersection(const GridImp* parameterSpaceGrid, HostLeafIntersection&& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        hostIntersection_{hostIntersection} {}
+        hostIntersection_{hostIntersection} {
+  }
   HostLeafIntersection hostIntersection_;
   bool operator==(const TrimmedLeafIntersection& other) const {
     // DUNE_THROW(NotImplemented, "equals not implemented");
@@ -250,11 +253,13 @@ public:
 
   TrimmedLevelIntersection(const GridImp* identityGrid, const HostLevelIntersection& hostIntersection)
       : patchGrid_(identityGrid),
-        hostIntersection_{hostIntersection} {}
+        hostIntersection_{hostIntersection} {
+  }
 
   TrimmedLevelIntersection(const GridImp* identityGrid, HostLevelIntersection&& hostIntersection)
       : patchGrid_(identityGrid),
-        hostIntersection_{hostIntersection} {}
+        hostIntersection_{hostIntersection} {
+  }
 
   HostLevelIntersection hostIntersection_;
   [[nodiscard]] bool operator==(const TrimmedLevelIntersection& other) const {
@@ -324,10 +329,14 @@ public:
   }
 
   //! Return true if this is a conforming intersection, within one patch we are always conforming
-  [[nodiscard]] bool conforming() const { return true; }
+  [[nodiscard]] bool conforming() const {
+    return true;
+  }
 
   //! Geometry type of an intersection
-  [[nodiscard]] GeometryType type() const { return GeometryTypes::line; }
+  [[nodiscard]] GeometryType type() const {
+    return GeometryTypes::line;
+  }
 
   //! intersection of codimension 1 of this neighbor with element where
   //! iteration started.

@@ -55,8 +55,12 @@ auto findIntersectionCurveAndLine(const GeoCurve& geoCurve, const FieldVector<Sc
 
   struct Line
   {
-    FieldVector<ScalarType, dim> operator()(ScalarType t) { return pos + t * dir; }
-    const FieldVector<ScalarType, dim>& jacobian() { return dir; }
+    FieldVector<ScalarType, dim> operator()(ScalarType t) {
+      return pos + t * dir;
+    }
+    const FieldVector<ScalarType, dim>& jacobian() {
+      return dir;
+    }
 
     const FieldVector<ScalarType, dim>& pos;
     const FieldVector<ScalarType, dim>& dir;

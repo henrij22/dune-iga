@@ -61,8 +61,9 @@ auto checkUniqueEdges(const auto& gridView) {
   }
 }
 
-template <typename GridView> requires (GridView::dimension == 2)
-auto checkUniqueVertices(const GridView& gridView)  {
+template <typename GridView>
+requires(GridView::dimension == 2)
+auto checkUniqueVertices(const GridView& gridView) {
   Dune::TestSuite t;
 
   constexpr int gridDimensionworld = GridView::dimensionworld;
@@ -85,7 +86,6 @@ auto checkUniqueVertices(const GridView& gridView)  {
     ++eleIndex;
   }
   return t;
-
 }
 
 auto checkUniqueSurfaces(const auto& gridView) {
@@ -885,7 +885,7 @@ auto testPlate() {
   auto grid               = std::make_shared<Grid>(patchData);
   grid->globalRefine(1);
 
-  auto gridView        = grid->leafGridView();
+  auto gridView = grid->leafGridView();
   VTKWriter writer(gridView);
   writer.write("platetest");
 
@@ -958,14 +958,14 @@ int main(int argc, char** argv) try {
   std::cout << "===============TEST IdentityTrim===" << std::endl;
   std::cout << "==================================" << std::endl;
   // t.subTest(testGrids<IdentityTrim::PatchGridFamily>());
-/*
-  std::cout << "testNURBSCurve" << std::endl;
-  t.subTest(testNURBSCurve());
-  std::cout << "testNURBSSurface" << std::endl;
-  t.subTest(testNURBSSurface());
-  t.subTest(testCurveHigherOrderDerivatives());
-  t.subTest(testSurfaceHigherOrderDerivatives());
-  */
+  /*
+    std::cout << "testNURBSCurve" << std::endl;
+    t.subTest(testNURBSCurve());
+    std::cout << "testNURBSSurface" << std::endl;
+    t.subTest(testNURBSSurface());
+    t.subTest(testCurveHigherOrderDerivatives());
+    t.subTest(testSurfaceHigherOrderDerivatives());
+    */
   //
   // gridCheck();
   // t.subTest(testBsplineBasisFunctions());

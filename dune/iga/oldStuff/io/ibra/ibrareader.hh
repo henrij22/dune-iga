@@ -162,8 +162,12 @@ namespace Dune {
 template <int gridDim, int worldDim, typename ScalarType>
 struct DGFGridInfo<Dune::IGA::NURBSGrid<gridDim, worldDim, ScalarType>>
 {
-  static int refineStepsForHalf() { return 1; }
-  static double refineWeight() { return std::pow(0.5, gridDim); }
+  static int refineStepsForHalf() {
+    return 1;
+  }
+  static double refineWeight() {
+    return std::pow(0.5, gridDim);
+  }
 };
 
 template <typename Grid_>
@@ -174,22 +178,28 @@ struct JSONGridFactory
   using ScalarType                             = typename Grid_::ScalarType;
 
   using Grid = Grid_;
-  JSONGridFactory(std::string p_fileName) { grid_ = IGA::IbraReader<gridDim, worldDim, ScalarType>::read(p_fileName); }
+  JSONGridFactory(std::string p_fileName) {
+    grid_ = IGA::IbraReader<gridDim, worldDim, ScalarType>::read(p_fileName);
+  }
   JSONGridFactory(std::istream& p_istreamGrid) {
     grid_ = IGA::IbraReader<gridDim, worldDim, ScalarType>::read(p_istreamGrid);
   }
 
   std::unique_ptr<Grid> grid_;
 
-  [[nodiscard]] Grid* grid() const { return grid_.release(); }
+  [[nodiscard]] Grid* grid() const {
+    return grid_.release();
+  }
 };
 
 template <int gridDim, int worldDim, typename ScalarType>
 struct DGFGridFactory<Dune::IGA::NURBSGrid<gridDim, worldDim, ScalarType>>
 {
   using Grid = Dune::IGA::NURBSGrid<gridDim, worldDim, ScalarType>;
-  DGFGridFactory(std::string p_fileName) {}
-  DGFGridFactory(std::istream& p_istreamGrid) {}
+  DGFGridFactory(std::string p_fileName) {
+  }
+  DGFGridFactory(std::istream& p_istreamGrid) {
+  }
 
   Grid* grid() const {
     DUNE_THROW(Dune::NotImplemented, "DGFGridFactory not implemtented use JSONGridFactory");

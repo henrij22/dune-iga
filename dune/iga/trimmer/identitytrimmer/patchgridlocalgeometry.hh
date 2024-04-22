@@ -51,26 +51,37 @@ public:
   // using ParameterSpaceGeometry = typename Trimmer::template LocalGeometry<codim>;
 
   explicit PatchGridLocalGeometry(const LocalGeometry& localGeometry)
-      : localGeometry_(localGeometry) {}
+      : localGeometry_(localGeometry) {
+  }
 
   // PatchGridLocalGeometry(const HostGridGeometry& hostGeometry) : hostGeometry_(hostGeometry) {}
 
   /** @brief Return the element type identifier
    */
-  [[nodiscard]] GeometryType type() const { return localGeometry_.type(); }
+  [[nodiscard]] GeometryType type() const {
+    return localGeometry_.type();
+  }
 
   // return whether we have an affine mapping
-  [[nodiscard]] bool affine() const { return localGeometry_.affine(); }
+  [[nodiscard]] bool affine() const {
+    return localGeometry_.affine();
+  }
 
   //! return the number of corners of this element. Corners are numbered 0...n-1
-  [[nodiscard]] int corners() const { return localGeometry_.corners(); }
+  [[nodiscard]] int corners() const {
+    return localGeometry_.corners();
+  }
 
   //! access to coordinates of corners. Index is the number of the corner
-  GlobalCoordinate corner(int i) const { return localGeometry_.corner(i); }
+  GlobalCoordinate corner(int i) const {
+    return localGeometry_.corner(i);
+  }
 
   /** @brief Maps a local coordinate within reference element to
    * global coordinate in element  */
-  GlobalCoordinate global(const LocalCoordinate& local) const { return localGeometry_.global(local); }
+  GlobalCoordinate global(const LocalCoordinate& local) const {
+    return localGeometry_.global(local);
+  }
 
   /** @brief Return the transposed of the Jacobian
    */
@@ -80,10 +91,14 @@ public:
 
   /** @brief Maps a global coordinate within the element to a
    * local coordinate in its reference element */
-  LocalCoordinate local(const GlobalCoordinate& global) const { return localGeometry_.local(global); }
+  LocalCoordinate local(const GlobalCoordinate& global) const {
+    return localGeometry_.local(global);
+  }
 
   //! Returns true if the point is in the current element
-  bool checkInside(const FieldVector<ctype, mydim>& local) const { return localGeometry_.checkInside(local); }
+  bool checkInside(const FieldVector<ctype, mydim>& local) const {
+    return localGeometry_.checkInside(local);
+  }
 
   [[nodiscard]] Volume integrationElement(const LocalCoordinate& local) const {
     return localGeometry_.integrationElement(local);

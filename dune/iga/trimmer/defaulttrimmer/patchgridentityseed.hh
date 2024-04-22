@@ -45,7 +45,8 @@ public:
    */
   explicit PatchGridEntitySeed(const EntityImp& ent)
       : lvl_(ent.getHostEntity().entityInfo_.lvl),
-        indexInLvlStorage_{ent.getHostEntity().entityInfo_.indexInLvlStorage} {}
+        indexInLvlStorage_{ent.getHostEntity().entityInfo_.indexInLvlStorage} {
+  }
 
   /**
    * @brief Get stored ParameterSpaceGridEntitySeed
@@ -55,10 +56,14 @@ public:
   /**
    * @brief Check whether it is safe to create an Entity from this Seed
    */
-  bool isValid() const { return indexInLvlStorage_ != std::numeric_limits<unsigned int>::max(); }
+  bool isValid() const {
+    return indexInLvlStorage_ != std::numeric_limits<unsigned int>::max();
+  }
 
 private:
-  auto data() const { return std::make_pair(lvl_, indexInLvlStorage_); }
+  auto data() const {
+    return std::make_pair(lvl_, indexInLvlStorage_);
+  }
 
   int lvl_{};
   unsigned int indexInLvlStorage_{std::numeric_limits<unsigned int>::max()};

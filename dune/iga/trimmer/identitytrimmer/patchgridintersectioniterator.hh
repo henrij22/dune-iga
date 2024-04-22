@@ -37,20 +37,28 @@ class PatchGridLeafIntersectionIterator
 public:
   typedef Dune::Intersection<const GridImp, PatchGridLeafIntersection<GridImp> > Intersection;
 
-  PatchGridLeafIntersectionIterator() {}
+  PatchGridLeafIntersectionIterator() {
+  }
 
   PatchGridLeafIntersectionIterator(const GridImp* parameterSpaceGrid, const HostLeafIntersectionIterator& hostIterator)
       : parameterSpaceGrid_(parameterSpaceGrid),
-        hostIterator_(hostIterator) {}
+        hostIterator_(hostIterator) {
+  }
 
   //! equality
-  bool equals(const PatchGridLeafIntersectionIterator& other) const { return hostIterator_ == other.hostIterator_; }
+  bool equals(const PatchGridLeafIntersectionIterator& other) const {
+    return hostIterator_ == other.hostIterator_;
+  }
 
   //! prefix increment
-  void increment() { ++hostIterator_; }
+  void increment() {
+    ++hostIterator_;
+  }
 
   //! @brief dereferencing
-  Intersection dereference() const { return PatchGridLeafIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_); }
+  Intersection dereference() const {
+    return PatchGridLeafIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_);
+  }
 
 private:
   //**********************************************************
@@ -77,12 +85,14 @@ class PatchGridLevelIntersectionIterator
 public:
   typedef Dune::Intersection<const GridImp, PatchGridLevelIntersection<GridImp> > Intersection;
 
-  PatchGridLevelIntersectionIterator() {}
+  PatchGridLevelIntersectionIterator() {
+  }
 
   PatchGridLevelIntersectionIterator(const GridImp* parameterSpaceGrid,
                                      const HostLevelIntersectionIterator& hostIterator)
       : parameterSpaceGrid_(parameterSpaceGrid),
-        hostIterator_(hostIterator) {}
+        hostIterator_(hostIterator) {
+  }
 
   //! equality
   bool equals(const PatchGridLevelIntersectionIterator<GridImp>& other) const {
@@ -90,10 +100,14 @@ public:
   }
 
   //! prefix increment
-  void increment() { ++hostIterator_; }
+  void increment() {
+    ++hostIterator_;
+  }
 
   //! @brief dereferencing
-  Intersection dereference() const { return PatchGridLevelIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_); }
+  Intersection dereference() const {
+    return PatchGridLevelIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_);
+  }
 
 private:
   const GridImp* parameterSpaceGrid_          = nullptr;

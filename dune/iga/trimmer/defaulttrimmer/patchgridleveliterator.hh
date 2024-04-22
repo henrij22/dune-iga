@@ -40,7 +40,8 @@ public:
   // template<typename =void> requires (codim==0)
   explicit PatchGridLevelIterator(const GridImp* patchGrid, int level)
       : patchGrid_(patchGrid),
-        parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template begin<codim>(level)) {}
+        parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template begin<codim>(level)) {
+  }
 
   /** @brief Constructor which create the end iterator
       @param endDummy      Here only to distinguish it from the other constructor
@@ -56,10 +57,13 @@ public:
   // template<typename =void> requires (codim==0)
   explicit PatchGridLevelIterator(const GridImp* patchGrid, int level, [[maybe_unused]] bool endDummy)
       : patchGrid_(patchGrid),
-        parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template end<codim>(level)) {}
+        parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template end<codim>(level)) {
+  }
 
   //! prefix increment
-  void increment() { ++parameterSpaceLevelIterator; }
+  void increment() {
+    ++parameterSpaceLevelIterator;
+  }
   using GlobalIdSetId   = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
   using ElementTrimData = typename GridImp::Trimmer::ElementTrimData;
 

@@ -30,7 +30,8 @@ public:
   //! @todo Please doc me !
   explicit PatchGridLeafIterator(const GridImp* patchGrid)
       : patchGrid_(patchGrid),
-        hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template begin<codim, pitype>()) {}
+        hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template begin<codim, pitype>()) {
+  }
 
   /** @brief Constructor which create the end iterator
    *  @param endDummy      Here only to distinguish it from the other constructor
@@ -38,10 +39,13 @@ public:
    */
   explicit PatchGridLeafIterator(const GridImp* patchGrid, [[maybe_unused]] bool endDummy)
       : patchGrid_(patchGrid),
-        hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template end<codim, pitype>()) {}
+        hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template end<codim, pitype>()) {
+  }
 
   //! prefix increment
-  void increment() { ++hostLeafIterator_; }
+  void increment() {
+    ++hostLeafIterator_;
+  }
 
   //! dereferencing
   Entity dereference() const {
@@ -51,7 +55,9 @@ public:
   }
 
   //! equality
-  bool equals(const PatchGridLeafIterator& i) const { return hostLeafIterator_ == i.hostLeafIterator_; }
+  bool equals(const PatchGridLeafIterator& i) const {
+    return hostLeafIterator_ == i.hostLeafIterator_;
+  }
 
 private:
   const GridImp* patchGrid_;

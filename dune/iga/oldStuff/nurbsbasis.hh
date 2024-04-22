@@ -68,7 +68,8 @@ public:
    */
   NurbsLocalBasis(const NurbsPreBasis<GV>& preBasis, const NurbsLocalFiniteElement<GV, R>& lFE)
       : preBasis_(preBasis),
-        lFE_(lFE) {}
+        lFE_(lFE) {
+  }
 
   /** @brief Evaluate all shape functions
    * @param in Coordinates where to evaluate the functions, in local coordinates of the current knot span
@@ -120,7 +121,9 @@ public:
 
   /** @brief Return the number of basis functions on the current knot span
    */
-  [[nodiscard]] std::size_t size() const { return lFE_.size(); }
+  [[nodiscard]] std::size_t size() const {
+    return lFE_.size();
+  }
 
 private:
   const NurbsPreBasis<GV>& preBasis_;
@@ -276,7 +279,9 @@ public:
   }
 
   //! get i'th index
-  [[nodiscard]] const LocalKey& localKey(std::size_t i) const { return li_[i]; }
+  [[nodiscard]] const LocalKey& localKey(std::size_t i) const {
+    return li_[i];
+  }
 
 private:
   // Number of shape functions on this element per coordinate direction
@@ -331,7 +336,8 @@ public:
    */
   explicit NurbsLocalFiniteElement(const NurbsPreBasis<GV, R>& preBasis)
       : preBasis_(preBasis),
-        localBasis_(preBasis, *this) {}
+        localBasis_(preBasis, *this) {
+  }
 
   /** @brief Copy constructor
    */
@@ -402,10 +408,14 @@ public:
 
   /** @brief Return the reference element that the local finite element is defined on (here, a hypercube)
    */
-  [[nodiscard]] GeometryType type() const { return GeometryTypes::cube(dim); }
+  [[nodiscard]] GeometryType type() const {
+    return GeometryTypes::cube(dim);
+  }
 
   /** @brief Number of degrees of freedom for one coordinate direction */
-  [[nodiscard]] unsigned int oneDimensionalSize(int i) const { return preBasis_.patchData_.degree[i] + 1; }
+  [[nodiscard]] unsigned int oneDimensionalSize(int i) const {
+    return preBasis_.patchData_.degree[i] + 1;
+  }
 
   const NurbsPreBasis<GV, R>& preBasis_;
 
@@ -467,7 +477,9 @@ class NurbsPreBasis
     }
 
     /** @brief Access the i-th digit of the multi-index */
-    const unsigned int& operator[](int i) const { return counter_[i]; }
+    const unsigned int& operator[](int i) const {
+      return counter_[i];
+    }
 
     /** @brief How many times can you increment this multi-index before it overflows? */
     [[nodiscard]] unsigned int cycle() const {
@@ -518,18 +530,25 @@ public:
   }
 
   //! Initialize the global indices
-  void initializeIndices() {}
+  void initializeIndices() {
+  }
 
   //! Obtain the grid view that the basis is defined on
-  const GridView& gridView() const { return gridView_; }
+  const GridView& gridView() const {
+    return gridView_;
+  }
 
   //! Update the stored grid view, to be called if the grid has changed
-  void update(const GridView& gv) { gridView_ = gv; }
+  void update(const GridView& gv) {
+    gridView_ = gv;
+  }
 
   /**
    * @brief Create tree node
    */
-  Node makeNode() const { return Node{this}; }
+  Node makeNode() const {
+    return Node{this};
+  }
 
   //! Return number of possible values for next position in multi index
   template <typename SizePrefix>
@@ -539,7 +558,9 @@ public:
   }
 
   //! Get the total dimension of the space spanned by this basis
-  [[nodiscard]] size_type dimension() const { return size(); }
+  [[nodiscard]] size_type dimension() const {
+    return size();
+  }
 
   //! Get the maximal number of DOFs associated to node for any element
   [[nodiscard]] size_type maxNodeSize() const {
@@ -716,16 +737,21 @@ public:
 
   explicit NurbsNode(const NurbsPreBasis<GV>* preBasis)
       : preBasis_(preBasis),
-        finiteElement_(*preBasis) {}
+        finiteElement_(*preBasis) {
+  }
 
   //! Return current element, throw if unbound
-  const Element& element() const { return element_; }
+  const Element& element() const {
+    return element_;
+  }
 
   /** @brief Return the LocalFiniteElement for the element we are bound to
    *
    * The LocalFiniteElement implements the corresponding interfaces of the dune-localfunctions module
    */
-  const FiniteElement& finiteElement() const { return finiteElement_; }
+  const FiniteElement& finiteElement() const {
+    return finiteElement_;
+  }
 
   //! Bind to element.
   void bind(const Element& e) {
@@ -754,7 +780,8 @@ namespace BasisFactory {
 
       explicit NurbsPreBasisFactory(
           const std::optional<Dune::IGA::NURBSPatchData<dim, dimworld>>& patchData = std::nullopt)
-          : patchData_(patchData) {}
+          : patchData_(patchData) {
+      }
 
       template <class GridView>
       auto operator()(const GridView& gridView) const {

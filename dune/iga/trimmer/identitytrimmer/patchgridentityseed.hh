@@ -42,17 +42,22 @@ public:
    * of PatchGridEntitySeed to allow for return value optimization.
    */
   explicit PatchGridEntitySeed(const ParameterSpaceGridEntity& hostEntity)
-      : hostEntitySeed_(hostEntity.seed()) {}
+      : hostEntitySeed_(hostEntity.seed()) {
+  }
 
   /**
    * @brief Get stored ParameterSpaceGridEntitySeed
    */
-  const ParameterSpaceGridEntitySeed& hostEntitySeed() const { return hostEntitySeed_; }
+  const ParameterSpaceGridEntitySeed& hostEntitySeed() const {
+    return hostEntitySeed_;
+  }
 
   /**
    * @brief Check whether it is safe to create an Entity from this Seed
    */
-  bool isValid() const { return hostEntitySeed_.isValid(); }
+  bool isValid() const {
+    return hostEntitySeed_.isValid();
+  }
 
 private:
   ParameterSpaceGridEntitySeed hostEntitySeed_;

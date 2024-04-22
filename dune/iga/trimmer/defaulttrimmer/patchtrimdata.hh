@@ -8,11 +8,17 @@ namespace Impl {
   template <typename TrimmingCurve>
   struct BoundaryLoop
   {
-    void insertTrimCurve(const TrimmingCurve& curve) { curves_.push_back(curve); }
+    void insertTrimCurve(const TrimmingCurve& curve) {
+      curves_.push_back(curve);
+    }
 
-    const auto& curves() const { return curves_; }
+    const auto& curves() const {
+      return curves_;
+    }
 
-    [[nodiscard]] size_t size() const { return curves_.size(); }
+    [[nodiscard]] size_t size() const {
+      return curves_.size();
+    }
 
   private:
     std::vector<TrimmingCurve> curves_;
@@ -131,14 +137,18 @@ struct PatchTrimDataImpl
     idx_t splitter_{};
   };
 
-  void addLoop() { loops_.push_back({}); }
+  void addLoop() {
+    loops_.push_back({});
+  }
 
   void insertTrimCurve(const TrimmingCurve& curve, const int toLoop) {
     assert(loops_.size() > toLoop);
     loops_[toLoop].insertTrimCurve(curve);
   }
 
-  const auto& loops() const { return loops_; }
+  const auto& loops() const {
+    return loops_;
+  }
   const auto& clipperLoops() const {
     if (not finished_)
       DUNE_THROW(Dune::GridError, "Call trimmer.setup() before quering for loops");

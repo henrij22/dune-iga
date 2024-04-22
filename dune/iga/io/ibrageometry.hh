@@ -243,7 +243,9 @@ void getGenerics(const json& j, IbraBase& geometry) {
   geometry.type = typeForTypeString(geometry.typeString);
 }
 
-void from_json(const json& j, IbraBase& geometry) { getGenerics(j, geometry); }
+void from_json(const json& j, IbraBase& geometry) {
+  getGenerics(j, geometry);
+}
 
 template <int worldDim>
 void from_json(const json& j, Curve<worldDim>& curve) {

@@ -4,6 +4,7 @@
 #pragma once
 #include <map>
 #include <set>
+
 #include <dune/common/reservedvector.hh>
 namespace Dune::IGANEW::DefaultTrim {
 template <typename GridImp>
@@ -55,9 +56,9 @@ struct VectorEntityContainer
   const IdType& subId(const IdType& elementId, int localSubIndex, int codim) const {
     if (codim == 0)
       return elementId;
-    else if (codim == 1)
+    if (codim == 1)
       return globalEdgesIdOfElementsMap_.at(elementId)[localSubIndex];
-    else if (codim == 2)
+    if (codim == 2)
       return globalVerticesIdOfElementsMap.at(elementId)[localSubIndex];
     assert(codim >= 0 and codim <= 2);
     __builtin_unreachable();
@@ -171,15 +172,12 @@ struct VectorEntityContainer
     return 0;
   }
 
-
   std::size_t sizeOfInfos(int codim, int lvl) const {
     if (codim == 2)
       return idToVertexInfoMap[lvl].size();
 
     auto count = [=](auto&& range) -> std::size_t {
-      return std::ranges::count_if(range, [=](const auto& entityInfoPair) {
-        return entityInfoPair.second.lvl == lvl;
-      });
+      return std::ranges::count_if(range, [=](const auto& entityInfoPair) { return entityInfoPair.second.lvl == lvl; });
     };
     if (codim == 0)
       return count(idToElementInfoMap);
@@ -221,6 +219,5 @@ struct VectorEntityContainer
   // Store current amound of vertices and edges (untrimmed configuration + n) per lvl
   std::vector<unsigned int> edgeCount;
   std::vector<unsigned int> vertexCount;
-
 };
 } // namespace Dune::IGANEW::DefaultTrim

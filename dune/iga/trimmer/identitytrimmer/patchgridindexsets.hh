@@ -99,7 +99,8 @@ public:
 
   //! constructor stores reference to a grid and level
   explicit PatchGridLeafIndexSet(const GridImp& grid)
-      : grid_(&grid) {}
+      : grid_(&grid) {
+  }
 
   //! get index of an entity
   /*
@@ -130,7 +131,9 @@ public:
   }
 
   //! get number of entities of given codim
-  std::size_t size(int codim) const { return grid_->parameterSpaceGrid().leafIndexSet().size(codim); }
+  std::size_t size(int codim) const {
+    return grid_->parameterSpaceGrid().leafIndexSet().size(codim);
+  }
 
   /** @brief Deliver all geometry types used in this grid */
   Types types(int codim) const {
@@ -146,7 +149,9 @@ public:
   }
 
   /** @todo Currently we support only vertex and element indices */
-  void update(const GridImp& grid) { grid_ = &grid; }
+  void update(const GridImp& grid) {
+    grid_ = &grid;
+  }
 
   const GridImp* grid_;
 };
@@ -161,7 +166,8 @@ class PatchGridGlobalIdSet
 public:
   //! constructor stores reference to a grid
   explicit PatchGridGlobalIdSet(const GridImp& g)
-      : grid_(&g) {}
+      : grid_(&g) {
+  }
 
   //! define the type used for persistent indices
   typedef typename ParameterSpaceGrid::Traits::GlobalIdSet::IdType IdType;
@@ -189,7 +195,8 @@ public:
   }
 
   /** @todo Should be private */
-  void update() {}
+  void update() {
+  }
 
   const GridImp* grid_;
 };
@@ -208,7 +215,8 @@ public:
 
   //! constructor stores reference to a grid
   PatchGridLocalIdSet(const GridImp& g)
-      : grid_(&g) {}
+      : grid_(&g) {
+  }
 
   //! get id of an entity
   /*
@@ -234,7 +242,8 @@ public:
   }
 
   /** @todo Should be private */
-  void update() {}
+  void update() {
+  }
 
   const GridImp* grid_;
 };

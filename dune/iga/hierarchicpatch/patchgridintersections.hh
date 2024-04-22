@@ -50,15 +50,18 @@ public:
   typedef typename GridImp::template Codim<0>::Entity Entity;
   typedef FieldVector<ctype, dimworld> NormalVector;
 
-  PatchGridLeafIntersection() {}
+  PatchGridLeafIntersection() {
+  }
 
   PatchGridLeafIntersection(const GridImp* parameterSpaceGrid, const ParameterSpaceLeafIntersection& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        parameterSpaceIntersection(hostIntersection) {}
+        parameterSpaceIntersection(hostIntersection) {
+  }
 
   PatchGridLeafIntersection(const GridImp* parameterSpaceGrid, ParameterSpaceLeafIntersection&& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        parameterSpaceIntersection(std::move(hostIntersection)) {}
+        parameterSpaceIntersection(std::move(hostIntersection)) {
+  }
 
   bool equals(const PatchGridLeafIntersection& other) const {
     return parameterSpaceIntersection == other.parameterSpaceIntersection;
@@ -66,14 +69,20 @@ public:
 
   //! return Entity on the inside of this intersection
   //! (that is the Entity where we started this Iterator)
-  Entity inside() const { return PatchGridEntity<0, dim, GridImp>(patchGrid_, parameterSpaceIntersection.inside()); }
+  Entity inside() const {
+    return PatchGridEntity<0, dim, GridImp>(patchGrid_, parameterSpaceIntersection.inside());
+  }
 
   //! return Entity on the outside of this intersection
   //! (that is the neighboring Entity)
-  Entity outside() const { return PatchGridEntity<0, dim, GridImp>(patchGrid_, parameterSpaceIntersection.outside()); }
+  Entity outside() const {
+    return PatchGridEntity<0, dim, GridImp>(patchGrid_, parameterSpaceIntersection.outside());
+  }
 
   //! return true if intersection is with boundary.
-  bool boundary() const { return parameterSpaceIntersection.boundary(); }
+  bool boundary() const {
+    return parameterSpaceIntersection.boundary();
+  }
 
   /** @brief Return unit outer normal (length == 1)
    *
@@ -87,16 +96,24 @@ public:
   }
 
   //! return true if across the edge an neighbor on this level exists
-  bool neighbor() const { return parameterSpaceIntersection.neighbor(); }
+  bool neighbor() const {
+    return parameterSpaceIntersection.neighbor();
+  }
 
   //! return the boundary segment index
-  size_t boundarySegmentIndex() const { return parameterSpaceIntersection.boundarySegmentIndex(); }
+  size_t boundarySegmentIndex() const {
+    return parameterSpaceIntersection.boundarySegmentIndex();
+  }
 
   //! Return true if this is a conforming intersection
-  bool conforming() const { return parameterSpaceIntersection.conforming(); }
+  bool conforming() const {
+    return parameterSpaceIntersection.conforming();
+  }
 
   //! Geometry type of an intersection
-  GeometryType type() const { return parameterSpaceIntersection.type(); }
+  GeometryType type() const {
+    return parameterSpaceIntersection.type();
+  }
 
   //! intersection of codimension 1 of this neighbor with element where
   //! iteration started.
@@ -130,10 +147,14 @@ public:
   }
 
   //! local number of codim 1 entity in self where intersection is contained in
-  int indexInInside() const { return parameterSpaceIntersection.indexInInside(); }
+  int indexInInside() const {
+    return parameterSpaceIntersection.indexInInside();
+  }
 
   //! local number of codim 1 entity in neighbor where intersection is contained
-  int indexInOutside() const { return parameterSpaceIntersection.indexInOutside(); }
+  int indexInOutside() const {
+    return parameterSpaceIntersection.indexInOutside();
+  }
 
   //! return outer normal
   FieldVector<ctype, GridImp::dimensionworld> outerNormal(const LocalCoordinate& local) const {
@@ -204,11 +225,13 @@ public:
 
   PatchGridLevelIntersection(const GridImp* identityGrid, const ParameterSpaceLevelIntersection& hostIntersection)
       : patchGrid_(identityGrid),
-        parameterSpaceIntersection(hostIntersection) {}
+        parameterSpaceIntersection(hostIntersection) {
+  }
 
   PatchGridLevelIntersection(const GridImp* identityGrid, ParameterSpaceLevelIntersection&& hostIntersection)
       : patchGrid_(identityGrid),
-        parameterSpaceIntersection(std::move(hostIntersection)) {}
+        parameterSpaceIntersection(std::move(hostIntersection)) {
+  }
 
   [[nodiscard]] bool equals(const PatchGridLevelIntersection& other) const {
     return parameterSpaceIntersection == other.parameterSpaceIntersection;
@@ -228,7 +251,9 @@ public:
 
   /** @brief return true if intersection is with boundary.
    */
-  [[nodiscard]] bool boundary() const { return parameterSpaceIntersection.boundary(); }
+  [[nodiscard]] bool boundary() const {
+    return parameterSpaceIntersection.boundary();
+  }
 
   /** @brief Return unit outer normal (length == 1)
    *
@@ -242,16 +267,24 @@ public:
   }
 
   //! return true if across the edge an neighbor on this level exists
-  [[nodiscard]] bool neighbor() const { return parameterSpaceIntersection.neighbor(); }
+  [[nodiscard]] bool neighbor() const {
+    return parameterSpaceIntersection.neighbor();
+  }
 
   //! return the boundary segment index
-  [[nodiscard]] size_t boundarySegmentIndex() const { return parameterSpaceIntersection.boundarySegmentIndex(); }
+  [[nodiscard]] size_t boundarySegmentIndex() const {
+    return parameterSpaceIntersection.boundarySegmentIndex();
+  }
 
   //! Return true if this is a conforming intersection
-  [[nodiscard]] bool conforming() const { return parameterSpaceIntersection.conforming(); }
+  [[nodiscard]] bool conforming() const {
+    return parameterSpaceIntersection.conforming();
+  }
 
   //! Geometry type of an intersection
-  [[nodiscard]] GeometryType type() const { return parameterSpaceIntersection.type(); }
+  [[nodiscard]] GeometryType type() const {
+    return parameterSpaceIntersection.type();
+  }
 
   //! intersection of codimension 1 of this neighbor with element where
   //! iteration started.
@@ -282,10 +315,14 @@ public:
   }
 
   //! local number of codim 1 entity in self where intersection is contained in
-  [[nodiscard]] int indexInInside() const { return parameterSpaceIntersection.indexInInside(); }
+  [[nodiscard]] int indexInInside() const {
+    return parameterSpaceIntersection.indexInInside();
+  }
 
   //! local number of codim 1 entity in neighbor where intersection is contained
-  [[nodiscard]] int indexInOutside() const { return parameterSpaceIntersection.indexInOutside(); }
+  [[nodiscard]] int indexInOutside() const {
+    return parameterSpaceIntersection.indexInOutside();
+  }
 
   //! return outer normal
   [[nodiscard]] FieldVector<ctype, dimworld> outerNormal(const LocalCoordinate& local) const {
