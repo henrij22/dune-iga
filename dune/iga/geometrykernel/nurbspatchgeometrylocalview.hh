@@ -87,8 +87,8 @@ namespace GeometryKernel {
         std::conditional_t<isParameterSpaceGeometryProvided, LocalParameterSpaceGeometry,
                            typename Trimmer::template Codim<codim>::LocalParameterSpaceGeometry>;
 
-    //! if we have codim==0, then the Jacobian in the parameter space of the grid entity itself is a DiagonalMatrix,
-    //! and
+    //  if we have codim==0, then the Jacobian in the parameter space of the grid entity itself is a DiagonalMatrix,
+    //  and
     // Coordinates in a single knot span differ from coordinates on the B-spline patch
     // by an affine transformation.  This transformation is stored in the diagonal entries.
     // If trimming is disabled the Jacobian in the parameter space of subentities (edges or surfaces) is a

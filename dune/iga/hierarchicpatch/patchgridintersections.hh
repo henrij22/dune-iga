@@ -9,6 +9,8 @@
  * @brief The PatchGridLeafIntersection and PatchGridLevelIntersection classes
  */
 
+// @todo this should mirrow the interface of patchentity (forward to local Entity)
+
 namespace Dune::IGANEW {
 
 // External forward declarations
@@ -207,8 +209,8 @@ class PatchGridLevelIntersection
   typedef typename GridImp::ctype ctype;
 
   using ParameterSpaceLevelIntersection = typename Trimmer::TrimmerTraits::ParameterSpaceLevelIntersection;
-  using LocalCoordinate = FieldVector<ctype, mydim>;
-  using MatrixHelper = MultiLinearGeometryTraits<double>::MatrixHelper;
+  using LocalCoordinate                 = FieldVector<ctype, mydim>;
+  using MatrixHelper                    = MultiLinearGeometryTraits<double>::MatrixHelper;
 
 public:
   typedef typename GridImp::template Codim<1>::Geometry Geometry;
@@ -326,7 +328,7 @@ public:
     // auto refElement                                           = referenceElement(inside().geometry());
     // const int indexInInside                                   = this->indexInInside();
     // const typename LocalGeometry::GlobalCoordinate& refNormal = refElement.integrationOuterNormal(indexInInside);
-    const auto refNormal2                                     = parameterSpaceIntersection.outerNormal(local);
+    const auto refNormal2 = parameterSpaceIntersection.outerNormal(local);
 
     J.mv(refNormal2, res);
 

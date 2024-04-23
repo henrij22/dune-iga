@@ -20,18 +20,18 @@ class PatchGridGlobalIdSet : public IdSet<GridImp, PatchGridGlobalIdSet<GridImp>
   using UntrimmedParameterSpaceGrid = typename Trimmer::UntrimmedParameterSpaceGrid;
 
 public:
-  //! constructor stores reference to a grid
+  //  constructor stores reference to a grid
   PatchGridGlobalIdSet() = default;
   explicit PatchGridGlobalIdSet(const GridImp& g)
       : grid_(&g) {
   }
   // PatchGridGlobalIdSet(const GridImp& g, const std::vector<TrimmingCurve>& trimmingCurves) : grid_(&g) {}
 
-  //! define the type used for persistent indices
+  //  define the type used for persistent indices
   using IdType              = typename Trimmer::TrimmerTraits::GlobalIdSetId;
   using PersistentIndexType = typename Trimmer::TrimmerTraits::PersistentIndexType;
 
-  //! get id of an entity
+  //  get id of an entity
   /*
      We use the remove_const to extract the Type from the mutable class,
      because the const class is not instantiated yet.
@@ -42,7 +42,7 @@ public:
     return e.impl().getLocalEntity().id();
   }
 
-  //! get id of subEntity
+  //  get id of subEntity
 
   IdType subId(const typename std::remove_const<GridImp>::type::Traits::template Codim<0>::Entity& e, int i,
                int codim) const {

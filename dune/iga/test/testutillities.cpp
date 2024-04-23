@@ -23,7 +23,6 @@ auto testTransformations() {
 
   using Transformations = Dune::IGANEW::DefaultTrim::Transformations;
 
-
   for (const auto i : Dune::range(4u)) {
     t.check(Transformations::mapToDune(2, i) == vertexIndexMapping[i]);
     t.check(Transformations::mapToDune(1, i) == edgeIndexMapping[i]);
@@ -31,7 +30,6 @@ auto testTransformations() {
 
   constexpr std::array vertexIndexBackMapping = {0u, 1u, 2u, 3u};
   constexpr std::array edgeIndexBackMapping   = {3u, 1u, 0u, 2u};
-
 
   for (const auto i : Dune::range(4u)) {
     t.check(Transformations::mapToTrimmer(2, i) == vertexIndexBackMapping[i]);
@@ -48,7 +46,6 @@ int main(int argc, char** argv) try {
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
-
 
   t.report();
 

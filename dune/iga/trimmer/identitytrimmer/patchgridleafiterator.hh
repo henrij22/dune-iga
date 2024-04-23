@@ -26,7 +26,7 @@ public:
 
   typedef typename GridImp::template Codim<codim>::Entity Entity;
   PatchGridLeafIterator() = default;
-  //! @todo Please doc me !
+  //  @todo Please doc me !
   explicit PatchGridLeafIterator(const GridImp* patchGrid)
       : patchGrid_(patchGrid),
         hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template begin<codim, pitype>()) {
@@ -41,19 +41,19 @@ public:
         hostLeafIterator_(patchGrid->parameterSpaceGrid().leafGridView().template end<codim, pitype>()) {
   }
 
-  //! prefix increment
+  //  prefix increment
   void increment() {
     ++hostLeafIterator_;
   }
 
-  //! dereferencing
+  //  dereferencing
   Entity dereference() const {
     return Entity{
         {patchGrid_, *hostLeafIterator_}
     };
   }
 
-  //! equality
+  //  equality
   bool equals(const PatchGridLeafIterator& i) const {
     return hostLeafIterator_ == i.hostLeafIterator_;
   }

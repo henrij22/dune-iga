@@ -3,10 +3,13 @@
 
 #pragma once
 
-
 /** \file
  * @brief The TrimmedPatchGridLeafIntersection and TrimmedLevelIntersection classes
  */
+
+// @todo same as gridintersection, one variant that forwards everything to hostEntity and one trimmed one
+// @todo Also make this for leaf and level the same
+
 
 namespace Dune::IGANEW::DefaultTrim {
 
@@ -69,7 +72,7 @@ public:
   }
   using IdType = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
 
-  //! returns the inside entity
+  //  returns the inside entity
   ParameterSpaceGridEntity inside() const {
     // DUNE_THROW(NotImplemented, "inside not implemented");
     auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
@@ -77,8 +80,8 @@ public:
     return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, patchGrid_->maxLevel());
   }
 
-  //! return Entity on the outside of this intersection
-  //! (that is the neighboring Entity)
+  //  return Entity on the outside of this intersection
+  //  (that is the neighboring Entity)
   ParameterSpaceGridEntity outside() const {
     // DUNE_THROW(NotImplemented, "outside not implemented");
     auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
@@ -86,7 +89,7 @@ public:
     return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, patchGrid_->maxLevel());
   }
 
-  //! return true if intersection is with boundary.
+  //  return true if intersection is with boundary.
   [[nodiscard]] bool boundary() const {
     return hostIntersection_.boundary();
   }
@@ -98,43 +101,43 @@ public:
    *       It is scaled to have unit length. */
   NormalVector centerUnitOuterNormal() const {
     DUNE_THROW(NotImplemented, "centerUnitOuterNormal not implemented");
-    //! @todo compute jacobian create normal by cross-product, the cross-product has to take into account the normal
-    //! points away from the inside element
+    //  @todo compute jacobian create normal by cross-product, the cross-product has to take into account the normal
+    //  points away from the inside element
   }
 
-  //! return true if across the edge an neighbor on this level exists
+  //  return true if across the edge an neighbor on this level exists
   bool neighbor() const {
     return hostIntersection_.neighbor();
   }
 
-  //! return the boundary segment index
+  //  return the boundary segment index
   size_t boundarySegmentIndex() const {
     return 0;
     // This is not implmented in SubGrid
   }
 
-  //! Return true if this is a conforming intersection
+  //  Return true if this is a conforming intersection
   bool conforming() const {
     return hostIntersection_.conforming();
   }
 
-  //! Geometry type of an intersection
+  //  Geometry type of an intersection
   GeometryType type() const {
     return hostIntersection_.type();
   }
 
-  //! @todo this function should return how this inersection resides in the inside host element.
-  //! Therefore, this function should provide this intersection and maps to the 0..1 space
+  //  @todo this function should return how this inersection resides in the inside host element.
+  //  Therefore, this function should provide this intersection and maps to the 0..1 space
   LocalGeometry geometryInInside() const {
     return hostIntersection_.geometryInInside();
   }
 
-  //! Same as above
+  //  Same as above
   LocalGeometry geometryInOutside() const {
     return hostIntersection_.geometryInOutside();
   }
 
-  //! geometry of the intersection this geometry should map into the knotspan domain
+  //  geometry of the intersection this geometry should map into the knotspan domain
   using TrimmedParameterSpaceGeometry =
       typename GridImp::Trimmer::TrimmerTraits::template Codim<1>::TrimmedParameterSpaceGeometry;
   using LocalParameterSpaceGeometry =
@@ -144,35 +147,32 @@ public:
     return hostIntersection_.geometry();
   }
 
-  //! local number of codim 1 entity in self where intersection is contained in
+  //  local number of codim 1 entity in self where intersection is contained in
   int indexInInside() const {
     return hostIntersection_.indexInInside();
   }
 
-  //! local number of codim 1 entity in neighbor where intersection is contained
+  //  local number of codim 1 entity in neighbor where intersection is contained
   int indexInOutside() const {
     return hostIntersection_.indexInOutside();
-
   }
 
-  //! return outer normal
+  //  return outer normal
   FieldVector<ctype, dim> outerNormal(const LocalCoordinate& local) const {
     return hostIntersection_.outerNormal(local);
   }
 
-  //! return outer normal multiplied by the integration element
+  //  return outer normal multiplied by the integration element
   FieldVector<ctype, dim> integrationOuterNormal(const LocalCoordinate& local) const {
     return hostIntersection_.integrationOuterNormal(local);
-
   }
 
-  //! return unit outer normal
+  //  return unit outer normal
   FieldVector<ctype, dim> unitOuterNormal(const LocalCoordinate& local) const {
     return hostIntersection_.unitOuterNormal(local);
   }
 
 private:
-
   const GridImp* patchGrid_{nullptr};
   IntersectionGeometry geo;
 };
@@ -201,7 +201,6 @@ class TrimmedLevelIntersection
   using MatrixHelper = MultiLinearGeometryTraits<double>::MatrixHelper;
 
 public:
-
   typedef typename GridImp::ctype ctype;
   using LocalCoordinate = FieldVector<ctype, mydim>;
 
@@ -224,23 +223,23 @@ public:
   }
 
   using IdType = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
-  //! return Entity on the inside of this intersection
-  //! (that is the Entity where we started this Iterator)
+  //  return Entity on the inside of this intersection
+  //  (that is the Entity where we started this Iterator)
   [[nodiscard]] ParameterSpaceGridEntity inside() const {
     // DUNE_THROW(NotImplemented, "inside not implemented");
     auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
     IdType elementId = {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-    //! @todo Don't contruct this on the fly?
+    //  @todo Don't contruct this on the fly?
     return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, hostIntersection_.inside().level());
   }
 
-  //! return Entity on the outside of this intersection
-  //! (that is the neighboring Entity)
+  //  return Entity on the outside of this intersection
+  //  (that is the neighboring Entity)
   [[nodiscard]] ParameterSpaceGridEntity outside() const {
     // DUNE_THROW(NotImplemented, "outside not implemented");
     auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
     IdType elementId = {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-    //! @todo Don't contruct this on the fly?trim
+    //  @todo Don't contruct this on the fly?trim
     return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, hostIntersection_.outside().level());
   }
 
@@ -263,44 +262,44 @@ public:
     return hostIntersection_.centerUnitOuterNormal();
   }
 
-  //! return true if across the edge an neighbor on this level exists
+  //  return true if across the edge an neighbor on this level exists
   [[nodiscard]] bool neighbor() const {
     return hostIntersection_.neighbor();
   }
 
-  //! return the boundary segment index
+  //  return the boundary segment index
   [[nodiscard]] size_t boundarySegmentIndex() const {
     return 0;
     // This is not implmented in SubGrid
     return hostIntersection_.boundarySegmentIndex();
   }
 
-  //! Return true if this is a conforming intersection, within one patch we are always conforming
+  //  Return true if this is a conforming intersection, within one patch we are always conforming
   [[nodiscard]] bool conforming() const {
     return true;
   }
 
-  //! Geometry type of an intersection
+  //  Geometry type of an intersection
   [[nodiscard]] GeometryType type() const {
     return GeometryTypes::line;
   }
 
-  //! intersection of codimension 1 of this neighbor with element where
-  //! iteration started.
-  //! Here returned element is in LOCAL coordinates of the element
-  //! where iteration started.
+  //  intersection of codimension 1 of this neighbor with element where
+  //  iteration started.
+  //  Here returned element is in LOCAL coordinates of the element
+  //  where iteration started.
   [[nodiscard]] LocalGeometry geometryInInside() const {
     return hostIntersection_.geometryInInside();
   }
 
-  //! intersection of codimension 1 of this neighbor with element where iteration started.
-  //! Here returned element is in LOCAL coordinates of neighbor
+  //  intersection of codimension 1 of this neighbor with element where iteration started.
+  //  Here returned element is in LOCAL coordinates of neighbor
   [[nodiscard]] LocalGeometry geometryInOutside() const {
     return hostIntersection_.geometryInOutside();
   }
 
-  //! intersection of codimension 1 of this neighbor with element where iteration started.
-  //! Here returned element is in GLOBAL coordinates of the element where iteration started.
+  //  intersection of codimension 1 of this neighbor with element where iteration started.
+  //  Here returned element is in GLOBAL coordinates of the element where iteration started.
   using TrimmedParameterSpaceGeometry =
       typename GridImp::Trimmer::TrimmerTraits::template Codim<1>::TrimmedParameterSpaceGeometry;
   using LocalParameterSpaceGeometry =
@@ -310,27 +309,27 @@ public:
     return hostIntersection_.geometry();
   }
 
-  //! local number of codim 1 entity in self where intersection is contained in
+  //  local number of codim 1 entity in self where intersection is contained in
   [[nodiscard]] int indexInInside() const {
     return hostIntersection_.indexInInside();
   }
 
-  //! local number of codim 1 entity in neighbor where intersection is contained
+  //  local number of codim 1 entity in neighbor where intersection is contained
   [[nodiscard]] int indexInOutside() const {
     return hostIntersection_.indexInOutside();
   }
 
-  //! return outer normal
+  //  return outer normal
   [[nodiscard]] FieldVector<ctype, dimworld> outerNormal(const LocalCoordinate& local) const {
     return hostIntersection_.outerNormal(local);
   }
 
-  //! return outer normal multiplied by the integration element
+  //  return outer normal multiplied by the integration element
   [[nodiscard]] FieldVector<ctype, dimworld> integrationOuterNormal(const LocalCoordinate& local) const {
     return hostIntersection_.integrationOuterNormal(local);
   }
 
-  //! return unit outer normal
+  //  return unit outer normal
   [[nodiscard]] FieldVector<ctype, dimworld> unitOuterNormal(const LocalCoordinate& local) const {
     return hostIntersection_.integrationOuterNormal(local);
   }
@@ -338,7 +337,6 @@ public:
 private:
   const GridImp* patchGrid_;
   HostLevelIntersection hostIntersection_;
-
 };
 
 } // namespace Dune::IGANEW::DefaultTrim

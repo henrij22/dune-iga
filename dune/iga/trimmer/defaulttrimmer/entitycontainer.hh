@@ -204,7 +204,7 @@ struct VectorEntityContainer
   template <int codim>
   using EntityInteratorImpl = typename std::tuple_element_t<codim, EntityTuple>::iterator;
 
-  //! The lists of vertices, edges, elements for each level
+  //  The lists of vertices, edges, elements for each level
   EntityImps entityImps_;
 
   std::map<IdType, Dune::ReservedVector<IdType, 8>> globalEdgesIdOfElementsMap_;

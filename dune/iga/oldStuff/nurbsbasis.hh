@@ -59,7 +59,7 @@ class NurbsLocalBasis
   };
 
 public:
-  //! @brief export type traits for function signature
+  //  @brief export type traits for function signature
   using Traits = LocalBasisTraits<D, dim, FieldVector<D, dim>, R, 1, FieldVector<R, 1>, FieldMatrix<R, 1, dim>>;
 
   /** @brief Constructor with a given B-spline patch
@@ -95,7 +95,7 @@ public:
         out[i][0][j] *= scaling_[j][j];
   }
 
-  //! @brief Evaluate all shape functions and derivatives of any degree
+  //  @brief Evaluate all shape functions and derivatives of any degree
   inline void partial(const typename std::array<unsigned int, dim>& order, const typename Traits::DomainType& in,
                       std::vector<typename Traits::RangeType>& out) const {
     FieldVector<D, dim> globalIn = offset_;
@@ -273,12 +273,12 @@ public:
       li_[i] = LocalKey(subEntity[i], codim[i], index[i]);
   }
 
-  //! number of coefficients
+  //  number of coefficients
   [[nodiscard]] std::size_t size() const {
     return std::accumulate(sizes_.begin(), sizes_.end(), 1, std::multiplies<>());
   }
 
-  //! get i'th index
+  //  get i'th index
   [[nodiscard]] const LocalKey& localKey(std::size_t i) const {
     return li_[i];
   }
@@ -298,7 +298,7 @@ template <int dim, class LB>
 class NurbsLocalInterpolation
 {
 public:
-  //! @brief Local interpolation of a function
+  //  @brief Local interpolation of a function
   template <typename F, typename C>
   void interpolate(const F& f, std::vector<C>& out) const {
     DUNE_THROW(NotImplemented, "NurbsLocalInterpolation::interpolate");
@@ -504,7 +504,7 @@ public:
 
   using Node = NurbsNode<GV>;
 
-  //! Type of created tree node index set. \deprecated
+  //  Type of created tree node index set. \deprecated
   static constexpr size_type maxMultiIndexSize    = 1;
   static constexpr size_type minMultiIndexSize    = 1;
   static constexpr size_type multiIndexBufferSize = 1;
@@ -529,16 +529,16 @@ public:
     prepareForTrim();
   }
 
-  //! Initialize the global indices
+  //  Initialize the global indices
   void initializeIndices() {
   }
 
-  //! Obtain the grid view that the basis is defined on
+  //  Obtain the grid view that the basis is defined on
   const GridView& gridView() const {
     return gridView_;
   }
 
-  //! Update the stored grid view, to be called if the grid has changed
+  //  Update the stored grid view, to be called if the grid has changed
   void update(const GridView& gv) {
     gridView_ = gv;
   }
@@ -550,19 +550,19 @@ public:
     return Node{this};
   }
 
-  //! Return number of possible values for next position in multi index
+  //  Return number of possible values for next position in multi index
   template <typename SizePrefix>
   [[nodiscard]] size_type size(const SizePrefix prefix) const {
     assert(prefix.empty() || prefix.size() == 1);
     return (prefix.empty()) ? size() : 0;
   }
 
-  //! Get the total dimension of the space spanned by this basis
+  //  Get the total dimension of the space spanned by this basis
   [[nodiscard]] size_type dimension() const {
     return size();
   }
 
-  //! Get the maximal number of DOFs associated to node for any element
+  //  Get the maximal number of DOFs associated to node for any element
   [[nodiscard]] size_type maxNodeSize() const {
     size_type result = 1;
     for (int i = 0; i < dim; i++)
@@ -642,13 +642,13 @@ public:
     return result;
   }
 
-  //! @brief Total number of B-spline basis functions
+  //  @brief Total number of B-spline basis functions
   [[nodiscard]] unsigned int size() const {
     assert(!std::isnan(cachedSize_));
     return cachedSize_;
   }
 
-  //! @brief Number of shape functions in one direction
+  //  @brief Number of shape functions in one direction
   [[nodiscard]] unsigned int sizePerDirection(size_t d) const {
     return patchData_.knotSpans[d].size() - patchData_.degree[d] - 1;
   }
@@ -683,7 +683,7 @@ public:
     }
   }
 
-  //! @brief Evaluate Derivatives of all B-spline basis functions
+  //  @brief Evaluate Derivatives of all B-spline basis functions
 
   void partial(const std::array<unsigned int, dim>& order, const FieldVector<typename GV::ctype, dim>& in,
                std::vector<FieldVector<R, 1>>& out, const std::array<int, dim>& currentKnotSpan) const {
@@ -740,7 +740,7 @@ public:
         finiteElement_(*preBasis) {
   }
 
-  //! Return current element, throw if unbound
+  //  Return current element, throw if unbound
   const Element& element() const {
     return element_;
   }
@@ -753,7 +753,7 @@ public:
     return finiteElement_;
   }
 
-  //! Bind to element.
+  //  Bind to element.
   void bind(const Element& e) {
     element_          = e;
     auto elementIndex = e.impl().getDirectIndexInPatch();

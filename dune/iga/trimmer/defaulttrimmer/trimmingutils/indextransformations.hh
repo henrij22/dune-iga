@@ -64,7 +64,7 @@ private:
   }
 
   template <std::integral U>
- static U vertexIndexToTrimmer(U index) {
+  static U vertexIndexToTrimmer(U index) {
     switch (index) {
       case 0:
       case 1:
@@ -79,7 +79,7 @@ private:
   }
 
   template <std::integral U>
-static U edgeIndexToTrimmer(U index) {
+  static U edgeIndexToTrimmer(U index) {
     switch (index) {
       case 0:
         return 2;
@@ -93,6 +93,5 @@ static U edgeIndexToTrimmer(U index) {
         DUNE_THROW(Dune::IOError, "index out of bounds");
     }
   }
-
 };
 } // namespace Dune::IGANEW::DefaultTrim

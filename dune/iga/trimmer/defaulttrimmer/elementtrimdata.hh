@@ -66,10 +66,12 @@ struct ElementTrimDataImpl
         hostEntity_(hostEntity) {
   }
 
-  // Delete default constructor
+  // Delete default constructor, I think its implicitly delted anyway or not viable at least
   ElementTrimDataImpl() = delete;
-  // ElementTrimDataImpl(const ElementTrimDataImpl& other) = delete;
-  // ElementTrimDataImpl& operator=(const ElementTrimDataImpl& other) = delete;
+
+  bool operator==(const ElementTrimDataImpl& other) const {
+    return hostEntity_ == other.hostEntity_;
+  }
 
   void addEdge(int idx) {
     edges_.emplace_back(EdgeInfo{.isHost = true, .isTrimmed = false, .idx = idx});

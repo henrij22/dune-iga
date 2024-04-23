@@ -28,15 +28,9 @@ public:
   typedef typename GridImp::template Codim<codim>::Entity Entity;
   typedef typename GridImp::Trimmer::template Codim<codim>::ParameterSpaceGridEntity ParameterSpaceGridEntity;
 
-  //! Constructor
+  //  Constructor
   PatchGridLevelIterator() = default;
-  // template<typename =void> requires (codim!=0)
-  // explicit PatchGridLevelIterator(const GridImp* patchGrid, int level)
-  //     : patchGrid_(patchGrid),
-  //       parameterSpaceLevelIterator(patchGrid->parameterSpaceGrid().levelGridView(level).template begin<codim,
-  //       pitype>()) {}
 
-  // template<typename =void> requires (codim==0)
   explicit PatchGridLevelIterator(const GridImp* patchGrid, int level)
       : patchGrid_(patchGrid),
         parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template begin<codim>(level)) {
@@ -59,14 +53,14 @@ public:
         parameterSpaceLevelIterator(patchGrid_->trimmer().entityContainer_.template end<codim>(level)) {
   }
 
-  //! prefix increment
+  //  prefix increment
   void increment() {
     ++parameterSpaceLevelIterator;
   }
   using GlobalIdSetId   = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
   using ElementTrimData = typename GridImp::Trimmer::ElementTrimData;
 
-  //! dereferencing
+  //  dereferencing
   Entity dereference() const {
     if constexpr (codim == 0) {
       // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_, *parameterSpaceLevelIterator,id_};
@@ -88,7 +82,7 @@ public:
     // }
   }
 
-  //! equality
+  //  equality
   bool equals(const PatchGridLevelIterator& i) const {
     return parameterSpaceLevelIterator == i.parameterSpaceLevelIterator;
   }

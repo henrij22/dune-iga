@@ -44,17 +44,17 @@ public:
         hostIterator_(hostIterator) {
   }
 
-  //! equality
+  //  equality
   bool equals(const PatchGridLeafIntersectionIterator& other) const {
     return hostIterator_ == other.hostIterator_;
   }
 
-  //! prefix increment
+  //  prefix increment
   void increment() {
     ++hostIterator_;
   }
 
-  //! @brief dereferencing
+  //  @brief dereferencing
   Intersection dereference() const {
     return PatchGridLeafIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_);
   }
@@ -68,7 +68,7 @@ private:
   HostLeafIntersectionIterator hostIterator_ = {};
 };
 
-//! @todo Please doc me !
+//  @todo Please doc me !
 template <class GridImp>
 class PatchGridLevelIntersectionIterator
 {
@@ -93,17 +93,17 @@ public:
         hostIterator_(hostIterator) {
   }
 
-  //! equality
+  //  equality
   bool equals(const PatchGridLevelIntersectionIterator<GridImp>& other) const {
     return hostIterator_ == other.hostIterator_;
   }
 
-  //! prefix increment
+  //  prefix increment
   void increment() {
     ++hostIterator_;
   }
 
-  //! @brief dereferencing
+  //  @brief dereferencing
   Intersection dereference() const {
     return PatchGridLevelIntersection<GridImp>(parameterSpaceGrid_, *hostIterator_);
   }

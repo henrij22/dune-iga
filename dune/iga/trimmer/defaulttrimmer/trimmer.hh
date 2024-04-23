@@ -32,7 +32,6 @@
 #include <dune/iga/hierarchicpatch/patchgridgeometry.hh>
 #include <dune/iga/hierarchicpatch/patchgridview.hh>
 #include <dune/iga/trimmer/identitytrimmer/patchgridlocalgeometry.hh>
-#include <dune/iga/trimmer/intersectionvariants.hh>
 #include <dune/iga/trimmer/localgeometryvariant.hh>
 #include <dune/subgrid/subgrid.hh>
 
@@ -415,32 +414,46 @@ namespace DefaultTrim {
     template <int codim>
     using Entity = typename GridFamily::Traits::template Codim<codim>::Entity;
 
-    //! First level intersection
+    // First level intersection
     [[nodiscard]] PatchGridLevelIntersectionIterator<const GridImp> ilevelbegin(const Entity<0>& ent) const {
+      using IntersectionIterator = PatchGridLevelIntersectionIterator<const GridImp>;
+      auto& localEntity          = ent.impl().getLocalEntity();
 
-      return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(ent.impl().getLocalEntity().getHostEntity()));
+      if (not localEntity.isTrimmed())
+        return IntersectionIterator(
+            grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::Begin);
     }
 
-    //! Reference to one past the last neighbor
+    // Reference to one past the last neighbor
     PatchGridLevelIntersectionIterator<const GridImp> ilevelend(const Entity<0>& ent) const {
+      using IntersectionIterator = PatchGridLevelIntersectionIterator<const GridImp>;
+      auto& localEntity          = ent.impl().getLocalEntity();
 
-      return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).iend(ent.impl().getLocalEntity().getHostEntity()));
+      if (not localEntity.isTrimmed())
+        return IntersectionIterator(grid_,
+                                    parameterSpaceGrid().levelGridView(ent.level()).iend(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::End);
     }
 
-    //! First leaf intersection
+    // First leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafbegin(const Entity<0>& ent) const {
+      using IntersectionIterator = PatchGridLeafIntersectionIterator<const GridImp>;
+      auto& localEntity          = ent.impl().getLocalEntity();
 
-      return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().ibegin(ent.impl().getLocalEntity().getHostEntity()));
+      if (not localEntity.isTrimmed())
+        return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::Begin);
     }
 
-    //! Reference to one past the last leaf intersection
+    // Reference to one past the last leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafend(const Entity<0>& ent) const {
+      using IntersectionIterator = PatchGridLeafIntersectionIterator<const GridImp>;
+      auto& localEntity          = ent.impl().getLocalEntity();
 
-      return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().iend(ent.impl().getLocalEntity().getHostEntity()));
+      if (not localEntity.isTrimmed())
+        return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().iend(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::End);
     }
 
     template <class EntitySeed>
@@ -611,7 +624,7 @@ namespace DefaultTrim {
       return elementTrimDatas;
     }
 
-    //! compute the grid indices and ids
+    // compute the grid indices and ids
     void update(GridImp* grid) {
       grid_ = grid;
       localIdSet_->update();
@@ -660,7 +673,7 @@ namespace DefaultTrim {
 
     EntityContainer entityContainer_;
 
-    //! Our set of level indices
+    // Our set of level indices
     std::vector<std::unique_ptr<typename GridFamily::LevelIndexSet>> levelIndexSets_;
 
     std::unique_ptr<LeafIndexSet> leafIndexSet_;

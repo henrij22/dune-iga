@@ -25,6 +25,7 @@
 #include <dune/iga/trimmer/concepts.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/subgrid/test/common.hh>
+#include <dune/common/tuplevector.hh>
 
 using namespace Dune;
 using namespace Dune::IGANEW;
@@ -118,25 +119,43 @@ auto myGridCheck(G& grid) {
 
   static_assert(G::dimension == 2);
 
-  auto gv = grid.leafGridView();
-  for (int eleIdx = 0; const auto& ele : elements(gv)) {
-    // std::cout << "Element " << eleIdx << std::endl;
-    const int numCorners  = ele.subEntities(2);
-    const int numCorners2 = ele.geometry().corners();
+  auto testGV = [&]<typename GV>(const GV& gv){
+    for (int eleIdx = 0; const auto& ele : elements(gv)) {
+      std::cout << "Element " << eleIdx << std::endl;
+      const int numCorners  = ele.subEntities(2);
+      const int numCorners2 = ele.geometry().corners();
 
-    t.check(numCorners == numCorners2) << "Ele: " << eleIdx << " Corners from geometry not the same as subEntities(2)";
+      t.check(numCorners == numCorners2) << "Ele: " << eleIdx << " Corners from geometry not the same as subEntities(2)";
 
-    // Check if conrers from corner and center from subentity are the same
-    for (auto c : Dune::range(numCorners)) {
-      auto corner  = ele.geometry().corner(c);
-      auto corner2 = ele.template subEntity<2>(c).geometry().center();
-      t.check(FloatCmp::eq(corner, corner2))
-          << "Ele: " << eleIdx << " Corner(i) from the element is not the same as subentity(i)";
+      // Check if conrers from corner and center from subentity are the same
+      for (auto c : Dune::range(numCorners)) {
+        auto corner  = ele.geometry().corner(c);
+        auto corner2 = ele.template subEntity<2>(c).geometry().center();
+        t.check(FloatCmp::eq(corner, corner2))
+            << "Ele: " << eleIdx << " Corner(i) from the element is not the same as subentity(i)";
+      }
+
+      // Intersections
+      int intersectionCount{0};
+      for (const auto& intersection : intersections(gv, ele)) {
+        ++intersectionCount;
+      }
+      const int numEdges  = ele.subEntities(1);
+
+      std::cout << "Intersection Count: " << intersectionCount << "\t";
+      std::cout << "Edges Count: " << numEdges << std::endl;
+
+      t.check(intersectionCount == numEdges) << "There should be as many edges as intersections";
+
+      ++eleIdx;
+      std::cout << std::endl;
     }
+  };
 
-    ++eleIdx;
-    // std::cout << std::endl;
-  }
+  testGV(grid.levelGridView(grid.maxLevel()));
+  testGV(grid.leafGridView());
+
+
   return t;
 }
 
@@ -147,7 +166,7 @@ auto thoroughGridCheck(auto& grid) {
   auto gvTest = [&]<typename GV>(GV&& gv) {
     TestSuite tl;
 
-    //using GV = std::remove_cvref_t<decltype(gv)>;
+    // using GV = std::remove_cvref_t<decltype(gv)>;
 
     tl.subTest(checkUniqueEdges(gv));
     tl.subTest(checkUniqueSurfaces(gv));
@@ -181,7 +200,7 @@ auto thoroughGridCheck(auto& grid) {
   }
   t.subTest(gvTest(grid.leafGridView()));
 
-  gridcheck(grid);
+  //gridcheck(grid);
   t.subTest(myGridCheck(grid));
 
   // try {

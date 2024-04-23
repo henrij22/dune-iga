@@ -107,7 +107,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
       .trimmedIndexInLvl   = trimmedElementIndex,
       .hostIndexInLvl      = indexSet.index(ele),
       .lvl                 = newLevel,
-      .trimmed        = trimmed,
+      .trimmed             = trimmed,
       .id                  = elementId,
       .hostSeed            = ele.seed(),
       .fatherId            = fatherId,
@@ -144,7 +144,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     auto edge = ele.template subEntity<1>(localEdgeIndex);
     EntityInfo<1> edgeInfo{.indexInLvlStorage = indexSet.index(edge),
                            .lvl               = level,
-                           .trimmed      = false,
+                           .trimmed           = false,
                            .id                = edgeId,
                            .hostSeed          = edge.seed()};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
@@ -175,7 +175,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     auto edge = ele.template subEntity<1>(localEdgeIndex);
     EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
-                           .trimmed      = true,
+                           .trimmed           = true,
                            .id                = edgeId,
                            .hostSeed          = edge.seed(),
                            .trimInfo          = edgeOfTrimmedElement};
@@ -213,7 +213,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
 
     EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
-                           .trimmed      = true,
+                           .trimmed           = true,
                            .id                = edgeId,
                            .trimInfo          = edgeOfTrimmedElement};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
@@ -263,7 +263,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
     auto vertex = ele.template subEntity<2>(localVertexIndex);
     EntityInfo<2> vertexInfo{.indexInLvlStorage = indexSet.index(vertex),
                              .lvl               = level,
-                             .trimmed      = false,
+                             .trimmed           = false,
                              .id                = vertexId,
                              .hostSeed          = vertex.seed()};
     entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
@@ -274,7 +274,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
     elementVertexIndices.emplace_back(vertexId);
     EntityInfo<2> vertexInfo{.indexInLvlStorage = entityContainer_.vertexCount.back()++,
                              .lvl               = level,
-                             .trimmed      = true,
+                             .trimmed           = true,
                              .id                = vertexId,
                              .trimInfo          = vertex};
     entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
