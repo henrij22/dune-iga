@@ -107,7 +107,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
       .trimmedIndexInLvl   = trimmedElementIndex,
       .hostIndexInLvl      = indexSet.index(ele),
       .lvl                 = newLevel,
-      .stemFromTrim        = trimmed,
+      .trimmed        = trimmed,
       .id                  = elementId,
       .hostSeed            = ele.seed(),
       .fatherId            = fatherId,
@@ -144,7 +144,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     auto edge = ele.template subEntity<1>(localEdgeIndex);
     EntityInfo<1> edgeInfo{.indexInLvlStorage = indexSet.index(edge),
                            .lvl               = level,
-                           .stemFromTrim      = false,
+                           .trimmed      = false,
                            .id                = edgeId,
                            .hostSeed          = edge.seed()};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
@@ -175,7 +175,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     auto edge = ele.template subEntity<1>(localEdgeIndex);
     EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
-                           .stemFromTrim      = true,
+                           .trimmed      = true,
                            .id                = edgeId,
                            .hostSeed          = edge.seed(),
                            .trimInfo          = edgeOfTrimmedElement};
@@ -213,7 +213,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
 
     EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
-                           .stemFromTrim      = true,
+                           .trimmed      = true,
                            .id                = edgeId,
                            .trimInfo          = edgeOfTrimmedElement};
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
@@ -263,7 +263,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
     auto vertex = ele.template subEntity<2>(localVertexIndex);
     EntityInfo<2> vertexInfo{.indexInLvlStorage = indexSet.index(vertex),
                              .lvl               = level,
-                             .stemFromTrim      = false,
+                             .trimmed      = false,
                              .id                = vertexId,
                              .hostSeed          = vertex.seed()};
     entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
@@ -274,7 +274,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
     elementVertexIndices.emplace_back(vertexId);
     EntityInfo<2> vertexInfo{.indexInLvlStorage = entityContainer_.vertexCount.back()++,
                              .lvl               = level,
-                             .stemFromTrim      = true,
+                             .trimmed      = true,
                              .id                = vertexId,
                              .trimInfo          = vertex};
     entityContainer_.idToVertexInfoMap.back().insert({vertexId, vertexInfo});
@@ -309,7 +309,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createElements(int level, const std
   for (auto& [eleId, eleInfo] :
        elementMap | std::ranges::views::filter([level](const auto& pair) { return pair.second.lvl == level; })) {
     auto ele = parameterSpaceGrid_->entity(eleInfo.hostSeed);
-    if (not eleInfo.stemFromTrim) {
+    if (not eleInfo.trimmed) {
       elementContainer[eleInfo.indexInLvlStorage] = ElementEntity{grid_, ele, eleInfo};
     } else {
       elementContainer[eleInfo.indexInLvlStorage] =
@@ -337,7 +337,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createSubEntities(int level) {
 
   vertexContainer.resize(entityContainer_.vertexCount.back());
   for (auto& [vertexId, vertexInfo] : vertexMap) {
-    if (not vertexInfo.stemFromTrim) {
+    if (not vertexInfo.trimmed) {
       auto vertex                                   = parameterSpaceGrid_->entity(vertexInfo.hostSeed);
       vertexContainer[vertexInfo.indexInLvlStorage] = VertexEntity{grid_, vertex, vertexInfo};
     } else {
@@ -348,7 +348,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createSubEntities(int level) {
   edgeContainer.resize(entityContainer_.edgeCount.back());
   for (auto& [edgeId, edgeInfo] :
        edgeMap | std::ranges::views::filter([level](const auto& pair) { return pair.second.lvl == level; })) {
-    if (not edgeInfo.stemFromTrim) {
+    if (not edgeInfo.trimmed) {
       auto edge                                 = parameterSpaceGrid_->entity(edgeInfo.hostSeed);
       edgeContainer[edgeInfo.indexInLvlStorage] = EdgeEntity{grid_, edge, edgeInfo};
     } else {

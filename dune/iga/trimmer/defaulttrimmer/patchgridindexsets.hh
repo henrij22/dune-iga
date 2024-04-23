@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
-// -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-// vi: set et ts=4 sw=2 sts=2:
+
 #pragma once
 
 /** \file
@@ -33,7 +32,7 @@ public:
   int index(const typename GridImp::Traits::template Codim<codim>::Entity& e) const {
     // DUNE_THROW(NotImplemented, "Indices index");
     // return {};
-    return e.impl().getHostEntity().index();
+    return e.impl().getLocalEntity().index();
   }
 
   //! get index of subEntity of a codim 0 entity
@@ -42,7 +41,7 @@ public:
     // @todo Trim, the subindeces are wrong!
     // DUNE_THROW(NotImplemented, "subIndex not implemented");
 
-    return e.impl().getHostEntity().subIndex(i, codim);
+    return e.impl().getLocalEntity().subIndex(i, codim);
   }
 
   //! get number of entities of given codim, type and on this level
@@ -69,10 +68,15 @@ public:
   /** @brief Return true if the given entity is contained in the index set */
   template <class EntityType>
   bool contains(const EntityType& e) const {
-    // DUNE_THROW(NotImplemented, "contains not implemented");
-    // return {};
-    return grid_->parameterSpaceGrid().levelIndexSet(level_).contains(
+    if constexpr (EntityType::codimension == 0)
+      return grid_->parameterSpaceGrid().levelIndexSet(level_).contains(
         grid_->template getHostEntity<EntityType::codimension>(e).getHostEntity());
+    else {
+      if (not e.impl().isTrimmed())
+        return grid_->parameterSpaceGrid().levelIndexSet(level_).contains(
+        grid_->template getHostEntity<EntityType::codimension>(e).getHostEntity());
+      return grid_->trimmer().entityContainer_.contains(e, level_);
+    }
   }
 
   /** @brief Set up the index set */

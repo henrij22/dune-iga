@@ -45,10 +45,10 @@ struct ElementTrimDataImpl
 
   struct VertexInfo
   {
-    bool isHost;
-    int idx;
+    bool isHost{};
+    int idx{};
 
-    std::optional<Vertex> geometry;
+    std::optional<Vertex> geometry{};
   };
 
   struct EdgeInfo

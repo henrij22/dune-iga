@@ -5,6 +5,20 @@
 
 set(HEADERS
         createlevel.hh
+        elementtrimdata.hh
+        entitycontainer.hh
+        idset.hh
+        patchgridhierarchiciterator.hh
+        patchgridindexsets.hh
+        patchgridintersectioniterator.hh
+        patchgridintersections.hh
+        patchgridleafiterator.hh
+        patchgridleveliterator.hh
+        patchtrimdata.hh
+        referenceelement.hh
+        trimmedentity.hh
+        trimmedlocalgeometry.hh
+        trimmer.hh
 )
 
 install(FILES ${HEADERS}

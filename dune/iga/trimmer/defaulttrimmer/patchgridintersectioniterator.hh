@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
-// -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-// vi: set et ts=4 sw=2 sts=2:
+
 #pragma once
 
 #include <dune/grid/common/intersection.hh>
@@ -39,8 +38,7 @@ class PatchGridLeafIntersectionIterator
 public:
   typedef Dune::Intersection<const GridImp, PatchGridLeafIntersection<GridImp> > Intersection;
 
-  PatchGridLeafIntersectionIterator() {
-  }
+  PatchGridLeafIntersectionIterator() = default;
 
   PatchGridLeafIntersectionIterator(const GridImp* parameterSpaceGrid, const HostLeafIntersectionIterator& hostIterator)
       : parameterSpaceGrid_(parameterSpaceGrid),
@@ -73,7 +71,7 @@ private:
   HostLeafIntersectionIterator hostIterator_ = {};
 };
 
-//! @todo Please doc me !
+
 template <class GridImp>
 class PatchGridLevelIntersectionIterator
 {
@@ -89,10 +87,9 @@ class PatchGridLevelIntersectionIterator
   using LevelIntersection               = typename GridImp::Traits::LevelIntersection;
 
 public:
-  typedef Dune::Intersection<const GridImp, PatchGridLevelIntersection<GridImp> > Intersection;
+  using Intersection = Dune::Intersection<const GridImp, PatchGridLevelIntersection<GridImp>>;
 
-  PatchGridLevelIntersectionIterator() {
-  }
+  PatchGridLevelIntersectionIterator() = default;
 
   PatchGridLevelIntersectionIterator(const GridImp* parameterSpaceGrid,
                                      const HostLevelIntersectionIterator& hostIterator)

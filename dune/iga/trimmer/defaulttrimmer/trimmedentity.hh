@@ -33,14 +33,11 @@ class TrimmedParameterSpaceGridEntity
       typename GridImp::Trimmer::TrimmerTraits::template Codim<codim_>::UntrimmedParameterSpaceGeometry;
   using TrimmedParameterSpaceGeometry =
       typename GridImp::Trimmer::TrimmerTraits::template Codim<codim_>::TrimmedParameterSpaceGeometry;
-  // using LocalParameterSpaceGeometry=typename GridImp::Trimmer::TrimmerTraits::template
-  // Codim<codim_>::LocalParameterSpaceGeometry;
   using LocalParameterSpaceGeometry =
       typename GridImp::Trimmer::TrimmerTraits::template Codim<codim_>::LocalParameterSpaceGeometry;
   using ParameterSpaceGridEntitySeed =
       typename GridImp::Trimmer::TrimmerTraits::template Codim<codim_>::ParameterSpaceGridEntitySeed;
-  // using LocalParameterSpaceGeometry= typename Trimmer::TrimmerTraits::template
-  // Codim<codim_>::LocalParameterSpaceGeometry;
+
 public:
   TrimmedParameterSpaceGridEntity()                                                            = default;
   TrimmedParameterSpaceGridEntity(const TrimmedParameterSpaceGridEntity& other) noexcept       = default;
@@ -96,13 +93,13 @@ public:
     return entityInfo_.id;
   }
 
-  auto stemsFromTrim() const {
-    return entityInfo_.stemsFromTrim();
+  auto isTrimmed() const {
+    return entityInfo_.isTrimmed();
   }
 
   auto index() const {
     if constexpr (codim_ == 0)
-      return stemsFromTrim() ? entityInfo_.trimmedIndexInLvl : entityInfo_.unTrimmedIndexInLvl;
+      return isTrimmed() ? entityInfo_.trimmedIndexInLvl : entityInfo_.unTrimmedIndexInLvl;
     else
       return entityInfo_.indexInLvlStorage;
   }
@@ -121,10 +118,9 @@ public:
   }
 
   HostParameterSpaceGridEntity getHostEntity() const {
-    if (stemsFromTrim() and codim_ != 0)
-      DUNE_THROW(NotImplemented, "getHostEntity");
-    else
+    if (codim_ == 0 or not isTrimmed())
       return hostEntity_;
+    DUNE_THROW(NotImplemented, "getHostEntity");
   }
   EntityInfo entityInfo_;
 
@@ -147,7 +143,7 @@ public:
   template <typename T = void>
   requires(codim_ == 0)
   [[nodiscard]] bool hasFather() const {
-    if (not stemsFromTrim())
+    if (not isTrimmed())
       return hostEntity_.hasFather();
     DUNE_THROW(NotImplemented, " hasFather");
 
@@ -170,14 +166,13 @@ public:
   /** @brief The partition type for parallel computing */
   [[nodiscard]] PartitionType partitionType() const {
     if constexpr (codim_ == 0)
-      if (not stemsFromTrim())
         return hostEntity_.partitionType();
     DUNE_THROW(NotImplemented, "partitionType not implemented for codim!=0 objects");
   }
 
   //! Geometry of this entity
   [[nodiscard]] LocalParameterSpaceGeometry geometry() const {
-    if (not stemsFromTrim())
+    if (not isTrimmed())
       return hostEntity_.geometry();
     if constexpr (codim_ == 1 or codim_ == 2) /* edge, vertex */ {
       return TrimmedParameterSpaceGeometry(trimData_->geometry.value());
@@ -190,8 +185,10 @@ public:
   /** @brief Return the number of subEntities of codimension codim.
    */
   [[nodiscard]] unsigned int subEntities(unsigned int codim) const {
+    if (codim_ == codim)
+      return Dune::referenceElement<double, mydimension>(Dune::GeometryTypes::cube(mydimension)).size(codim);
     if constexpr (codim_ == 0) {
-      if (not stemsFromTrim())
+      if (not isTrimmed())
         return hostEntity_.subEntities(codim);
 
       return trimData_.value().size(codim);
@@ -296,7 +293,7 @@ public:
   bool wasRefined() const {
     return hostEntity_.wasRefined();
   }
-  
+
   template <typename = void>
   requires(codim_ == 0)
 

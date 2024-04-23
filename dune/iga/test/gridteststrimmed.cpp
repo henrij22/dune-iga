@@ -112,17 +112,31 @@ auto checkUniqueSurfaces(const auto& gridView) {
   }
 }
 
-auto myGridCheck(auto& grid) {
+template <typename G>
+auto myGridCheck(G& grid) {
   TestSuite t;
 
+  static_assert(G::dimension == 2);
+
   auto gv = grid.leafGridView();
-  for (const auto& ele : elements(gv)) {
+  for (int eleIdx = 0; const auto& ele : elements(gv)) {
+    // std::cout << "Element " << eleIdx << std::endl;
     const int numCorners  = ele.subEntities(2);
     const int numCorners2 = ele.geometry().corners();
 
-    t.check(numCorners == numCorners2);
-  }
+    t.check(numCorners == numCorners2) << "Ele: " << eleIdx << " Corners from geometry not the same as subEntities(2)";
 
+    // Check if conrers from corner and center from subentity are the same
+    for (auto c : Dune::range(numCorners)) {
+      auto corner  = ele.geometry().corner(c);
+      auto corner2 = ele.template subEntity<2>(c).geometry().center();
+      t.check(FloatCmp::eq(corner, corner2))
+          << "Ele: " << eleIdx << " Corner(i) from the element is not the same as subentity(i)";
+    }
+
+    ++eleIdx;
+    // std::cout << std::endl;
+  }
   return t;
 }
 
@@ -130,10 +144,10 @@ auto thoroughGridCheck(auto& grid) {
   TestSuite t;
   constexpr int gridDimension = std::remove_cvref_t<decltype(grid)>::dimension;
 
-  auto gvTest = [&](auto&& gv) {
+  auto gvTest = [&]<typename GV>(GV&& gv) {
     TestSuite tl;
 
-    using GV = std::remove_cvref_t<decltype(gv)>;
+    //using GV = std::remove_cvref_t<decltype(gv)>;
 
     tl.subTest(checkUniqueEdges(gv));
     tl.subTest(checkUniqueSurfaces(gv));

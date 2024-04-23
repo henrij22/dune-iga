@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
-// -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-// vi: set et ts=4 sw=2 sts=2:
+
 #pragma once
 
 /** \file
@@ -77,29 +76,29 @@ public:
   }
 
   PatchGridEntity(const GridImp* patchGrid, const ParameterSpaceGridEntity& hostEntity)
-      : hostEntity_(hostEntity),
+      : localEntity_(hostEntity),
         patchGrid_(patchGrid) {
   }
 
   PatchGridEntity(const GridImp* patchGrid, ParameterSpaceGridEntity&& hostEntity)
-      : hostEntity_(std::move(hostEntity)),
+      : localEntity_(std::move(hostEntity)),
         patchGrid_(patchGrid) {
   }
 
   PatchGridEntity(const PatchGridEntity& original)
-      : hostEntity_(original.hostEntity_),
+      : localEntity_(original.localEntity_),
         patchGrid_(original.patchGrid_) {
   }
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
-      : hostEntity_(std::move(original.hostEntity_)),
+      : localEntity_(std::move(original.localEntity_)),
         patchGrid_(original.patchGrid_) {
   }
 
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
       patchGrid_  = original.patchGrid_;
-      hostEntity_ = original.hostEntity_;
+      localEntity_ = original.localEntity_;
     }
     return *this;
   }
@@ -107,18 +106,18 @@ public:
   PatchGridEntity& operator=(PatchGridEntity&& original) noexcept {
     if (this != &original) {
       patchGrid_  = original.patchGrid_;
-      hostEntity_ = std::move(original.hostEntity_);
+      localEntity_ = std::move(original.localEntity_);
     }
     return *this;
   }
 
   bool equals(const PatchGridEntity& other) const {
-    return getHostEntity() == other.getHostEntity();
+    return getLocalEntity() == other.getLocalEntity();
   }
 
   //! returns true if father entity exists
   bool hasFather() const {
-    return hostEntity_.hasFather();
+    return localEntity_.hasFather();
   }
 
   //! Create EntitySeed
@@ -128,39 +127,38 @@ public:
 
   //! level of this element
   int level() const {
-    return hostEntity_.level();
+    return localEntity_.level();
   }
 
   /** @brief The partition type for parallel computing
    */
   PartitionType partitionType() const {
-    return hostEntity_.partitionType();
+    return localEntity_.partitionType();
   }
 
   /** @brief Return the number of subEntities of codimension codim.
    */
   unsigned int subEntities(unsigned int cc) const {
-    return hostEntity_.subEntities(cc);
+    return localEntity_.subEntities(cc);
   }
-
-  // using ParameterSpaceGeometry = typename Trimmer::template LocalParameterSpaceGeometry<codim>;
 
   //! geometry of this entity
   Geometry geometry() const {
     auto geo = typename Geometry::Implementation(
-        hostEntity_.geometry(), patchGrid_->patchGeometries_[this->level()].template localView<codim, Trimmer>());
+        localEntity_.geometry(), patchGrid_->patchGeometries_[this->level()].template localView<codim, Trimmer>());
     return Geometry(geo);
   }
 
-  const auto& getHostEntity() const {
-    return hostEntity_;
+  const auto& getLocalEntity() const {
+    return localEntity_;
   }
 
-  // const auto& getHostEntity()const {
-  //     return hostEntity_;
-  // }
+  bool isTrimmed() const {
+    return localEntity_.entityInfo_.trimmed;
+  }
+
 private:
-  ParameterSpaceGridEntity hostEntity_;
+  ParameterSpaceGridEntity localEntity_;
   const GridImp* patchGrid_;
 };
 
@@ -226,19 +224,19 @@ public:
   }
 
   PatchGridEntity(const PatchGridEntity& original)
-      : localEntity_(original.hostEntity_),
+      : localEntity_(original.localEntity_),
         patchGrid_(original.patchGrid_) {
   }
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
-      : localEntity_(std::move(original.hostEntity_)),
+      : localEntity_(std::move(original.localEntity_)),
         patchGrid_(original.patchGrid_) {
   }
 
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
       patchGrid_   = original.patchGrid_;
-      localEntity_ = original.hostEntity_;
+      localEntity_ = original.localEntity_;
     }
     return *this;
   }
@@ -246,13 +244,13 @@ public:
   PatchGridEntity& operator=(PatchGridEntity&& original) noexcept {
     if (this != &original) {
       patchGrid_   = original.patchGrid_;
-      localEntity_ = std::move(original.hostEntity_);
+      localEntity_ = std::move(original.localEntity_);
     }
     return *this;
   }
 
   [[nodiscard]] bool equals(const PatchGridEntity& other) const {
-    return localEntity_ == other.hostEntity_;
+    return localEntity_ == other.localEntity_;
   }
 
   //! returns true if father entity exists
@@ -267,12 +265,12 @@ public:
 
   //! Level of this element
   [[nodiscard]] int level() const {
-    return getHostEntity().level();
+    return getLocalEntity().level();
   }
 
   /** @brief The partition type for parallel computing */
   [[nodiscard]] PartitionType partitionType() const {
-    return getHostEntity().partitionType();
+    return getLocalEntity().partitionType();
   }
 
   //! Geometry of this entity
@@ -322,13 +320,13 @@ public:
 
   //! returns true if Entity has NO children
   bool isLeaf() const {
-    return getHostEntity().isLeaf();
+    return localEntity_.isLeaf();
   }
 
   //! Inter-level access to father element on coarser grid.
   //! Assumes that meshes are nested.
   typename GridImp::template Codim<0>::Entity father() const {
-    return PatchGridEntity(patchGrid_, getHostEntity().father());
+    return PatchGridEntity(patchGrid_, localEntity_.father());
   }
 
   /** @brief Location of this element relative to the reference element element of the father.
@@ -372,21 +370,15 @@ public:
     return true;
   }
 
+  bool isTrimmed() const {
+    return localEntity_.isTrimmed();
+  }
+
   auto trimData() const {
     return patchGrid_->trimData(*this);
   }
 
-  // /////////////////////////////////////////
-  //   Internal stuff
-  // /////////////////////////////////////////
-
-  // const auto& getHostEntity()const {
-  //   if constexpr (requires {hostEntity_.untrimmedHostEntity();})
-  //     return hostEntity_.untrimmedHostEntity();
-  //   else
-  //   return hostEntity_;
-  // }
-  const auto& getHostEntity() const {
+  const auto& getLocalEntity() const {
     return localEntity_;
   }
 

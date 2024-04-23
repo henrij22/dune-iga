@@ -12,6 +12,7 @@ set(TESTS
         testfindintersection
         testibrareader
         testpatchgeometry
+        testutillities
 )
 option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 

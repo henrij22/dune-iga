@@ -149,6 +149,12 @@ struct VectorEntityContainer
       return GeoTypes{GeometryTypes::cube(gridDim - codim)};
   }
 
+  template <typename EntityType>
+  bool contains(const EntityType& e, int lvl) const {
+    auto& entities = std::get<EntityType::codimension>(entityImps_[lvl]);
+    return std::ranges::find(entities, e.impl().getLocalEntity()) != entities.end();
+  }
+
   std::size_t size(int codim, int lvl) const {
     if (codim == 0)
       return std::get<0>(entityImps_[lvl]).size();

@@ -155,14 +155,14 @@ namespace DefaultTrim {
 
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     int lvl{};
-    bool stemFromTrim{false};
+    bool trimmed{false};
     IdType<HostIdType> id;
     EntitySeedType hostSeed{};
 
     std::optional<TrimInfo> trimInfo{};
 
-    auto stemsFromTrim() const {
-      return stemFromTrim;
+    auto isTrimmed() const {
+      return trimmed;
     }
   };
 
@@ -179,7 +179,7 @@ namespace DefaultTrim {
 
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     int lvl{};
-    bool stemFromTrim{false};
+    bool trimmed{false};
     IdType<HostIdType> id;
     EntitySeedType hostSeed{};
 
@@ -192,8 +192,8 @@ namespace DefaultTrim {
     std::vector<GeometryMap> trimmedEntityGeometries{};
     std::optional<TrimInfo> trimInfo{};
 
-    auto stemsFromTrim() const {
-      return stemFromTrim;
+    auto isTrimmed() const {
+      return trimmed;
     }
   };
 
@@ -209,12 +209,12 @@ namespace DefaultTrim {
     unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
     unsigned int hostIndexInLvl{std::numeric_limits<unsigned int>::max()};
     int lvl{};
-    bool stemFromTrim{false};
+    bool trimmed{false};
     IdType<HostIdType> id{};
     EntitySeedType hostSeed{};
 
-    auto stemsFromTrim() const {
-      return stemFromTrim;
+    auto isTrimmed() const {
+      return trimmed;
     }
 
     std::optional<IdType<HostIdType>> fatherId;
@@ -414,36 +414,33 @@ namespace DefaultTrim {
 
     template <int codim>
     using Entity = typename GridFamily::Traits::template Codim<codim>::Entity;
+
     //! First level intersection
     [[nodiscard]] PatchGridLevelIntersectionIterator<const GridImp> ilevelbegin(const Entity<0>& ent) const {
-      // DUNE_THROW(NotImplemented, "ilevelbegin");
 
       return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(ent.impl().getHostEntity().getHostEntity()));
+          grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(ent.impl().getLocalEntity().getHostEntity()));
     }
 
     //! Reference to one past the last neighbor
     PatchGridLevelIntersectionIterator<const GridImp> ilevelend(const Entity<0>& ent) const {
-      // DUNE_THROW(NotImplemented, "ilevelend");
 
       return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).iend(ent.impl().getHostEntity().getHostEntity()));
+          grid_, parameterSpaceGrid().levelGridView(ent.level()).iend(ent.impl().getLocalEntity().getHostEntity()));
     }
 
     //! First leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafbegin(const Entity<0>& ent) const {
-      // DUNE_THROW(NotImplemented, "ileafbeginileafbegin");
 
       return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().ibegin(ent.impl().getHostEntity().getHostEntity()));
+          grid_, parameterSpaceGrid().leafGridView().ibegin(ent.impl().getLocalEntity().getHostEntity()));
     }
 
     //! Reference to one past the last leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafend(const Entity<0>& ent) const {
-      // DUNE_THROW(NotImplemented, "ileafendileafend");
 
       return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().iend(ent.impl().getHostEntity().getHostEntity()));
+          grid_, parameterSpaceGrid().leafGridView().iend(ent.impl().getLocalEntity().getHostEntity()));
     }
 
     template <class EntitySeed>

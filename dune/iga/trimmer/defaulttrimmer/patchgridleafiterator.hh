@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
-// -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-// vi: set et ts=4 sw=2 sts=2:
+
 #pragma once
 
 #include <dune/grid/common/gridenums.hh>
@@ -73,7 +72,7 @@ public:
       // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_, *parameterSpaceLeafIterator,id_};
       auto realEntity = typename Entity::Implementation{patchGrid_, *parameterSpaceLeafIterator};
       return Entity{std::move(realEntity)};
-    } else if (not parameterSpaceLeafIterator->stemsFromTrim()) { // subentity is untrimmed
+    } else if (not parameterSpaceLeafIterator->isTrimmed()) { // subentity is untrimmed
 
       // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_,*parameterSpaceLeafIterator};
       auto realEntity = typename Entity::Implementation{patchGrid_, *parameterSpaceLeafIterator};

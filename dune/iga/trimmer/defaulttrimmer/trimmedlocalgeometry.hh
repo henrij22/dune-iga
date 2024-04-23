@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+
 namespace Dune::IGANEW::DefaultTrim {
 
 enum class LocalGeometryTag
@@ -54,6 +56,9 @@ public:
       : hostGeometry_{hostGeometry},
         trimData_{trimData} {
   }
+  bool operator==(const TrimmedLocalGeometryImpl& b) const {
+    return b.hostGeometry_ == this->hostGeometry_;
+  }
 
   /** @brief Return the element type identifier
    */
@@ -78,8 +83,10 @@ public:
   //! access to coordinates of corners. Index is the number of the corner
   GlobalCoordinate corner(int i) const {
     auto vData = trimData_.vertex(i);
-    if (vData.isHost)
-      return hostGeometry_.corner(0);
+    if (vData.isHost) {
+      return hostGeometry_.corner(Transformations::mapToDune(2, vData.idx));
+    }
+
     return vData.geometry.value();
   }
 
@@ -154,6 +161,11 @@ public:
   explicit TrimmedLocalGeometryImpl(const GeometryKernel::NURBSPatch<mydimension, coorddimension, ctype>& patchGeometry)
       : patchGeometry{patchGeometry} {
   }
+
+  bool operator==(const TrimmedLocalGeometryImpl& b) const {
+    return Dune::FloatCmp::eq(b.patchGeometry.corner(0) == this->patchGeometry.corner(0))
+    and Dune::FloatCmp::eq(b.patchGeometry.corner(1) == this->patchGeometry.corner(1));
+  };
 
   /** @brief Return the element type identifier
    */
@@ -249,6 +261,9 @@ public:
   TrimmedLocalGeometryImpl() = default;
   explicit TrimmedLocalGeometryImpl(const FieldVector<ctype, coorddimension>& pos)
       : pos_{pos} {
+  }
+  bool operator==(const TrimmedLocalGeometryImpl& b) const {
+    return Dune::FloatCmp::eq(b.pos_, this->pos_);
   }
 
   // @todo it is unclear to me what the correct bahviour for a vertex is for some of these methods
