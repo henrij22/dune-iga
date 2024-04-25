@@ -55,13 +55,11 @@ public:
 
   PatchGridLeafIntersection(const GridImp* parameterSpaceGrid, const ParameterSpaceLeafIntersection& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        parameterSpaceIntersection(hostIntersection) {
-  }
+        parameterSpaceIntersection(hostIntersection) {}
 
   PatchGridLeafIntersection(const GridImp* parameterSpaceGrid, ParameterSpaceLeafIntersection&& hostIntersection)
       : patchGrid_(parameterSpaceGrid),
-        parameterSpaceIntersection(std::move(hostIntersection)) {
-  }
+        parameterSpaceIntersection(std::move(hostIntersection)) {}
 
   bool equals(const PatchGridLeafIntersection& other) const {
     return parameterSpaceIntersection == other.parameterSpaceIntersection;
@@ -222,13 +220,11 @@ public:
 
   PatchGridLevelIntersection(const GridImp* identityGrid, const ParameterSpaceLevelIntersection& hostIntersection)
       : patchGrid_(identityGrid),
-        parameterSpaceIntersection(hostIntersection) {
-  }
+        parameterSpaceIntersection(hostIntersection) {}
 
   PatchGridLevelIntersection(const GridImp* identityGrid, ParameterSpaceLevelIntersection&& hostIntersection)
       : patchGrid_(identityGrid),
-        parameterSpaceIntersection(std::move(hostIntersection)) {
-  }
+        parameterSpaceIntersection(std::move(hostIntersection)) {}
 
   [[nodiscard]] bool equals(const PatchGridLevelIntersection& other) const {
     return parameterSpaceIntersection == other.parameterSpaceIntersection;

@@ -25,12 +25,11 @@ public:
 
   typedef typename GridImp::template Codim<codim>::Entity Entity;
 
-  //  Constructor
+  // Constructor
   PatchGridLevelIterator() = default;
   explicit PatchGridLevelIterator(const GridImp* patchGrid, int level)
       : patchGrid_(patchGrid),
-        hostLevelIterator_(patchGrid->parameterSpaceGrid().levelGridView(level).template begin<codim, pitype>()) {
-  }
+        hostLevelIterator_(patchGrid->parameterSpaceGrid().levelGridView(level).template begin<codim, pitype>()) {}
 
   /** @brief Constructor which create the end iterator
       @param endDummy      Here only to distinguish it from the other constructor
@@ -39,22 +38,21 @@ public:
    */
   explicit PatchGridLevelIterator(const GridImp* patchGrid, int level, [[maybe_unused]] bool endDummy)
       : patchGrid_(patchGrid),
-        hostLevelIterator_(patchGrid->parameterSpaceGrid().levelGridView(level).template end<codim, pitype>()) {
-  }
+        hostLevelIterator_(patchGrid->parameterSpaceGrid().levelGridView(level).template end<codim, pitype>()) {}
 
-  //  prefix increment
+  // prefix increment
   void increment() {
     ++hostLevelIterator_;
   }
 
-  //  dereferencing
+  // dereferencing
   Entity dereference() const {
     return Entity{
         {patchGrid_, *hostLevelIterator_}
     };
   }
 
-  //  equality
+  // equality
   bool equals(const PatchGridLevelIterator& i) const {
     return hostLevelIterator_ == i.hostLevelIterator_;
   }

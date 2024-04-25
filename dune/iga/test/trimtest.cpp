@@ -80,11 +80,9 @@ struct GeomWrapper
 {
   using CurveLocalViewType = Grid::Trimmer::TrimmingCurve;
   GeomWrapper(const CurveLocalViewType& curve)
-      : variant(curve) {
-  }
+      : variant(curve) {}
   GeomWrapper(const Dune::MultiLinearGeometry<double, 1, 2>& curve)
-      : variant(curve) {
-  }
+      : variant(curve) {}
 
   using Variant = std::variant<CurveLocalViewType, Dune::MultiLinearGeometry<double, 1, 2>>;
 

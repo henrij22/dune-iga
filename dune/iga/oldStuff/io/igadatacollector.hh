@@ -30,8 +30,7 @@ public:
 public:
   DiscontinuousIgaDataCollector(const GridView& gridView, int subSampleFull, int subSampleTrimmed)
       : Super(gridView),
-        geometries_(gridView, subSampleFull, subSampleTrimmed) {
-  }
+        geometries_(gridView, subSampleFull, subSampleTrimmed) {}
   // Does not subsample
   explicit DiscontinuousIgaDataCollector(const GridView& gridView)
       : DiscontinuousIgaDataCollector(gridView, 0, 0){};

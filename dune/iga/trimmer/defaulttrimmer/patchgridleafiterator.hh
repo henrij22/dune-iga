@@ -31,19 +31,18 @@ public:
 
   typedef typename GridImp::template Codim<codim>::Entity Entity;
   PatchGridLeafIterator() = default;
-  //  @todo Please doc me !
+  // @todo Please doc me !
   // template<typename =void> requires (codim!=0)
   // explicit PatchGridLeafIterator(const GridImp* patchGrid)
-  //     : patchGrid_(patchGrid),
-  //       parameterSpaceLeafIterator(patchGrid->parameterSpaceGrid().leafGridView().template begin<codim, pitype>())
-  //       {}
+  //    : patchGrid_(patchGrid),
+  //      parameterSpaceLeafIterator(patchGrid->parameterSpaceGrid().leafGridView().template begin<codim, pitype>())
+  //      {}
 
   // template<typename =void> requires (codim==0)
   explicit PatchGridLeafIterator(const GridImp* patchGrid)
       : patchGrid_(patchGrid),
         parameterSpaceLeafIterator(
-            patchGrid_->trimmer().entityContainer_.template begin<codim>(patchGrid_->maxLevel())) {
-  }
+            patchGrid_->trimmer().entityContainer_.template begin<codim>(patchGrid_->maxLevel())) {}
 
   /** @brief Constructor which create the end iterator
    *  @param endDummy      Here only to distinguish it from the other constructor
@@ -60,13 +59,13 @@ public:
         parameterSpaceLeafIterator(patchGrid_->trimmer().entityContainer_.template end<codim>(patchGrid_->maxLevel())) {
   }
 
-  //  prefix increment
+  // prefix increment
   void increment() {
     ++parameterSpaceLeafIterator;
   }
 
   using GlobalIdSetId = typename GridImp::GridFamily::TrimmerTraits::GlobalIdSetId;
-  //  dereferencing
+  // dereferencing
   Entity dereference() const {
     if constexpr (codim == 0) {
       // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_, *parameterSpaceLeafIterator,id_};
@@ -88,7 +87,7 @@ public:
     }
   }
 
-  //  equality
+  // equality
   bool equals(const PatchGridLeafIterator& i) const {
     return parameterSpaceLeafIterator == i.parameterSpaceLeafIterator;
   }

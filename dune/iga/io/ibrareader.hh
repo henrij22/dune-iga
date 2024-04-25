@@ -50,12 +50,12 @@ public:
       }
     }
 
-    PatchTrimData trimData{};
     if (trim) {
+      PatchTrimData trimData{};
       constructTrimmingCurves(brep, trimData);
     }
 
-    return std::make_tuple(_patchData, trimData);
+    return std::make_tuple(_patchData, std::nullopt);
   }
 
 private:

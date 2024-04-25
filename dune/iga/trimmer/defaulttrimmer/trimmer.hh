@@ -188,6 +188,15 @@ namespace DefaultTrim {
       TrimmedEntityGeometry geometry;
     };
 
+    TrimmedEntityGeometry geometryForIdx(unsigned int idx) {
+      auto it = std::ranges::find_if(trimmedEntityGeometries, [&](const auto& geoMap) {
+        return geoMap.indexOfInsideElementinLvl == idx;
+      });
+      if (it != trimmedEntityGeometries.end())
+        return *it;
+      DUNE_THROW(IOError, "geometryForIdx couldn't find geometry for idx");
+    }
+
     std::vector<GeometryMap> trimmedEntityGeometries{};
     std::optional<TrimInfo> trimInfo{};
 
@@ -310,8 +319,6 @@ namespace DefaultTrim {
         using EntityImp                    = PatchGridEntity<codim, dim, const Grid>;
         using EntitySeedImpl               = PatchGridEntitySeed<codim, const Grid>;
         using HostParameterSpaceGridEntity = typename ParameterSpaceGrid::Traits::template Codim<codim>::Entity;
-        // using UnTrimmedHostParameterSpaceGridEntity =
-        //     typename ParameterSpaceGrid::Traits::template Codim<codim>::Entity;
       };
 
       using HostLeafIntersection                   = typename ParameterSpaceGrid::Traits::LeafIntersection;
@@ -319,48 +326,21 @@ namespace DefaultTrim {
       using TrimmedParameterSpaceLeafIntersection  = TrimmedLeafIntersection<const Grid>;
       using TrimmedParameterSpaceLevelIntersection = TrimmedLevelIntersection<const Grid>;
 
-      using ParameterSpaceLeafIntersection = TrimmedParameterSpaceLeafIntersection;
-      // using ParameterSpaceLeafIntersection =
-      // Trim::IntersectionVariant<Trimmer,UntrimmedParameterSpaceLeafIntersection,TrimmedParameterSpaceLeafIntersection>;
-      // using ParameterSpaceLevelIntersection =
-      // Trim::IntersectionVariant<Trimmer,UntrimmedParameterSpaceLevelIntersection,TrimmedParameterSpaceLevelIntersection>;
+      using ParameterSpaceLeafIntersection  = TrimmedParameterSpaceLeafIntersection;
       using ParameterSpaceLevelIntersection = TrimmedParameterSpaceLevelIntersection;
     };
 
     using GeometryTypes = ReservedVector<GeometryType, 2>;
-    // clang-format off
-      typedef GridTraits<
-        dim, dimworld, Grid,
-      PatchGridGeometry,
-      PatchGridEntity,
-      PatchGridLevelIterator,
-      PatchGridLeafIntersection,
-      PatchGridLevelIntersection,
-      PatchGridLeafIntersectionIterator,
-      PatchGridLevelIntersectionIterator,
-      PatchGridHierarchicIterator,
-      PatchGridLeafIterator,
-      LevelIndexSet,
-      LeafIndexSet,
-      GlobalIdSet,
-      typename TrimmerTraits::GlobalIdSetId,
-      LocalIdSet,
-      typename TrimmerTraits::GlobalIdSetId,
-      Communication<No_Comm>,
-      PatchGridLevelGridViewTraits,
-      PatchGridLeafGridViewTraits,
-      PatchGridEntitySeed,
-      PatchGridLocalGeometry,
-          typename TrimmerTraits::ParameterSpaceGrid::Traits::LevelIndexSet::IndexType,
-          GeometryTypes,
-          typename TrimmerTraits::ParameterSpaceGrid::Traits::LeafIndexSet::IndexType,
-          GeometryTypes>
-          Traits;
-    // clang-format on
-    // using GlobalIdSetType =  PatchGridGlobalIdSet<const Grid>;
 
-    // template <int codim, PartitionIteratorType pitype>
-    // using LeafIterator = PatchGridLeafIterator<codim,pitype,GridImp>;
+    typedef GridTraits<dim, dimworld, Grid, PatchGridGeometry, PatchGridEntity, PatchGridLevelIterator,
+                       PatchGridLeafIntersection, PatchGridLevelIntersection, PatchGridLeafIntersectionIterator,
+                       PatchGridLevelIntersectionIterator, PatchGridHierarchicIterator, PatchGridLeafIterator,
+                       LevelIndexSet, LeafIndexSet, GlobalIdSet, typename TrimmerTraits::GlobalIdSetId, LocalIdSet,
+                       typename TrimmerTraits::GlobalIdSetId, Communication<No_Comm>, PatchGridLevelGridViewTraits,
+                       PatchGridLeafGridViewTraits, PatchGridEntitySeed, PatchGridLocalGeometry,
+                       typename TrimmerTraits::ParameterSpaceGrid::Traits::LevelIndexSet::IndexType, GeometryTypes,
+                       typename TrimmerTraits::ParameterSpaceGrid::Traits::LeafIndexSet::IndexType, GeometryTypes>
+        Traits;
   };
 
   /**
@@ -599,14 +579,13 @@ namespace DefaultTrim {
       update(grid_);
 
       // @todo Trim move the refine here from the grid
-      ;
     }
     auto& patchTrimData() const {
       return *trimData_;
     }
 
     /**
-     * Creates trimInfos for each element at the requested level (or max level if not specified)
+     * \brief Creates trimInfos for each element at the requested level (or max level if not specified)
      * Question: Should this data be saved ?? @todo Add execution policy
      * @param level_
      * @return

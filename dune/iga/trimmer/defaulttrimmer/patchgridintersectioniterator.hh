@@ -21,42 +21,49 @@ namespace Impl {
     End
   };
 
-  enum IntersectionIteratorType
+  enum class IntersectionIteratorType
   {
     Level,
     Leaf
   };
 
-  namespace IntersectionTraits {
+  namespace IntersectionIteratorTraits {
     template <class GridImp, IntersectionIteratorType type_>
-    using Intersection = std::conditional_t<type_ == Leaf, typename GridImp::Traits::LeafIntersection,
-                                            typename GridImp::Traits::LevelIntersection>;
+    using Intersection =
+        std::conditional_t<type_ == IntersectionIteratorType::Leaf, typename GridImp::Traits::LeafIntersection,
+                           typename GridImp::Traits::LevelIntersection>;
 
     template <class GridImp, IntersectionIteratorType type_>
     using ParameterSpaceIntersection =
-        std::conditional_t<type_ == Leaf, typename GridImp::Trimmer::TrimmerTraits::ParameterSpaceLeafIntersection,
+        std::conditional_t<type_ == IntersectionIteratorType::Leaf,
+                           typename GridImp::Trimmer::TrimmerTraits::ParameterSpaceLeafIntersection,
                            typename GridImp::Trimmer::TrimmerTraits::ParameterSpaceLevelIntersection>;
 
     template <class GridImp, IntersectionIteratorType type_>
     using ParameterSpaceIntersectionIterator =
-        std::conditional_t<type_ == Leaf, typename GridImp::ParameterSpaceGrid::LeafGridView::IntersectionIterator,
+        std::conditional_t<type_ == IntersectionIteratorType::Leaf,
+                           typename GridImp::ParameterSpaceGrid::LeafGridView::IntersectionIterator,
                            typename GridImp::ParameterSpaceGrid::LevelGridView::IntersectionIterator>;
 
     template <class GridImp>
     using TrimInfo = typename GridImp::Trimmer::ElementTrimData;
 
-  } // namespace IntersectionTraits
+    template <class GridImp>
+    using EntityInfo = typename GridImp::Trimmer::TrimmerTraits::template Codim<0>::EntityInfo;
+
+  } // namespace IntersectionIteratorTraits
 
   template <class GridImp, IntersectionIteratorType type_>
   struct TrimmedIntersectionIterator
   {
-    using Intersection               = IntersectionTraits::Intersection<GridImp, type_>;
-    using ParameterSpaceIntersection = IntersectionTraits::ParameterSpaceIntersection<GridImp, type_>;
-    using TrimInfo                   = IntersectionTraits::TrimInfo<GridImp>;
+    using Intersection               = IntersectionIteratorTraits::Intersection<GridImp, type_>;
+    using ParameterSpaceIntersection = IntersectionIteratorTraits::ParameterSpaceIntersection<GridImp, type_>;
+    using TrimInfo                   = IntersectionIteratorTraits::TrimInfo<GridImp>;
+    using EntityInfo                 = IntersectionIteratorTraits::EntityInfo<GridImp>;
 
     TrimmedIntersectionIterator() = default;
 
-    TrimmedIntersectionIterator(const GridImp* parameterSpaceGrid, const TrimInfo& trimInfo, PositionToken pos)
+    TrimmedIntersectionIterator(const GridImp* parameterSpaceGrid, const TrimInfo& trimInfo, const EntityInfo& entityInfo,  PositionToken pos)
         : parameterSpaceGrid_(parameterSpaceGrid),
           trimData_(trimInfo),
           maxIterator_(trimInfo.size(1)),
@@ -76,6 +83,7 @@ namespace Impl {
   private:
     const GridImp* parameterSpaceGrid_{};
     std::optional<TrimInfo> trimData_{};
+    EntityInfo entityInfo_{};
 
     unsigned int maxIterator_{};
     unsigned int iterator_{};
@@ -84,9 +92,10 @@ namespace Impl {
   template <class GridImp, IntersectionIteratorType type_>
   struct HostIntersectionIterator
   {
-    using Intersection                       = IntersectionTraits::Intersection<GridImp, type_>;
-    using ParameterSpaceIntersection         = IntersectionTraits::ParameterSpaceIntersection<GridImp, type_>;
-    using ParameterSpaceIntersectionIterator = IntersectionTraits::ParameterSpaceIntersectionIterator<GridImp, type_>;
+    using Intersection               = IntersectionIteratorTraits::Intersection<GridImp, type_>;
+    using ParameterSpaceIntersection = IntersectionIteratorTraits::ParameterSpaceIntersection<GridImp, type_>;
+    using ParameterSpaceIntersectionIterator =
+        IntersectionIteratorTraits::ParameterSpaceIntersectionIterator<GridImp, type_>;
 
     HostIntersectionIterator() = default;
 
@@ -165,36 +174,37 @@ class PatchGridLeafIntersectionIterator
 
 public:
   using Intersection  = Dune::Intersection<const GridImp, PatchGridLeafIntersection<GridImp>>;
-  using IteratorImpl  = Impl::IntersectionIteratorVariant<GridImp, Impl::Leaf>;
+  using IteratorImpl  = Impl::IntersectionIteratorVariant<GridImp, Impl::IntersectionIteratorType::Leaf>;
   using PositionToken = Impl::PositionToken;
 
   PatchGridLeafIntersectionIterator() = default;
 
   PatchGridLeafIntersectionIterator(const GridImp* parameterSpaceGrid,
                                     const ParameterSpaceIntersectionIterator& hostIterator)
-      : underlyingIterator_{Impl::HostIntersectionIterator<GridImp, Impl::Leaf>(parameterSpaceGrid, hostIterator)} {}
+      : underlying_{Impl::HostIntersectionIterator<GridImp, Impl::IntersectionIteratorType::Leaf>(parameterSpaceGrid,
+                                                                                                  hostIterator)} {}
 
   PatchGridLeafIntersectionIterator(const GridImp* parameterSpaceGrid, const TrimInfo& trimInfo, PositionToken position)
-      : underlyingIterator_{
-            Impl::TrimmedIntersectionIterator<GridImp, Impl::Leaf>(parameterSpaceGrid, trimInfo, position)} {}
+      : underlying_{Impl::TrimmedIntersectionIterator<GridImp, Impl::IntersectionIteratorType::Leaf>(
+            parameterSpaceGrid, trimInfo, position)} {}
 
   // equality
   bool equals(const PatchGridLeafIntersectionIterator& other) const {
-    return underlyingIterator_.equals(other.underlyingIterator_);
+    return underlying_.equals(other.underlying_);
   }
 
   // prefix increment
   void increment() {
-    underlyingIterator_.increment();
+    underlying_.increment();
   }
 
   // @brief dereferencing
   LeafIntersection dereference() const {
-    return underlyingIterator_.dereference();
+    return underlying_.dereference();
   }
 
 private:
-  IteratorImpl underlyingIterator_{};
+  IteratorImpl underlying_{};
 };
 
 template <class GridImp>
@@ -211,7 +221,7 @@ class PatchGridLevelIntersectionIterator
 
 public:
   using Intersection = Dune::Intersection<const GridImp, PatchGridLevelIntersection<GridImp>>;
-  using IteratorImpl = Impl::IntersectionIteratorVariant<GridImp, Impl::Level>;
+  using IteratorImpl = Impl::IntersectionIteratorVariant<GridImp, Impl::IntersectionIteratorType::Level>;
 
   using PositionToken = Impl::PositionToken;
 
@@ -219,30 +229,31 @@ public:
 
   PatchGridLevelIntersectionIterator(const GridImp* parameterSpaceGrid,
                                      const ParameterSpaceIntersectionIterator& hostIterator)
-      : underlyingIterator_{Impl::HostIntersectionIterator<GridImp, Impl::Level>(parameterSpaceGrid, hostIterator)} {}
+      : underlying_{Impl::HostIntersectionIterator<GridImp, Impl::IntersectionIteratorType::Level>(parameterSpaceGrid,
+                                                                                                   hostIterator)} {}
 
   PatchGridLevelIntersectionIterator(const GridImp* parameterSpaceGrid, const TrimInfo& trimInfo,
                                      PositionToken position)
-      : underlyingIterator_{
-            Impl::TrimmedIntersectionIterator<GridImp, Impl::Level>(parameterSpaceGrid, trimInfo, position)} {}
+      : underlying_{Impl::TrimmedIntersectionIterator<GridImp, Impl::IntersectionIteratorType::Level>(
+            parameterSpaceGrid, trimInfo, position)} {}
 
   // equality
   bool equals(const PatchGridLevelIntersectionIterator& other) const {
-    return underlyingIterator_.equals(other.underlyingIterator_);
+    return underlying_.equals(other.underlying_);
   }
 
   // prefix increment
   void increment() {
-    underlyingIterator_.increment();
+    underlying_.increment();
   }
 
   // @brief dereferencing
   LevelIntersection dereference() const {
-    return underlyingIterator_.dereference();
+    return underlying_.dereference();
   }
 
 private:
-  IteratorImpl underlyingIterator_{};
+  IteratorImpl underlying_{};
 };
 
 } // namespace Dune::IGANEW::DefaultTrim

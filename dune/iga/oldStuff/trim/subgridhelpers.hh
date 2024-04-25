@@ -54,8 +54,7 @@ struct DomainInformation
 {
   DomainInformation(const DomainType& d, int i)
       : domain{d},
-        localIndex{i} {
-  }
+        localIndex{i} {}
   DomainType domain{};
   int localIndex{};
 };
@@ -167,8 +166,7 @@ struct GridBoundarySegment : Dune::BoundarySegment<dim, dim, double>
 {
   explicit GridBoundarySegment(Boundary& _boundary, const auto& _transformer)
       : boundary(_boundary),
-        transformer(_transformer) {
-  }
+        transformer(_transformer) {}
 
   Dune::FieldVector<double, dim> operator()(const Dune::FieldVector<double, 1>& localI) const override {
     // u has to be mapped on the domain of 0 to 1

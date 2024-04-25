@@ -68,32 +68,27 @@ public:
 
   typedef typename GridImp::template Codim<codim>::Geometry Geometry;
 
-  //  The type of the EntitySeed interface class
+  // The type of the EntitySeed interface class
   typedef typename GridImp::template Codim<codim>::EntitySeed EntitySeed;
 
   PatchGridEntity()
-      : patchGrid_(nullptr) {
-  }
+      : patchGrid_(nullptr) {}
 
   PatchGridEntity(const GridImp* patchGrid, const ParameterSpaceGridEntity& hostEntity)
       : localEntity_(hostEntity),
-        patchGrid_(patchGrid) {
-  }
+        patchGrid_(patchGrid) {}
 
   PatchGridEntity(const GridImp* patchGrid, ParameterSpaceGridEntity&& hostEntity)
       : localEntity_(std::move(hostEntity)),
-        patchGrid_(patchGrid) {
-  }
+        patchGrid_(patchGrid) {}
 
   PatchGridEntity(const PatchGridEntity& original)
       : localEntity_(original.localEntity_),
-        patchGrid_(original.patchGrid_) {
-  }
+        patchGrid_(original.patchGrid_) {}
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
       : localEntity_(std::move(original.localEntity_)),
-        patchGrid_(original.patchGrid_) {
-  }
+        patchGrid_(original.patchGrid_) {}
 
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
@@ -115,17 +110,17 @@ public:
     return getLocalEntity() == other.getLocalEntity();
   }
 
-  //  returns true if father entity exists
+  // returns true if father entity exists
   bool hasFather() const {
     return localEntity_.hasFather();
   }
 
-  //  Create EntitySeed
+  // Create EntitySeed
   EntitySeed seed() const {
     return patchGrid_->trimmer_->seed(*this);
   }
 
-  //  level of this element
+  // level of this element
   int level() const {
     return localEntity_.level();
   }
@@ -142,7 +137,7 @@ public:
     return localEntity_.subEntities(cc);
   }
 
-  //  geometry of this entity
+  // geometry of this entity
   Geometry geometry() const {
     auto geo = typename Geometry::Implementation(
         localEntity_.geometry(), patchGrid_->patchGeometries_[this->level()].template localView<codim, Trimmer>());
@@ -194,44 +189,39 @@ public:
 
   typedef typename GridImp::template Codim<0>::LocalGeometry LocalGeometry;
 
-  //  The Iterator over intersections on this level
+  // The Iterator over intersections on this level
   typedef typename GridImp::GridFamily::LevelIntersectionIterator LevelIntersectionIterator;
 
-  //  The Iterator over intersections on the leaf level
+  // The Iterator over intersections on the leaf level
   typedef typename GridImp::GridFamily::LeafIntersectionIterator LeafIntersectionIterator;
 
-  //  Iterator over descendants of the entity
+  // Iterator over descendants of the entity
   typedef typename GridImp::GridFamily::HierarchicIterator HierarchicIterator;
 
-  //  The type of the EntitySeed interface class
+  // The type of the EntitySeed interface class
   typedef typename GridImp::template Codim<0>::EntitySeed EntitySeed;
   typedef typename GridImp::Trimmer::TrimmerTraits::template Codim<0>::ParameterSpaceGridEntitySeed
       ParameterSpaceGridEntitySeed;
   // typedef typename GridImp::Trimmer::TrimmerTraits::template Codim<0>::EntitySeedImpl EntitySeedImpl;
 
   PatchGridEntity()
-      : patchGrid_(nullptr) {
-  }
+      : patchGrid_(nullptr) {}
 
   PatchGridEntity(const GridImp* patchGrid, const ParameterSpaceGridEntity& hostEntity)
       : localEntity_(hostEntity),
-        patchGrid_(patchGrid) {
-  }
+        patchGrid_(patchGrid) {}
 
   PatchGridEntity(const GridImp* patchGrid, ParameterSpaceGridEntity&& hostEntity)
       : localEntity_(std::move(hostEntity)),
-        patchGrid_(patchGrid) {
-  }
+        patchGrid_(patchGrid) {}
 
   PatchGridEntity(const PatchGridEntity& original)
       : localEntity_(original.localEntity_),
-        patchGrid_(original.patchGrid_) {
-  }
+        patchGrid_(original.patchGrid_) {}
 
   PatchGridEntity(PatchGridEntity&& original) noexcept
       : localEntity_(std::move(original.localEntity_)),
-        patchGrid_(original.patchGrid_) {
-  }
+        patchGrid_(original.patchGrid_) {}
 
   PatchGridEntity& operator=(const PatchGridEntity& original) {
     if (this != &original) {
@@ -253,17 +243,17 @@ public:
     return localEntity_ == other.localEntity_;
   }
 
-  //  returns true if father entity exists
+  // returns true if father entity exists
   [[nodiscard]] bool hasFather() const {
     return localEntity_.hasFather();
   }
 
-  //  Create EntitySeed
+  // Create EntitySeed
   [[nodiscard]] EntitySeed seed() const {
     return patchGrid_->trimmer_->seed(*this);
   }
 
-  //  Level of this element
+  // Level of this element
   [[nodiscard]] int level() const {
     return getLocalEntity().level();
   }
@@ -273,7 +263,7 @@ public:
     return getLocalEntity().partitionType();
   }
 
-  //  Geometry of this entity
+  // Geometry of this entity
   [[nodiscard]] Geometry geometry() const {
     static_assert(std::is_same_v<
                   decltype(patchGrid_->patchGeometries_[this->level()].template localView<0, Trimmer>()),
@@ -298,33 +288,33 @@ public:
     return PatchGridEntity<cc, dim, GridImp>(patchGrid_, localEntity_.template subEntity<cc>(i));
   }
 
-  //  First level intersection
+  // First level intersection
   [[nodiscard]] LevelIntersectionIterator ilevelbegin() const {
     return patchGrid_->trimmer_->ilevelbegin(*this);
   }
 
-  //  Reference to one past the last neighbor
+  // Reference to one past the last neighbor
   LevelIntersectionIterator ilevelend() const {
     return patchGrid_->trimmer_->ilevelend(*this);
   }
 
-  //  First leaf intersection
+  // First leaf intersection
   LeafIntersectionIterator ileafbegin() const {
     return patchGrid_->trimmer_->ileafbegin(*this);
   }
 
-  //  Reference to one past the last leaf intersection
+  // Reference to one past the last leaf intersection
   LeafIntersectionIterator ileafend() const {
     return patchGrid_->trimmer_->ileafend(*this);
   }
 
-  //  returns true if Entity has NO children
+  // returns true if Entity has NO children
   bool isLeaf() const {
     return localEntity_.isLeaf();
   }
 
-  //  Inter-level access to father element on coarser grid.
-  //  Assumes that meshes are nested.
+  // Inter-level access to father element on coarser grid.
+  // Assumes that meshes are nested.
   typename GridImp::template Codim<0>::Entity father() const {
     return PatchGridEntity(patchGrid_, localEntity_.father());
   }
@@ -350,12 +340,12 @@ public:
     return HierarchicIterator(patchGrid_, *this, maxLevel);
   }
 
-  //  Returns iterator to one past the last son
+  // Returns iterator to one past the last son
   HierarchicIterator hend(int maxLevel) const {
     return HierarchicIterator(patchGrid_, *this, maxLevel, true);
   }
 
-  //  @todo Please doc me !
+  // @todo Please doc me !
   bool wasRefined() const {
     if (patchGrid_->adaptationStep != GridImp::adaptDone)
       return false;
@@ -365,7 +355,7 @@ public:
     return patchGrid_->refinementMark_[level][index];
   }
 
-  //  @todo Please doc me !
+  // @todo Please doc me !
   bool mightBeCoarsened() const {
     return true;
   }

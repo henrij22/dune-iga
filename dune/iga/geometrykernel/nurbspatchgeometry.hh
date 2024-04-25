@@ -98,8 +98,7 @@ public:
   explicit NURBSPatch(const NURBSPatchData<dim_, dimworld_, ScalarType>& patchData)
       : patchData_(patchData),
         uniqueKnotSpans_{Splines::createUniqueKnotSpans(patchData.knotSpans)},
-        nurbs_{patchData_} {
-  }
+        nurbs_{patchData_} {}
 
   /**
    * @brief Explicit constructor for NURBSPatch with unique knot spans.
@@ -110,8 +109,7 @@ public:
                       const std::array<std::vector<ctype>, dim_>& uniqueKnotSpans)
       : patchData_(patchData),
         uniqueKnotSpans_{uniqueKnotSpans},
-        nurbs_{patchData_} {
-  }
+        nurbs_{patchData_} {}
 
   /**
    * @brief Get the center of the element mapped to the geometry.

@@ -6,8 +6,6 @@
 #endif
 
 #include <dune/common/exceptions.hh>
-#include <dune/common/float_cmp.hh>
-#include <dune/common/fvector.hh>
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/test/testsuite.hh>
@@ -24,16 +22,26 @@ auto testTransformations() {
   using Transformations = Dune::IGANEW::DefaultTrim::Transformations;
 
   for (const auto i : Dune::range(4u)) {
-    t.check(Transformations::mapToDune(2, i) == vertexIndexMapping[i]);
-    t.check(Transformations::mapToDune(1, i) == edgeIndexMapping[i]);
+    t.check(Transformations::mapToDune(2, i) == vertexIndexMapping[i])
+        << "Map to Dune for Vertex not correct, mapping says its " << Transformations::mapToDune(2, i)
+        << " but should be " << vertexIndexMapping[i];
+    t.check(Transformations::mapToDune(1, i) == edgeIndexMapping[i])
+        << "Map to Dune for Edge not correct, mapping says its " << Transformations::mapToDune(1, i)
+        << " but should be " << edgeIndexMapping[i];
   }
 
-  constexpr std::array vertexIndexBackMapping = {0u, 1u, 2u, 3u};
+  constexpr std::array vertexIndexBackMapping = {0u, 1u, 3u, 2u};
   constexpr std::array edgeIndexBackMapping   = {3u, 1u, 0u, 2u};
 
   for (const auto i : Dune::range(4u)) {
-    t.check(Transformations::mapToTrimmer(2, i) == vertexIndexBackMapping[i]);
-    t.check(Transformations::mapToTrimmer(1, i) == edgeIndexBackMapping[i]);
+    t.check(Transformations::mapToTrimmer(2, i) == vertexIndexBackMapping[i])
+        << "Map to Trimmer for Vertex not correct, mapping says its " << Transformations::mapToTrimmer(2, i)
+        << " but should be " << vertexIndexBackMapping[i];
+    ;
+    t.check(Transformations::mapToTrimmer(1, i) == edgeIndexBackMapping[i])
+        << "Map to Trimmer for Edge not correct, mapping says its " << Transformations::mapToTrimmer(1, i)
+        << " but should be " << edgeIndexBackMapping[i];
+    ;
   }
 
   return t;
@@ -46,6 +54,8 @@ int main(int argc, char** argv) try {
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+
+  t.subTest(testTransformations());
 
   t.report();
 

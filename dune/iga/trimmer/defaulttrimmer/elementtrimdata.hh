@@ -63,8 +63,7 @@ struct ElementTrimDataImpl
 
   explicit ElementTrimDataImpl(auto flag, const HostEntity& hostEntity)
       : flag_(flag),
-        hostEntity_(hostEntity) {
-  }
+        hostEntity_(hostEntity) {}
 
   // Delete default constructor, I think its implicitly delted anyway or not viable at least
   ElementTrimDataImpl() = delete;

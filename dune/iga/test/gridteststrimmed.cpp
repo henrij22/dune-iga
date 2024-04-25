@@ -14,6 +14,7 @@
 #include <dune/common/fvector.hh>
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
+#include <dune/common/tuplevector.hh>
 #include <dune/grid/test/checkentitylifetime.hh>
 #include <dune/grid/test/checkgeometry.hh>
 #include <dune/grid/test/checkintersectionit.hh>
@@ -25,7 +26,6 @@
 #include <dune/iga/trimmer/concepts.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/subgrid/test/common.hh>
-#include <dune/common/tuplevector.hh>
 
 using namespace Dune;
 using namespace Dune::IGANEW;
@@ -119,13 +119,14 @@ auto myGridCheck(G& grid) {
 
   static_assert(G::dimension == 2);
 
-  auto testGV = [&]<typename GV>(const GV& gv){
+  auto testGV = [&]<typename GV>(const GV& gv) {
     for (int eleIdx = 0; const auto& ele : elements(gv)) {
       std::cout << "Element " << eleIdx << std::endl;
       const int numCorners  = ele.subEntities(2);
       const int numCorners2 = ele.geometry().corners();
 
-      t.check(numCorners == numCorners2) << "Ele: " << eleIdx << " Corners from geometry not the same as subEntities(2)";
+      t.check(numCorners == numCorners2) << "Ele: " << eleIdx
+                                         << " Corners from geometry not the same as subEntities(2)";
 
       // Check if conrers from corner and center from subentity are the same
       for (auto c : Dune::range(numCorners)) {
@@ -140,7 +141,7 @@ auto myGridCheck(G& grid) {
       for (const auto& intersection : intersections(gv, ele)) {
         ++intersectionCount;
       }
-      const int numEdges  = ele.subEntities(1);
+      const int numEdges = ele.subEntities(1);
 
       std::cout << "Intersection Count: " << intersectionCount << "\t";
       std::cout << "Edges Count: " << numEdges << std::endl;
@@ -154,7 +155,6 @@ auto myGridCheck(G& grid) {
 
   testGV(grid.levelGridView(grid.maxLevel()));
   testGV(grid.leafGridView());
-
 
   return t;
 }
@@ -200,7 +200,7 @@ auto thoroughGridCheck(auto& grid) {
   }
   t.subTest(gvTest(grid.leafGridView()));
 
-  //gridcheck(grid);
+  // gridcheck(grid);
   t.subTest(myGridCheck(grid));
 
   // try {

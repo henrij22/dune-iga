@@ -57,7 +57,7 @@ private:
       case 2:
         return 3;
       case 3:
-        return 2;
+        return 0;
       default:
         DUNE_THROW(Dune::IOError, "index out of bounds");
     }
@@ -82,11 +82,11 @@ private:
   static U edgeIndexToTrimmer(U index) {
     switch (index) {
       case 0:
-        return 2;
+        return 3;
       case 1:
         return 1;
       case 2:
-        return 3;
+        return 0;
       case 3:
         return 2;
       default:

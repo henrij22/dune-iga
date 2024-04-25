@@ -41,8 +41,7 @@ public:
    * of PatchGridEntitySeed to allow for return value optimization.
    */
   explicit PatchGridEntitySeed(const ParameterSpaceGridEntity& hostEntity)
-      : hostEntitySeed_(hostEntity.seed()) {
-  }
+      : hostEntitySeed_(hostEntity.seed()) {}
 
   /**
    * @brief Get stored ParameterSpaceGridEntitySeed

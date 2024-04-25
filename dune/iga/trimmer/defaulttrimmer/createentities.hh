@@ -4,8 +4,7 @@
 #pragma once
 #include <ranges>
 
-#include <dune/iga/geometrykernel/geohelper.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 namespace Dune::IGANEW::DefaultTrim {
 
@@ -30,8 +29,6 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::makeElementID(const HostEntity<0>& 
 }
 
 template <int dim, int dimworld, typename ScalarType>
-// auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const typename TrimmerTraits::template
-// Codim<2>::TrimmedParameterSpaceGeometry::PatchGeometry& vertex)
 auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const FieldVector<double, 2>& vertex) -> GlobalIdType {
   using PersistentIndexType = typename TrimmerTraits::PersistentIndexType;
 
@@ -232,11 +229,10 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
   } else /* trimmed */ {
     for (const auto& edgeOfTrimmedElement : eleTrimData.edges()) {
       if (edgeOfTrimmedElement.isHost and not edgeOfTrimmedElement.isTrimmed) {
-        addHostEdge(Util::edgeIndexMapping[edgeOfTrimmedElement.idx]);
+        addHostEdge(Transformations::mapToDune(1, edgeOfTrimmedElement.idx));
       } else if (edgeOfTrimmedElement.isHost and edgeOfTrimmedElement.isTrimmed) {
         // This is a host Edge which is partially trimmed
-        auto localEdgeIndex = Util::edgeIndexMapping[edgeOfTrimmedElement.idx];
-        addTrimmedHostEdge(localEdgeIndex, edgeOfTrimmedElement);
+        addTrimmedHostEdge(Transformations::mapToDune(1, edgeOfTrimmedElement.idx), edgeOfTrimmedElement);
       } else /* new Edge*/ {
         addTrimmedEdge(edgeOfTrimmedElement);
       }
@@ -289,7 +285,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
   } else /* trimmed */ {
     for (auto& vertexInfo : eleTrimData.vertices()) {
       if (vertexInfo.isHost) {
-        addHostVertex(Util::vertexIndexMapping[vertexInfo.idx]);
+        addHostVertex(Transformations::mapToDune(2, vertexInfo.idx));
       } else /* new */ {
         addNewVertex(vertexInfo);
       }

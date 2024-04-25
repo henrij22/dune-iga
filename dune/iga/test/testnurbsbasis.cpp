@@ -62,7 +62,7 @@ auto testNurbsBasis() {
 
   Dune::TestSuite test(TestSuite::ThrowPolicy::AlwaysThrow);
 
-  //  Test code for VTKWriter, please uncomment to inspect the remaining errors
+  // Test code for VTKWriter, please uncomment to inspect the remaining errors
   Dune::RefinementIntervals refinementIntervals1(subSampling);
   SubsamplingVTKWriter<decltype(gridView)> vtkWriter(gridView, refinementIntervals1);
 

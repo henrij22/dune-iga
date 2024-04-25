@@ -87,15 +87,15 @@ namespace GeometryKernel {
         std::conditional_t<isParameterSpaceGeometryProvided, LocalParameterSpaceGeometry,
                            typename Trimmer::template Codim<codim>::LocalParameterSpaceGeometry>;
 
-    //  if we have codim==0, then the Jacobian in the parameter space of the grid entity itself is a DiagonalMatrix,
-    //  and
+    // if we have codim==0, then the Jacobian in the parameter space of the grid entity itself is a DiagonalMatrix,
+    // and
     // Coordinates in a single knot span differ from coordinates on the B-spline patch
     // by an affine transformation.  This transformation is stored in the diagonal entries.
     // If trimming is disabled the Jacobian in the parameter space of subentities (edges or surfaces) is a
     // DiagonalMatrixBlock but is treated as a FieldMatrix, since is also just cubes and an axis-aligned geometry, if
     // trimming is enabled the Jacobian of the parameterspace for subentities is a potentially fully populated
     // FieldMatrix, Think about an arbitrary curve in the axis-aligned cube parameter grid
-    //                      ------->
+    //                     ------->
     // `____________________C_______D_______`
     // ::````````````````::``````````'|````::
     // ::                ::          `|    ::
@@ -136,8 +136,7 @@ namespace GeometryKernel {
 
     PatchGeometryLocalView() = default;
     explicit PatchGeometryLocalView(const PatchGeometry& patchGeometry)
-        : patchGeometry_{&patchGeometry} {
-    }
+        : patchGeometry_{&patchGeometry} {}
 
     /**
      * @brief Get the center of the patch geometry.

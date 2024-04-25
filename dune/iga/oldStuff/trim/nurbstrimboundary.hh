@@ -42,14 +42,12 @@ public:
   explicit Boundary(Ibra::BrepTrim& _trim)
       : nurbsGeometry(geometryFromTrim(_trim.geometry)),
         domain(_trim.domain),
-        endPoints({nurbsGeometry(domain.left()), nurbsGeometry(domain.right())}) {
-  }
+        endPoints({nurbsGeometry(domain.left()), nurbsGeometry(domain.right())}) {}
 
   explicit Boundary(const Point& a, const Point& b)
       : nurbsGeometry(lineGeometryFromPoints(a, b)),
         domain(nurbsGeometry.domain()[0]),
-        endPoints({a, b}) {
-  }
+        endPoints({a, b}) {}
 
   // Helper classes for construction of nurbsGeometry
 private:

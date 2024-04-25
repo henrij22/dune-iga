@@ -49,8 +49,7 @@ auto isCornerVertex(const auto& pt, const auto& eleRect) -> std::pair<bool, ptrd
 struct ClippingResult
 {
   explicit ClippingResult(const std::vector<Clipper2Lib::PointD>& oldV)
-      : originalVertices_(oldV) {
-  }
+      : originalVertices_(oldV) {}
 
   struct Vertex
   {

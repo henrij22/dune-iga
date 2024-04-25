@@ -196,10 +196,8 @@ template <int gridDim, int worldDim, typename ScalarType>
 struct DGFGridFactory<Dune::IGA::NURBSGrid<gridDim, worldDim, ScalarType>>
 {
   using Grid = Dune::IGA::NURBSGrid<gridDim, worldDim, ScalarType>;
-  DGFGridFactory(std::string p_fileName) {
-  }
-  DGFGridFactory(std::istream& p_istreamGrid) {
-  }
+  DGFGridFactory(std::string p_fileName) {}
+  DGFGridFactory(std::istream& p_istreamGrid) {}
 
   Grid* grid() const {
     DUNE_THROW(Dune::NotImplemented, "DGFGridFactory not implemtented use JSONGridFactory");
