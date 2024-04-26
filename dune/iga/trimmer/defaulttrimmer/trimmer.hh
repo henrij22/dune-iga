@@ -189,19 +189,21 @@ namespace DefaultTrim {
     };
 
     TrimmedEntityGeometry geometryForIdx(unsigned int idx) {
-      auto it = std::ranges::find_if(trimmedEntityGeometries, [&](const auto& geoMap) {
-        return geoMap.indexOfInsideElementinLvl == idx;
-      });
+      auto it = std::ranges::find_if(trimmedEntityGeometries,
+                                     [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
       if (it != trimmedEntityGeometries.end())
-        return *it;
+        return it->geometry;
       DUNE_THROW(IOError, "geometryForIdx couldn't find geometry for idx");
     }
 
     std::vector<GeometryMap> trimmedEntityGeometries{};
     std::optional<TrimInfo> trimInfo{};
 
-    auto isTrimmed() const {
+    bool isTrimmed() const {
       return trimmed;
+    }
+    bool isTrimmedHost() const {
+      return hostSeed.isValid() and isTrimmed();
     }
   };
 
@@ -402,7 +404,7 @@ namespace DefaultTrim {
       if (not localEntity.isTrimmed())
         return IntersectionIterator(
             grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::Begin);
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
     }
 
     // Reference to one past the last neighbor
@@ -413,7 +415,7 @@ namespace DefaultTrim {
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_,
                                     parameterSpaceGrid().levelGridView(ent.level()).iend(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::End);
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
     }
 
     // First leaf intersection
@@ -423,7 +425,7 @@ namespace DefaultTrim {
 
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::Begin);
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
     }
 
     // Reference to one past the last leaf intersection
@@ -433,7 +435,7 @@ namespace DefaultTrim {
 
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().iend(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity.trimData_.value(), IntersectionIterator::PositionToken::End);
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
     }
 
     template <class EntitySeed>

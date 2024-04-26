@@ -121,12 +121,18 @@ public:
       return hostEntity_;
     DUNE_THROW(NotImplemented, "getHostEntity");
   }
-  EntityInfo entityInfo_;
+
+  const EntityInfo& entityInfo() const {
+    return entityInfo_;
+  }
+
+  const TrimInfo& trimData() const {
+    assert(trimData_.has_value());
+    return trimData_.value();
+  }
 
 private:
-  struct Empty
-  {
-  };
+  EntityInfo entityInfo_;
   HostParameterSpaceGridEntity hostEntity_;
   std::optional<TrimInfo> trimData_;
 

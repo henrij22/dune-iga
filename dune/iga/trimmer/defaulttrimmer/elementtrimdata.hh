@@ -10,6 +10,7 @@
 #include <dune/common/fvector.hh>
 #include <dune/grid/io/file/vtk/common.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
+#include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 
 namespace Dune::IGANEW::DefaultTrim {
 
@@ -81,13 +82,13 @@ struct ElementTrimDataImpl
     edges_.emplace_back(EdgeInfo{.isHost    = true,
                                  .isTrimmed = true,
                                  .idx       = idx,
-                                 .geometry  = geometry,
+                                 .geometry  = transform(geometry),
                                  .direction = TrimmedHostEdgeDirection::HostNew});
     vertices_.emplace_back(false, newVertexCounter_++, v2);
   }
 
   void addEdgeNewNew(EdgePatchGeometry& geometry, Vertex& v2) {
-    edges_.emplace_back(false, true, newEdgeCounter_++, geometry);
+    edges_.emplace_back(false, true, newEdgeCounter_++, transform(geometry));
     vertices_.emplace_back(false, newVertexCounter_++, v2);
   }
 
@@ -95,7 +96,7 @@ struct ElementTrimDataImpl
     edges_.emplace_back(EdgeInfo{.isHost    = true,
                                  .isTrimmed = true,
                                  .idx       = idx,
-                                 .geometry  = geometry,
+                                 .geometry  = transform(geometry),
                                  .direction = TrimmedHostEdgeDirection::NewHost});
     vertices_.emplace_back(true, v2Idx, std::nullopt);
   }
@@ -103,7 +104,7 @@ struct ElementTrimDataImpl
     edges_.emplace_back(EdgeInfo{.isHost    = true,
                                  .isTrimmed = true,
                                  .idx       = idx,
-                                 .geometry  = geometry,
+                                 .geometry  = transform(geometry),
                                  .direction = TrimmedHostEdgeDirection::NewNew});
     vertices_.emplace_back(false, newVertexCounter_++, v2);
   }
@@ -225,6 +226,9 @@ struct ElementTrimDataImpl
 
   VertexInfo vertex(int i) const {
     return vertices_[i];
+  }
+  const EdgeInfo& edge(int i) const {
+    return edges_[i];
   }
 
   [[nodiscard]] unsigned int size(unsigned int codim) const {

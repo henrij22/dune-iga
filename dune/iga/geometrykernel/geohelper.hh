@@ -65,7 +65,7 @@ struct Domain : std::array<ScalarType, 2>
 
   /** @brief Returns true if domain is (0, 1) */
   bool isUnitDomain() const {
-    return FloatCmp::eq(left(), 0) and FloatCmp::eq(right(), 1);
+    return FloatCmp::eq(left(), 0.0) and FloatCmp::eq(right(), 1.0);
   }
 };
 

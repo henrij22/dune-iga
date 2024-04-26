@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 #pragma once
 #include <dune/iga/geometrykernel/nurbspatchgeometry.hh>
+
+// todo is this tested?
 namespace Dune::IGANEW::GeometryKernel {
 template <int dim_, int dimworld_, typename ScalarType = double>
 auto transform(

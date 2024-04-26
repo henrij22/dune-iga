@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #pragma once
+
 #include <ranges>
 
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
@@ -54,8 +55,8 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const FieldVecto
 
 template <int dim, int dimworld, typename ScalarType>
 auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(
-    typename TrimmerTraits::PersistentIndexType hostEdgeId,
-    const typename ElementTrimData::EdgeInfo& trimmedEdge) -> GlobalIdType {
+    typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge)
+    -> GlobalIdType {
   using HostEdge            = typename TrimmerTraits::template Codim<1>::HostParameterSpaceGridEntity;
   using PersistentIndexType = typename TrimmerTraits::PersistentIndexType;
 
@@ -213,6 +214,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
                            .trimmed           = true,
                            .id                = edgeId,
                            .trimInfo          = edgeOfTrimmedElement};
+    edgeInfo.trimmedEntityGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
 
     auto& edgeVertexIndices = entityContainer_.globalVertexIdOfEdgesMap_[edgeId];
