@@ -60,24 +60,8 @@ public:
 
   // dereferencing
   Entity dereference() const {
-    if constexpr (codim == 0) {
-      // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_, *parameterSpaceLevelIterator,id_};
-      auto realEntity = typename Entity::Implementation{patchGrid_, *parameterSpaceLevelIterator};
-      return Entity{std::move(realEntity)};
-    } else /* if(id_.elementState==GlobalIdSetId::ElementState::full)// subentity is untrimmed */ {
-      // auto parameterSpaceEntity= ParameterSpaceGridEntity{patchGrid_,*parameterSpaceLevelIterator,id_};
-      auto realEntity = typename Entity::Implementation{patchGrid_, *parameterSpaceLevelIterator};
-
-      return Entity{std::move(realEntity)};
-    }
-    // else {
-    //   DUNE_THROW(NotImplemented,"This is doing the wrong thing");
-    //   // auto parameterSpaceEntity=
-    //   ParameterSpaceGridEntity{patchGrid_,id_,ElementTrimData(),parameterSpaceLevelIterator->level()};
-    //   // auto realEntity= typename Entity::Implementation{patchGrid_,std::move(parameterSpaceEntity)};
-    //   //
-    //   // return Entity{std::move(realEntity)};
-    // }
+    auto realEntity = typename Entity::Implementation{patchGrid_, *parameterSpaceLevelIterator};
+    return Entity{std::move(realEntity)};
   }
 
   // equality

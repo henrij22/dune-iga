@@ -160,8 +160,12 @@ namespace DefaultTrim {
 
     std::optional<TrimInfo> trimInfo{};
 
-    auto isTrimmed() const {
+    bool isTrimmed() const {
       return trimmed;
+    }
+
+    bool isValid() const {
+      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
     }
   };
 
@@ -215,6 +219,9 @@ namespace DefaultTrim {
     bool isTrimmedHost() const {
       return hostSeed.isValid() and isTrimmed();
     }
+    bool isValid() const {
+      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
+    }
   };
 
   template <typename Traits>
@@ -235,6 +242,9 @@ namespace DefaultTrim {
 
     auto isTrimmed() const {
       return trimmed;
+    }
+    bool isValid() const {
+      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
     }
 
     std::optional<IdType<HostIdType>> fatherId;

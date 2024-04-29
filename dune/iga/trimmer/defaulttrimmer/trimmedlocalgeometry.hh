@@ -168,7 +168,7 @@ public:
   /** @brief Return the element type identifier
    */
   [[nodiscard]] GeometryType type() const {
-    return GeometryTypes::none(mydimension);
+    return GeometryTypes::cube(mydimension);
   }
 
   // return whether we have an affine mapping (true for straight lines)
@@ -225,8 +225,7 @@ public:
   // The Jacobian matrix of the mapping from the reference element to this element
   // @todo not yet implemented
   [[nodiscard]] JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate& local) const {
-    DUNE_THROW(Dune::NotImplemented, "jacobianInverseTransposed() not yet implemented");
-    return JacobianInverseTransposed{};
+    return patchGeometry.jacobianInverseTransposed(local);
   }
 
 private:
@@ -268,7 +267,7 @@ public:
   /** @brief Return the element type identifier
    */
   [[nodiscard]] GeometryType type() const {
-    return GeometryTypes::none(mydimension);
+    return GeometryTypes::cube(mydimension);
   }
 
   // return whether we have an affine mapping (true for vertices??)
@@ -290,26 +289,21 @@ public:
     return pos_;
   }
 
-  /** @brief Maps a local coordinate within reference element to
-   * global coordinate in element  */
   GlobalCoordinate global(const LocalCoordinate& local) const {
-    DUNE_THROW(Dune::NotImplemented, "not yet implemented");
+    return pos_;
   }
 
   /** @brief Return the transposed of the Jacobian
    */
   JacobianTransposed jacobianTransposed(const LocalCoordinate& local) const {
-    DUNE_THROW(Dune::NotImplemented, "not yet implemented");
+    return JacobianTransposed{};
   }
 
-  /** @brief Maps a global coordinate within the element to a
-   * local coordinate in its reference element */
+  // Yaspgrid returns an empty {} for vertex.local
   LocalCoordinate local(const GlobalCoordinate& global) const {
-    DUNE_THROW(Dune::NotImplemented, "not yet implemented");
+    return LocalCoordinate{};
   }
 
-  // Returns true if the point is in the current element
-  // @todo
   bool checkInside(const LocalCoordinate& local) const {
     return true;
   }
@@ -318,10 +312,9 @@ public:
     return 1;
   }
 
-  // The Jacobian matrix of the mapping from the reference element to this element
-  // @todo not yet implemented
+
   [[nodiscard]] JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate& local) const {
-    DUNE_THROW(Dune::NotImplemented, "jacobianInverseTransposed() not yet implemented");
+    return JacobianInverseTransposed{};
   }
 
 private:

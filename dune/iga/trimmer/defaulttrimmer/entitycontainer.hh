@@ -126,6 +126,7 @@ struct VectorEntityContainer
 
   // todo specialize for codim 0 and 2 to not need lvl
   template <int codim>
+
   requires(codim >= 0 and codim <= 2)
   const auto& infoFromId(const IdType& id, int lvl = std::numeric_limits<int>::max()) const {
     if constexpr (codim == 0)
@@ -135,7 +136,6 @@ struct VectorEntityContainer
     else
       return idToVertexInfoMap[lvl].at(id);
   }
-
 
   template <int cc>
   auto subIndexFromId(const IdType& id, int i, int codim, int lvl) const {
@@ -170,11 +170,16 @@ struct VectorEntityContainer
   }
 
   GeoTypes types(int codim, int level) const {
-    if (codim == 0)
-      return numberOfTrimmedElements[level] == 0 ? GeoTypes{GeometryTypes::cube(gridDim)}
-                                                 : GeoTypes{GeometryTypes::cube(gridDim), GeometryTypes::none(gridDim)};
-    else
-      return GeoTypes{GeometryTypes::cube(gridDim - codim)};
+    if (codim == 0) {
+      if (numberOfTrimmedElements[level] == 0)
+        return GeoTypes{GeometryTypes::cube(gridDim)};
+
+      if (numberOfUnTrimmedElements[level] == 0)
+        return GeoTypes{GeometryTypes::none(gridDim)};
+
+      return GeoTypes{GeometryTypes::cube(gridDim), GeometryTypes::none(gridDim)};
+    }
+    return GeoTypes{GeometryTypes::cube(gridDim - codim)};
   }
 
   template <typename EntityType>

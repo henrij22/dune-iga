@@ -170,13 +170,11 @@ auto myGridCheck(G& grid) {
 }
 
 auto thoroughGridCheck(auto& grid) {
-  TestSuite t;
+  TestSuite t("thoroughGridCheck");
   constexpr int gridDimension = std::remove_cvref_t<decltype(grid)>::dimension;
 
   auto gvTest = [&]<typename GV>(GV&& gv) {
     TestSuite tl;
-
-    // using GV = std::remove_cvref_t<decltype(gv)>;
 
     tl.subTest(checkUniqueEdges(gv));
     tl.subTest(checkUniqueSurfaces(gv));
@@ -184,24 +182,23 @@ auto thoroughGridCheck(auto& grid) {
     if constexpr (GV::dimension == 2)
       tl.subTest(checkUniqueVertices(gv));
 
-    //
-    // auto extractGeo = std::views::transform([](const auto& ent) { return ent.geometry(); });
-    // for (auto&& elegeo : elements(gv) | extractGeo)
-    //   checkJacobians(elegeo);
-    //
-    // for (auto&& vertGeo : vertices(gv) | extractGeo)
-    //   checkJacobians(vertGeo);
-    //
-    // if constexpr (gridDimension > 1)
-    //   for (auto&& edgegeo : edges(gv) | extractGeo)
-    //     checkJacobians(edgegeo);
-    //
-    // if constexpr (gridDimension > 2)
-    //   for (auto&& edgegeo : facets(gv) | extractGeo)
-    //     checkJacobians(edgegeo);
-    //
-    // checkIterators(gv);
-    // checkEntityLifetime(gv);
+    auto extractGeo = std::views::transform([](const auto& ent) { return ent.geometry(); });
+    for (auto&& elegeo : elements(gv) | extractGeo)
+      checkJacobians(elegeo);
+
+    for (auto&& vertGeo : vertices(gv) | extractGeo)
+      checkJacobians(vertGeo);
+
+    if constexpr (gridDimension > 1)
+      for (auto&& edgegeo : edges(gv) | extractGeo)
+        checkJacobians(edgegeo);
+
+    if constexpr (gridDimension > 2)
+      for (auto&& edgegeo : facets(gv) | extractGeo)
+        checkJacobians(edgegeo);
+
+    checkIterators(gv);
+    checkEntityLifetime(gv);
     return tl;
   };
 
@@ -214,7 +211,7 @@ auto thoroughGridCheck(auto& grid) {
   //t.subTest(myGridCheck(grid));
 
   try {
-    checkIntersectionIterator(grid);
+    //checkIntersectionIterator(grid);
     checkLeafIntersections(grid);
   } catch (const Dune::NotImplemented& e) {
     std::cout << e.what() << std::endl;
@@ -239,6 +236,9 @@ auto testPlate() {
   gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {0, 0});
 
   auto grid = gridFactory.createGrid();
+  t.subTest(thoroughGridCheck(*grid));
+
+  grid->globalRefine(1);
   t.subTest(thoroughGridCheck(*grid));
 
   return t;

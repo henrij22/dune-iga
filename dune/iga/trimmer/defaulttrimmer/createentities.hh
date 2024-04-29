@@ -140,7 +140,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
       return;
 
     auto edge = ele.template subEntity<1>(localEdgeIndex);
-    EntityInfo<1> edgeInfo{.indexInLvlStorage = indexSet.index(edge),
+    EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
                            .trimmed           = false,
                            .id                = edgeId,
@@ -209,7 +209,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId, .id = globalIdSet_->newFreeIndex()};
     elementEdgeIndices.emplace_back(edgeId);
 
-    EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
+      EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
                            .trimmed           = true,
                            .id                = edgeId,
@@ -258,8 +258,12 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
     GlobalIdType vertexId = {.entityIdType = GlobalIdType::EntityIdType::host, .id = hostVertexId};
     elementVertexIndices.emplace_back(vertexId);
 
+    if (entityContainer_.idToVertexInfoMap.back().contains(vertexId)) {
+      return;
+    }
+
     auto vertex = ele.template subEntity<2>(localVertexIndex);
-    EntityInfo<2> vertexInfo{.indexInLvlStorage = indexSet.index(vertex),
+    EntityInfo<2> vertexInfo{.indexInLvlStorage = entityContainer_.vertexCount.back()++,
                              .lvl               = level,
                              .trimmed           = false,
                              .id                = vertexId,
@@ -270,6 +274,11 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementVertices(int level, c
   auto addNewVertex = [&](const typename ElementTrimData::VertexInfo& vertex) {
     GlobalIdType vertexId = idForTrimmedVertex(vertex.geometry.value());
     elementVertexIndices.emplace_back(vertexId);
+
+    if (entityContainer_.idToVertexInfoMap.back().contains(vertexId)) {
+      return;
+    }
+
     EntityInfo<2> vertexInfo{.indexInLvlStorage = entityContainer_.vertexCount.back()++,
                              .lvl               = level,
                              .trimmed           = true,
