@@ -104,7 +104,7 @@ namespace Impl {
         return Intersection(realIntersection);
       }
       /* trimmed Edge */
-      auto localIntersection = ParameterSpaceIntersection(patchGrid_, entityInfo.id, edgeInfo);
+      auto localIntersection = ParameterSpaceIntersection(patchGrid_, entityInfo.id, edgeInfo, iterator_);
       auto realIntersection  = typename Intersection::Implementation(patchGrid_, localIntersection);
       return Intersection(realIntersection);
     }
@@ -116,8 +116,8 @@ namespace Impl {
         auto trimmedIdx = Transformations::mapToTrimmer(1, i);
         if (trimmedIdx == edgeTrimInfo.idx) {
           if (isTrimmed)
-            return ParameterSpaceIntersection(patchGrid_, hostIntersections_[i], edgeInfo);
-          return ParameterSpaceIntersection(patchGrid_, hostIntersections_[i]);
+            return ParameterSpaceIntersection(patchGrid_, hostIntersections_[i], edgeInfo, iterator_);
+          return ParameterSpaceIntersection(patchGrid_, hostIntersections_[i], iterator_);
         }
       }
       DUNE_THROW(GridError, "Couldn't find HostIntersection");

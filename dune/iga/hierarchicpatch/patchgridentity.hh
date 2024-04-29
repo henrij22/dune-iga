@@ -149,7 +149,7 @@ public:
   }
 
   bool isTrimmed() const {
-    return localEntity_.entityInfo_.trimmed;
+    return localEntity_.entityInfo().trimmed;
   }
 
 private:

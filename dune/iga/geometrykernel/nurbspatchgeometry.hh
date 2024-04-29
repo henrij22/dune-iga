@@ -80,6 +80,15 @@ public:
   /* @brief Default constructor for NURBSPatch.*/
   NURBSPatch() = default;
 
+  bool operator==(const NURBSPatch & other) const {
+    bool isSame = true;
+    for (auto i : Dune::range(corners())) {
+      if (not FloatCmp::eq(corner(i), other.corner(i), 1e-8))
+        isSame = false;
+    }
+    return isSame;
+  }
+
   /**
    * @brief Get a local view of the NURBS patch.
    * @tparam codim Codimension of the patch.

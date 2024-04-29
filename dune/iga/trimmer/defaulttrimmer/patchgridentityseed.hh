@@ -45,7 +45,9 @@ public:
    */
   explicit PatchGridEntitySeed(const EntityImp& ent)
       : lvl_(ent.getLocalEntity().entityInfo_.lvl),
-        indexInLvlStorage_{ent.getLocalEntity().entityInfo_.indexInLvlStorage} {}
+        indexInLvlStorage_{ent.getLocalEntity().entityInfo_.indexInLvlStorage} {
+    assert(isValid());
+  }
 
   /**
    * @brief Get stored ParameterSpaceGridEntitySeed

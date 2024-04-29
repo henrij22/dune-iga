@@ -43,7 +43,7 @@ namespace Impl {
   } // namespace IntersectionTraits
 
   template <class GridImp, IntersectionType type_>
-  struct TimmedIntersectionImpl
+  struct TrimmedIntersectionImpl
   {
     constexpr static int dim      = GridImp::dimension;
     constexpr static int mydim    = GridImp::dimension - 1;
@@ -60,15 +60,19 @@ namespace Impl {
     using LocalGeometry            = IntersectionTraits::LocalGeometry<GridImp>;
     using Geometry                 = IntersectionTraits::Geometry<GridImp>;
     using TrimmedLocalGeometry = typename GridImp::GridFamily::TrimmerTraits::template Codim<1>::TrimmedLocalGeometry;
+    using TrimmedGeometry =
+        typename GridImp::GridFamily::TrimmerTraits::template Codim<1>::TrimmedParameterSpaceGeometry;
 
-    TimmedIntersectionImpl() = default;
+    TrimmedIntersectionImpl() = default;
 
-    TimmedIntersectionImpl(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo)
+    TrimmedIntersectionImpl(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo,
+                            int indexInInside)
         : patchGrid_(patchGrid),
           edgeInfo_(edgeInfo),
           insideElementId_(insideElementId),
           geo_(edgeInfo_.geometryForIdx(
-              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId_).indexInLvlStorage)) {
+              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId_).indexInLvlStorage)),
+          indexInInside_(indexInInside) {
       assert(geo_.domain()[0].isUnitDomain());
     }
 
@@ -78,13 +82,6 @@ namespace Impl {
 
     ParameterSpaceGridEntity outside() const {
       DUNE_THROW(GridError, "No Outside Entities for trimmed Intersections");
-    }
-
-    int level() const {
-      if constexpr (type_ == IntersectionType::Leaf)
-        return patchGrid_->maxLevel();
-      else
-        return edgeInfo_.lvl;
     }
 
     bool boundary() const {
@@ -99,17 +96,18 @@ namespace Impl {
       return 0;
     }
 
+    // A boundary has to be conforming
     bool conforming() const {
-      return false;
+      return true;
     }
 
     GeometryType type() const {
       return GeometryTypes::none(mydim);
     }
 
+    // todo not sure if we have to transform it to the reference cooridnate system
     LocalGeometry geometryInInside() const {
-      auto localGeometry = TrimmedLocalGeometry(geo_);
-      return LocalGeometry(localGeometry);
+      return LocalGeometry(TrimmedLocalGeometry(geo_));
     }
 
     LocalGeometry geometryInOutside() const {
@@ -117,16 +115,15 @@ namespace Impl {
     }
 
     Geometry geometry() const {
-      static_assert(std::is_same_v<IntersectionGeometry, Geometry>);
-      return geo_;
+      return Geometry(TrimmedGeometry(geo_));
     }
 
     int indexInInside() const {
-      DUNE_THROW(NotImplemented, "");
+      return indexInInside_;
     }
 
     int indexInOutside() const {
-      DUNE_THROW(NotImplemented, "");
+      DUNE_THROW(GridError, "No Outside Entities for trimmed Intersections");
     }
 
     NormalVector outerNormal(const LocalCoordinate& local) const {
@@ -147,15 +144,27 @@ namespace Impl {
       return unitOuterNormal(0.5);
     }
 
+    bool equals(const TrimmedIntersectionImpl& other) const {
+      return geo_ == other.geo_ and indexInInside_ == other.indexInInside_;
+    }
+
   private:
+    int level() const {
+      if constexpr (type_ == IntersectionType::Leaf)
+        return patchGrid_->maxLevel();
+      else
+        return edgeInfo_.lvl;
+    }
+
     const GridImp* patchGrid_{};
     EdgeInfo edgeInfo_;
     IdType insideElementId_;
     IntersectionGeometry geo_;
+    int indexInInside_;
   };
 
   template <class GridImp, IntersectionType type_>
-  struct TimmedHostIntersectionImpl
+  struct TrimmedHostIntersectionImpl
   {
     constexpr static int dim      = GridImp::dimension;
     constexpr static int mydim    = GridImp::dimension - 1;
@@ -171,27 +180,19 @@ namespace Impl {
     using ParameterSpaceGridEntity = IntersectionTraits::ParameterSpaceGridEntity<GridImp>;
     using LocalGeometry            = IntersectionTraits::LocalGeometry<GridImp>;
     using Geometry                 = IntersectionTraits::Geometry<GridImp>;
+    using TrimmedLocalGeometry = typename GridImp::GridFamily::TrimmerTraits::template Codim<1>::TrimmedLocalGeometry;
+    using TrimmedGeometry =
+        typename GridImp::GridFamily::TrimmerTraits::template Codim<1>::TrimmedParameterSpaceGeometry;
+    TrimmedHostIntersectionImpl() = default;
 
-    int level() const {
-      if constexpr (type_ == IntersectionType::Leaf)
-        return patchGrid_->maxLevel();
-      else
-        return hostIntersection_.inside().level();
-    }
-    IdType insideElementId() const {
-      auto hostId = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
-      return {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-    }
-
-    TimmedHostIntersectionImpl() = default;
-
-    TimmedHostIntersectionImpl(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection,
-                               const EdgeInfo& edgeinfo)
+    TrimmedHostIntersectionImpl(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection,
+                                const EdgeInfo& edgeinfo, int indexInInside)
         : patchGrid_(patchGrid),
           hostIntersection_(hostIntersection),
           edgeInfo_(edgeinfo),
           geo_(edgeInfo_.geometryForIdx(
-              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage)) {
+              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage)),
+          indexInInside_(indexInInside) {
       assert(geo_.domain()[0].isUnitDomain());
     }
 
@@ -200,9 +201,7 @@ namespace Impl {
     }
 
     ParameterSpaceGridEntity outside() const {
-      auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
-      IdType elementId = {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-      return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, level());
+      return patchGrid_->trimmer().entityContainer_.template entity<0>(outsideElementId(), level());
     }
 
     bool boundary() const {
@@ -213,12 +212,10 @@ namespace Impl {
       return hostIntersection_.neighbor();
     }
 
-    // return the boundary segment index
     size_t boundarySegmentIndex() const {
       return 0;
     }
 
-    // Return true if this is a conforming intersection
     bool conforming() const {
       return hostIntersection_.conforming();
     }
@@ -228,35 +225,35 @@ namespace Impl {
       return hostIntersection_.type();
     }
 
-    // todo
+    // todo not sure if we have to transform it to the reference cooridnate system
     LocalGeometry geometryInInside() const {
-      return hostIntersection_.geometryInInside();
+      return LocalGeometry(TrimmedLocalGeometry(geo_));
     }
 
-    // todo
+    // transform?
     LocalGeometry geometryInOutside() const {
-      return hostIntersection_.geometryInOutside();
+      auto outsideGeo = edgeInfo_.otherGeometryForIdx(
+          patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage);
+      return LocalGeometry(TrimmedLocalGeometry(outsideGeo));
     }
 
-    // todo
     Geometry geometry() const {
-      return hostIntersection_.geometry();
+      return Geometry(TrimmedGeometry(geo_));
     }
 
     int indexInInside() const {
-      return hostIntersection_.indexInInside();
+      return indexInInside_;
     }
 
     int indexInOutside() const {
-      return hostIntersection_.indexInOutside();
+      return patchGrid_->trimmer().entityContainer_.outsideIntersectionIndex(insideElementId(), outsideElementId(),
+                                                                             indexInInside());
     }
 
     // Its fine to use the hostIntersection as we are in the parameter space, and host intersections are always constant
     // straight lines
     NormalVector outerNormal(const LocalCoordinate& local) const {
       return hostIntersection_.outerNormal(local);
-      // auto jacobian = geo_.jacobianTransposed(local)[0];
-      // return {jacobian[1], jacobian[0]};
     }
 
     NormalVector integrationOuterNormal(const LocalCoordinate& local) const {
@@ -272,11 +269,31 @@ namespace Impl {
       return unitOuterNormal(0.5);
     }
 
+    bool equals(const TrimmedHostIntersectionImpl& other) const {
+      return hostIntersection_ == other.hostIntersection_ and indexInInside_ == other.indexInInside_;
+    }
+
   private:
+    int level() const {
+      if constexpr (type_ == IntersectionType::Leaf)
+        return patchGrid_->maxLevel();
+      else
+        return hostIntersection_.inside().level();
+    }
+    IdType insideElementId() const {
+      auto hostId = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
+      return {.entityIdType = IdType::EntityIdType::host, .id = hostId};
+    }
+    IdType outsideElementId() const {
+      auto hostId = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
+      return {.entityIdType = IdType::EntityIdType::host, .id = hostId};
+    }
+
     const GridImp* patchGrid_{};
     HostLeafIntersection hostIntersection_;
     EdgeInfo edgeInfo_;
     IntersectionGeometry geo_;
+    int indexInInside_;
   };
 
   template <class GridImp, IntersectionType type_>
@@ -298,27 +315,18 @@ namespace Impl {
 
     HostIntersectionImpl() = default;
 
-    HostIntersectionImpl(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection)
+    HostIntersectionImpl(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection,
+                         std::optional<int> indexInInside = std::nullopt)
         : patchGrid_(patchGrid),
-          hostIntersection_(hostIntersection) {}
-
-    int level() const {
-      if constexpr (type_ == IntersectionType::Leaf)
-        return patchGrid_->maxLevel();
-      else
-        return hostIntersection_.inside().level();
-    }
+          hostIntersection_(hostIntersection),
+          indexInInside_(indexInInside) {}
 
     ParameterSpaceGridEntity inside() const {
-      auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
-      IdType elementId = {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-      return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, level());
+      return patchGrid_->trimmer().entityContainer_.template entity<0>(insideElementId(), level());
     }
 
     ParameterSpaceGridEntity outside() const {
-      auto hostId      = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
-      IdType elementId = {.entityIdType = IdType::EntityIdType::host, .id = hostId};
-      return patchGrid_->trimmer().entityContainer_.template entity<0>(elementId, level());
+      return patchGrid_->trimmer().entityContainer_.template entity<0>(outsideElementId(), level());
     }
 
     bool boundary() const {
@@ -357,10 +365,13 @@ namespace Impl {
     }
 
     int indexInInside() const {
-      return hostIntersection_.indexInInside();
+      return indexInInside_.value_or(hostIntersection_.indexInInside());
     }
 
     int indexInOutside() const {
+      if (patchGrid_->trimmer().entityContainer_.isElementTrimmed(outsideElementId()))
+        return patchGrid_->trimmer().entityContainer_.outsideIntersectionIndex(insideElementId(), outsideElementId(),
+                                                                               indexInInside());
       return hostIntersection_.indexInOutside();
     }
 
@@ -380,10 +391,32 @@ namespace Impl {
       return hostIntersection_.centerUnitOuterNormal();
     }
 
+    bool equals(const HostIntersectionImpl& other) const {
+      return hostIntersection_ == other.hostIntersection_;
+    }
+
   private:
+    int level() const {
+      if constexpr (type_ == IntersectionType::Leaf)
+        return patchGrid_->maxLevel();
+      else
+        return hostIntersection_.inside().level();
+    }
+
+    IdType insideElementId() const {
+      auto hostId = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.inside());
+      return {.entityIdType = IdType::EntityIdType::host, .id = hostId};
+    }
+
+    IdType outsideElementId() const {
+      auto hostId = patchGrid_->trimmer().parameterSpaceGrid().globalIdSet().id(hostIntersection_.outside());
+      return {.entityIdType = IdType::EntityIdType::host, .id = hostId};
+    }
+
     const GridImp* patchGrid_{};
     IntersectionGeometry geo;
     HostLeafIntersection hostIntersection_;
+    std::optional<int> indexInInside_;
   };
 
   template <class GridImp, IntersectionType type_>
@@ -462,8 +495,12 @@ namespace Impl {
       return visit([](const auto& impl) { return impl.centerUnitOuterNormal(); });
     }
 
+    bool equals(const IntersectionVariant& other) const {
+      return visit([&]<typename T>(const T& impl) { return impl.equals(std::get<T>(other.impl_)); });
+    }
+
   private:
-    std::variant<TimmedIntersectionImpl<GridImp, type_>, TimmedHostIntersectionImpl<GridImp, type_>,
+    std::variant<TrimmedIntersectionImpl<GridImp, type_>, TrimmedHostIntersectionImpl<GridImp, type_>,
                  HostIntersectionImpl<GridImp, type_>>
         impl_{};
   };
@@ -512,39 +549,50 @@ public:
 
   TrimmedLeafIntersection() = default;
 
-  TrimmedLeafIntersection(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection)
-      : underlying_{Impl::HostIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(patchGrid, hostIntersection)} {}
+  TrimmedLeafIntersection(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection,
+                          std::optional<int> indexInInside = std::nullopt)
+      : underlying_{Impl::HostIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(patchGrid, hostIntersection,
+                                                                                      indexInInside)} {}
 
   // Trimmed Host Intersection
   TrimmedLeafIntersection(const GridImp* patchGrid, const HostLeafIntersection& hostIntersection,
-                          const EdgeInfo& edgeInfo)
-      : underlying_{Impl::TimmedHostIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(patchGrid, hostIntersection,
-                                                                                            edgeInfo)} {}
+                          const EdgeInfo& edgeInfo, int indexInInside)
+      : underlying_{Impl::TrimmedHostIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(
+            patchGrid, hostIntersection, edgeInfo, indexInInside)} {}
 
-  TrimmedLeafIntersection(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo)
-      : underlying_{Impl::TimmedIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(patchGrid, insideElementId,
-                                                                                        edgeInfo)} {}
+  // Trimmed Intersection
+  TrimmedLeafIntersection(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo,
+                          int indexInInside)
+      : underlying_{Impl::TrimmedIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>(patchGrid, insideElementId,
+                                                                                         edgeInfo, indexInInside)} {}
 
   // TrimmedLeafIntersection(const GridImp* parameterSpaceGrid, HostLeafIntersection&& hostIntersection)
   //     : patchGrid_(parameterSpaceGrid),
   //       hostIntersection_{hostIntersection} {}
 
   bool operator==(const TrimmedLeafIntersection& other) const {
-    DUNE_THROW(NotImplemented, "");
+    return underlying_.equals(other.underlying_);
   }
 
-  // returns the inside entity
+  /**
+   *
+   * @return the inside entity
+   */
   ParameterSpaceGridEntity inside() const {
     return underlying_.inside();
   }
 
-  // return Entity on the outside of this intersection
-  // (that is the neighboring Entity)
+  /**
+   * \brief Entity on the outside of this intersection (that is the neighboring Entity)
+   * \return neighbor entity
+   */
   ParameterSpaceGridEntity outside() const {
     return underlying_.outside();
   }
 
-  // return true if intersection is with boundary.
+  /**
+   * \brief True if intersection is part of the domain boundary
+   */
   [[nodiscard]] bool boundary() const {
     return underlying_.boundary();
   }
@@ -555,38 +603,64 @@ public:
   }
 
   // return the boundary segment index
+  /**
+   * \brief Boundary segment index, not implemented in Dune::SubGrid
+   * @return boundary segment index
+   */
   size_t boundarySegmentIndex() const {
     return underlying_.boundarySegmentIndex();
   }
 
-  // Return true if this is a conforming intersection
+  /**
+   * \brief Returns whether the intersection is conforming, i.e., whether it is equivalent to an entire element facet
+   * shared by the inside and outside elements
+   * @return true if this is a conforming intersection
+   */
   bool conforming() const {
     return underlying_.conforming();
   }
 
-  // Geometry type of an intersection
+  /**
+   *\brief type of the reference element for the intersection, i.e., the domain for its parametrization
+   * @return  Geometry type of an intersection
+   */
   GeometryType type() const {
     return underlying_.type();
   }
 
+  /**
+   * @return Geometry of this intersection in local coordinates of the inside entity
+   */
   LocalGeometry geometryInInside() const {
     return underlying_.geometryInInside();
   }
 
+  /**
+   * @return Geometry of this intersection in local coordinates of the outside entity
+   */
   LocalGeometry geometryInOutside() const {
     return underlying_.geometryInOutside();
   }
 
+  /**
+   * @return Geometry of the intersection in the grid world space, here parameterspace geometry
+   */
   Geometry geometry() const {
     return underlying_.geometry();
   }
 
-  // local number of codim 1 entity in self where intersection is contained in
+  /**
+   * \brief Local index of facet in the inside (codim 1) entity that contains the intersection
+   * @return local index
+   */
   int indexInInside() const {
     return underlying_.indexInInside();
   }
 
-  // local number of codim 1 entity in neighbor where intersection is contained
+  /**
+   * \brief Local index of facet in the outside (codim 1) entity that contains the intersection
+   * @return local index
+   */
   int indexInOutside() const {
     return underlying_.indexInOutside();
   }
@@ -655,28 +729,31 @@ public:
 
   TrimmedLevelIntersection() = default;
 
-  TrimmedLevelIntersection(const GridImp* parameterSpaceGrid, const HostLevelIntersection& hostIntersection)
-      : underlying_{
-            Impl::HostIntersectionImpl<GridImp, Impl::IntersectionType::Level>(parameterSpaceGrid, hostIntersection)} {}
+  TrimmedLevelIntersection(const GridImp* parameterSpaceGrid, const HostLevelIntersection& hostIntersection,
+                           std::optional<int> indexInInside = std::nullopt)
+      : underlying_{Impl::HostIntersectionImpl<GridImp, Impl::IntersectionType::Level>(
+            parameterSpaceGrid, hostIntersection, indexInInside)} {}
 
   // Trimmed Host Intersection
   TrimmedLevelIntersection(const GridImp* patchGrid, const HostLevelIntersection& hostIntersection,
-                           const EdgeInfo& edgeInfo)
-      : underlying_{Impl::TimmedHostIntersectionImpl<GridImp, Impl::IntersectionType::Level>(
-            patchGrid, hostIntersection, edgeInfo)} {
+                           const EdgeInfo& edgeInfo, int indexInInside)
+      : underlying_{Impl::TrimmedHostIntersectionImpl<GridImp, Impl::IntersectionType::Level>(
+            patchGrid, hostIntersection, edgeInfo, indexInInside)} {
     assert(edgeInfo.isTrimmed());
   }
 
-  TrimmedLevelIntersection(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo)
-      : underlying_{Impl::TimmedIntersectionImpl<GridImp, Impl::IntersectionType::Level>(patchGrid, insideElementId,
-                                                                                         edgeInfo)} {}
+  // Trimmed Intersection
+  TrimmedLevelIntersection(const GridImp* patchGrid, const IdType& insideElementId, const EdgeInfo& edgeInfo,
+                           int indexInInside)
+      : underlying_{Impl::TrimmedIntersectionImpl<GridImp, Impl::IntersectionType::Level>(patchGrid, insideElementId,
+                                                                                          edgeInfo, indexInInside)} {}
 
   // TrimmedLevelIntersection(const GridImp* patchGrid, HostLevelIntersection&& hostIntersection)
   //     : patchGrid_(patchGrid),
   //       hostIntersection_{hostIntersection} {}
 
   bool operator==(const TrimmedLevelIntersection& other) const {
-    DUNE_THROW(NotImplemented, "");
+    return underlying_.equals(other.underlying_);
   }
 
   // returns the inside entity

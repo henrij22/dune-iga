@@ -80,6 +80,7 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
         std::get<1>(resTuple).push_back(intersection.unitOuterNormal({0.5}));
 
         std::cout << "unit outer normal: " << std::setprecision(16) << intersection.unitOuterNormal({0.5}) << std::endl;
+        std::cout << "inside index: " << intersection.indexInInside() << std::endl;
 
         std::get<2>(resTuple).push_back(intersection.centerUnitOuterNormal());
         std::get<3>(resTuple).push_back(intersection.outerNormal({0.5}));

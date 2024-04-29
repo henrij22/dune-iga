@@ -64,6 +64,32 @@ struct VectorEntityContainer
     __builtin_unreachable();
   }
 
+  size_t subIds(const IdType& elementId, int codim) const {
+    if (codim == 0)
+      return 0;
+    if (codim == 1)
+      return globalEdgesIdOfElementsMap_.at(elementId).size();
+    if (codim == 2)
+      return globalVerticesIdOfElementsMap.at(elementId).size();
+    assert(codim >= 0 and codim <= 2);
+    __builtin_unreachable();
+  }
+
+  int outsideIntersectionIndex(const IdType& insideElementId, const IdType& outsideElementId, int indexInInside) const {
+    const IdType& insideSubId = subId(insideElementId, indexInInside, 1);
+
+    for (const auto i : Dune::range(subIds(outsideElementId, 1))) {
+      const IdType& outsideSubId = subId(outsideElementId, i, 1);
+      if (outsideSubId == insideSubId)
+        return i;
+    }
+    DUNE_THROW(GridError, "outsideIntersectionIndex not successfull");
+  }
+
+  bool isElementTrimmed(const IdType& elementId) const {
+    return infoFromId<0>(elementId).trimmed;
+  }
+
   template <int codim>
   requires(codim >= 0 and codim <= 2)
   const auto& entity(int lvl, int indexInLvlStorage) const {
@@ -98,9 +124,10 @@ struct VectorEntityContainer
     return entity<codim>(infoFromId<codim>(id, lvl));
   }
 
+  // todo specialize for codim 0 and 2 to not need lvl
   template <int codim>
   requires(codim >= 0 and codim <= 2)
-  const auto& infoFromId(const IdType& id, int lvl) const {
+  const auto& infoFromId(const IdType& id, int lvl = std::numeric_limits<int>::max()) const {
     if constexpr (codim == 0)
       return idToElementInfoMap.at(id);
     else if constexpr (codim == 1)
@@ -108,6 +135,7 @@ struct VectorEntityContainer
     else
       return idToVertexInfoMap[lvl].at(id);
   }
+
 
   template <int cc>
   auto subIndexFromId(const IdType& id, int i, int codim, int lvl) const {

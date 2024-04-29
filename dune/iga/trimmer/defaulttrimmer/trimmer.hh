@@ -150,7 +150,7 @@ namespace DefaultTrim {
     // using TrimmedEntityGeometry =
     //     typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
 
-    using TrimInfo = typename Traits::ElementTrimData::VertexInfo;
+    using TrimInfo  = typename Traits::ElementTrimData::VertexInfo;
 
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     int lvl{};
@@ -188,12 +188,22 @@ namespace DefaultTrim {
       TrimmedEntityGeometry geometry;
     };
 
-    TrimmedEntityGeometry geometryForIdx(unsigned int idx) {
+    TrimmedEntityGeometry geometryForIdx(unsigned int idx) const {
       auto it = std::ranges::find_if(trimmedEntityGeometries,
                                      [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
       if (it != trimmedEntityGeometries.end())
         return it->geometry;
       DUNE_THROW(IOError, "geometryForIdx couldn't find geometry for idx");
+    }
+
+    // todo this is a very bad implementation
+    TrimmedEntityGeometry otherGeometryForIdx(unsigned int idx) const {
+      assert(trimmedEntityGeometries.size() == 2);
+      auto it = std::ranges::find_if_not(trimmedEntityGeometries,
+                                         [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
+      if (it != trimmedEntityGeometries.end())
+        return it->geometry;
+      DUNE_THROW(IOError, "geometryForIdx couldn't find other geometry for idx");
     }
 
     std::vector<GeometryMap> trimmedEntityGeometries{};
@@ -404,7 +414,8 @@ namespace DefaultTrim {
       if (not localEntity.isTrimmed())
         return IntersectionIterator(
             grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin,
+                                  parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
     }
 
     // Reference to one past the last neighbor
@@ -415,7 +426,8 @@ namespace DefaultTrim {
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_,
                                     parameterSpaceGrid().levelGridView(ent.level()).iend(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End, parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End,
+                                  parameterSpaceGrid().levelGridView(ent.level()).ibegin(localEntity.getHostEntity()));
     }
 
     // First leaf intersection
@@ -425,7 +437,8 @@ namespace DefaultTrim {
 
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::Begin,
+                                  parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
     }
 
     // Reference to one past the last leaf intersection
@@ -435,11 +448,13 @@ namespace DefaultTrim {
 
       if (not localEntity.isTrimmed())
         return IntersectionIterator(grid_, parameterSpaceGrid().leafGridView().iend(localEntity.getHostEntity()));
-      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End, parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
+      return IntersectionIterator(grid_, localEntity, IntersectionIterator::PositionToken::End,
+                                  parameterSpaceGrid().leafGridView().ibegin(localEntity.getHostEntity()));
     }
 
     template <class EntitySeed>
     typename GridFamily::Traits::template Codim<EntitySeed::codimension>::Entity entity(const EntitySeed& seed) const {
+      assert(seed.isValid());
       using EntityImp               = typename TrimmerTraits::template Codim<EntitySeed::codimension>::EntityImp;
       auto [lvl, indexInLvlStorage] = seed.impl().data();
       return EntityImp{grid_, entityContainer_.template entity<EntitySeed::codimension>(lvl, indexInLvlStorage)};

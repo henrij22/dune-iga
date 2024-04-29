@@ -120,6 +120,7 @@ auto myGridCheck(G& grid) {
   static_assert(G::dimension == 2);
 
   auto testGV = [&]<typename GV>(const GV& gv) {
+    auto& indexSet = gv.indexSet();
     for (int eleIdx = 0; const auto& ele : elements(gv)) {
       std::cout << "Element " << eleIdx << std::endl;
       const int numCorners  = ele.subEntities(2);
@@ -139,6 +140,9 @@ auto myGridCheck(G& grid) {
       // Intersections
       int intersectionCount{0};
       for (const auto& intersection : intersections(gv, ele)) {
+        auto geometry = intersection.geometry();
+        std::cout << "Intersection Idx: " << intersectionCount << ", C: " << geometry.corner(0) << ", "
+                  << geometry.corner(1) << std::endl;
         ++intersectionCount;
       }
       const int numEdges = ele.subEntities(1);
@@ -147,6 +151,12 @@ auto myGridCheck(G& grid) {
       std::cout << "Edges Count: " << numEdges << std::endl;
 
       t.check(intersectionCount == numEdges) << "There should be as many edges as intersections";
+
+      for (const auto i : Dune::range(numEdges)) {
+        auto edge = ele.template subEntity<1>(i);
+        std::cout << "Edge Idx " << indexSet.index(edge) << ", C: " << edge.geometry().corner(0) << ", "
+                  << edge.geometry().corner(1) << std::endl;
+      }
 
       ++eleIdx;
       std::cout << std::endl;
@@ -200,15 +210,15 @@ auto thoroughGridCheck(auto& grid) {
   }
   t.subTest(gvTest(grid.leafGridView()));
 
-  // gridcheck(grid);
-  t.subTest(myGridCheck(grid));
+  gridcheck(grid);
+  //t.subTest(myGridCheck(grid));
 
-  // try {
-  //   checkIntersectionIterator(grid);
-  //   checkLeafIntersections(grid);
-  // } catch (const Dune::NotImplemented& e) {
-  //   std::cout << e.what() << std::endl;
-  // }
+  try {
+    checkIntersectionIterator(grid);
+    checkLeafIntersections(grid);
+  } catch (const Dune::NotImplemented& e) {
+    std::cout << e.what() << std::endl;
+  }
 
   return t;
 }
@@ -226,7 +236,7 @@ auto testPlate() {
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
-  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {1, 1});
+  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {0, 0});
 
   auto grid = gridFactory.createGrid();
   t.subTest(thoroughGridCheck(*grid));

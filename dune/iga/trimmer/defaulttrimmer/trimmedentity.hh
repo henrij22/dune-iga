@@ -148,11 +148,7 @@ public:
   template <typename T = void>
   requires(codim_ == 0)
   [[nodiscard]] bool hasFather() const {
-    if (not isTrimmed())
-      return hostEntity_.hasFather();
-    DUNE_THROW(NotImplemented, " hasFather");
-
-    // return hostEntity_.hasFather();
+    return hostEntity_.hasFather();
   }
 
   // Create EntitySeed

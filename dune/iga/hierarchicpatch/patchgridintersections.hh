@@ -125,7 +125,7 @@ namespace Impl {
       // @todo trim this will be wrong as soon as the intersection geometry has a special geoemtry
       auto geo = typename Geometry::Implementation(
           parameterSpaceIntersection_.geometry(),
-          patchGrid_->patchGeometries_.back().template localView<1, GridImp::Trimmer>());
+          patchGridGeometry().template localView<1, typename GridImp::Trimmer>());
       return Geometry(geo);
     }
 
@@ -166,6 +166,12 @@ namespace Impl {
     }
 
   private:
+    auto& patchGridGeometry() const {
+      if constexpr (type_ == IntersectionType::Leaf)
+        return  patchGrid_->patchGeometryAtBack();
+      else
+        return patchGrid_->patchGeometry(inside().level());
+    }
     const GridImp* patchGrid_{};
     ParameterSpaceIntersection parameterSpaceIntersection_{};
   };
@@ -184,7 +190,7 @@ class PatchGridLeafIntersection
 {
   friend typename GridImp::Traits::LeafIntersectionIterator;
 
-  friend struct HostGridAccess<typename std::remove_const<GridImp>::type>;
+  friend struct HostGridAccess<std::remove_const_t<GridImp>>;
 
   using Implementation                 = Impl::PatchGridIntersectionImpl<GridImp, Impl::IntersectionType::Leaf>;
   using ParameterSpaceLeafIntersection = typename Implementation::ParameterSpaceIntersection;

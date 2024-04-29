@@ -491,6 +491,9 @@ public:
   const auto& patchGeometry(int i) const {
     return patchGeometries_.at(i);
   }
+  const auto& patchGeometryAtBack() const {
+    return patchGeometries_.back();
+  }
 
 private:
   PatchGrid() = default;
