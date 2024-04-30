@@ -23,8 +23,8 @@ struct SimplexIntegrationRuleGenerator
   };
 
   static auto createIntegrationRule(const PatchElement& element, GridImp* grid, int quadratureOrder,
-                                    const QuadratureType::Enum qt = QuadratureType::GaussLegendre,
-                                    const Parameters& parameters  = Parameters{}) {
+                                    const Parameters& parameters  = Parameters{},
+                                    const QuadratureType::Enum qt = QuadratureType::GaussLegendre) {
     auto gv = grid->levelGridView(element.level());
 
     std::vector<Point> vertices{};
@@ -66,7 +66,8 @@ private:
 
     return mapbox::earcut<Index>(polygonInput);
   }
-  static auto makeQuadratureRule(const std::vector<Element>& elements, int quadratureOrder, const QuadratureType::Enum qt) {
+  static auto makeQuadratureRule(const std::vector<Element>& elements, int quadratureOrder,
+                                 const QuadratureType::Enum qt) {
     assert(qt == QuadratureType::GaussLegendre);
 
     Dune::QuadratureRule<double, dim> vector{};

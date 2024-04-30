@@ -138,7 +138,7 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
 
     // Seed
     auto levelEntityInside = grid.entity(std::get<5>(resLevel)[i]);
-    auto leafEntityInside = grid.entity(std::get<5>(resLeaf)[i]);
+    auto leafEntityInside  = grid.entity(std::get<5>(resLeaf)[i]);
 
     t.check(levelEntityInside == leafEntityInside);
   }

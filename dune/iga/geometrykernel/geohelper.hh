@@ -4,8 +4,8 @@
 #pragma once
 #include <ranges>
 
-#include <dune/common/fvector.hh>
 #include <dune/common/float_cmp.hh>
+#include <dune/common/fvector.hh>
 
 namespace Dune::IGANEW::Utilities {
 

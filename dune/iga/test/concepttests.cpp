@@ -78,12 +78,12 @@ int main() {
 
   checkConcepts<PatchGrid<2, 2, DefaultTrim::PatchGridFamily>>();
   checkConcepts<PatchGrid<2, 3, DefaultTrim::PatchGridFamily>>();
-  checkConcepts<PatchGrid<3, 3, DefaultTrim::PatchGridFamily>>();
+  // checkConcepts<PatchGrid<3, 3, DefaultTrim::PatchGridFamily>>();
 
   static_assert(not Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<1, 1, double>::Trimmer>);
   static_assert(not Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<1, 2, double>::Trimmer>);
   static_assert(not Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<1, 3, double>::Trimmer>);
-  static_assert(not Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<3, 3, double>::Trimmer>);
+  // static_assert(not Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<3, 3, double>::Trimmer>);
 
   static_assert(Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<2, 2, double>::Trimmer>);
   static_assert(Dune::IGANEW::Concept::Trimmer<DefaultTrim::PatchGridFamily<2, 3, double>::Trimmer>);

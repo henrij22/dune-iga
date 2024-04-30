@@ -80,7 +80,7 @@ public:
   /* @brief Default constructor for NURBSPatch.*/
   NURBSPatch() = default;
 
-  bool operator==(const NURBSPatch & other) const {
+  bool operator==(const NURBSPatch& other) const {
     bool isSame = true;
     for (auto i : Dune::range(corners())) {
       if (not FloatCmp::eq(corner(i), other.corner(i), 1e-8))

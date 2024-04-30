@@ -55,8 +55,8 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedVertex(const FieldVecto
 
 template <int dim, int dimworld, typename ScalarType>
 auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(
-    typename TrimmerTraits::PersistentIndexType hostEdgeId, const typename ElementTrimData::EdgeInfo& trimmedEdge)
-    -> GlobalIdType {
+    typename TrimmerTraits::PersistentIndexType hostEdgeId,
+    const typename ElementTrimData::EdgeInfo& trimmedEdge) -> GlobalIdType {
   using HostEdge            = typename TrimmerTraits::template Codim<1>::HostParameterSpaceGridEntity;
   using PersistentIndexType = typename TrimmerTraits::PersistentIndexType;
 
@@ -191,21 +191,26 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     std::vector<std::size_t> subEntityVector{subEntityRange.begin(), subEntityRange.end()};
 
     // We have one vertex that belongs to the hostgrid, and one new one
-    assert(edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew or
-           edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::NewHost);
+    if (edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew or
+        edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::NewHost) {
+      std::size_t vertexLocalIndexWRTElement =
+          edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew ? subEntityVector[0]
+                                                                                               : subEntityVector[1];
+      auto hostVertexId = globalIdSetParameterSpace.subId(ele, vertexLocalIndexWRTElement, 2);
+      edgeVertexIndices.emplace_back(
+          GlobalIdType{.entityIdType = GlobalIdType::EntityIdType::host, .id = hostVertexId});
 
-    std::size_t vertexLocalIndexWRTElement =
-        edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew ? subEntityVector[0]
-                                                                                             : subEntityVector[1];
-    auto hostVertexId = globalIdSetParameterSpace.subId(ele, vertexLocalIndexWRTElement, 2);
-    edgeVertexIndices.emplace_back(GlobalIdType{.entityIdType = GlobalIdType::EntityIdType::host, .id = hostVertexId});
-
-    // Now the new one
-    auto edgeGeo   = edgeOfTrimmedElement.geometry.value();
-    auto newVertex = edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew
-                         ? edgeGeo.corner(1)
-                         : edgeGeo.corner(0);
-    edgeVertexIndices.emplace_back(idForTrimmedVertex(newVertex));
+      // Now the new one
+      auto edgeGeo   = edgeOfTrimmedElement.geometry.value();
+      auto newVertex = edgeOfTrimmedElement.direction == ElementTrimData::TrimmedHostEdgeDirection::HostNew
+                           ? edgeGeo.corner(1)
+                           : edgeGeo.corner(0);
+      edgeVertexIndices.emplace_back(idForTrimmedVertex(newVertex));
+    } else {
+      auto edgeGeo = edgeOfTrimmedElement.geometry.value();
+      edgeVertexIndices.emplace_back(idForTrimmedVertex(edgeGeo.corner(0)));
+      edgeVertexIndices.emplace_back(idForTrimmedVertex(edgeGeo.corner(1)));
+    }
   };
 
   auto addTrimmedEdge = [&](const typename ElementTrimData::EdgeInfo& edgeOfTrimmedElement) {

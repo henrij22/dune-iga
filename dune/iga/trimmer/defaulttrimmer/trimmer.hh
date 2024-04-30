@@ -320,8 +320,6 @@ namespace DefaultTrim {
 
       using ElementTrimData = ElementTrimDataImpl<const Grid>; ///< Element trim data type.
 
-      using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const Grid>;
-
       template <int codim>
       struct Codim
       {

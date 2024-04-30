@@ -384,11 +384,7 @@ auto checkTrim(std::string filename, const ExpectedValues& expectedValues, Execu
 
       auto patchTrimData           = igaGrid->trimmer().patchTrimData();
       const auto tensorCoordinates = GeometryKernel::NURBSPatch{gridFactory.patchData_}.uniqueKnotVector();
-      Dune::YaspGrid gridH{tensorCoordinates};
-      Dune::SubGrid<2, decltype(gridH)> grid(gridH);
-      grid.createBegin();
-      grid.insertLeaf();
-      grid.createEnd();
+      Dune::YaspGrid grid{tensorCoordinates};
 
       // const auto& patchTrimData = gridFactory.patchTrimData_.value();
       assert(patchTrimData.loops().size() == 1);

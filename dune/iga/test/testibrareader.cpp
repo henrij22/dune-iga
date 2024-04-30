@@ -29,28 +29,27 @@ auto testIbraReader() {
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
 
   const std::vector testCases{
-      std::tuple<std::string, int, int>  //{    "auxiliaryfiles/element_trim_xb.ibra", 0, 3},
-      {"auxiliaryfiles/element_trim.ibra", 0, 3},
-      /*{        "auxiliaryfiles/trim_2edges.ibra", 0, 3},
-      {         "auxiliaryfiles/trim_multi.ibra", 0, 3},
-      {       "auxiliaryfiles/surface-hole.ibra", 1, 3},
-      {  "auxiliaryfiles/surface-hole-skew.ibra", 1, 3},
-      {"auxiliaryfiles/surface-hole-square.ibra", 1, 3}*/
+      std::tuple<std::string, int, int>{  "auxiliaryfiles/element_trim_xb.ibra", 0, 3},
+      {     "auxiliaryfiles/element_trim.ibra", 0, 3},
+      //{        "auxiliaryfiles/trim_2edges.ibra", 0, 3},
+      {       "auxiliaryfiles/trim_multi.ibra", 0, 3},
+      {     "auxiliaryfiles/surface-hole.ibra", 1, 3},
+      {"auxiliaryfiles/surface-hole-skew.ibra", 1, 3},
+      //{"auxiliaryfiles/surface-hole-square.ibra", 1, 3}
   };
 
   for (auto& [file_name, min, max] : testCases) {
-    for (int i = min; i <= max; i++)
-      for (int j = min; j <= max; j++) {
-        auto name = file_name.substr(file_name.find_last_of('/') + 1);
-        std::cout << "Testing now " << name << " (Refinement " << i << ", " << j << ")" << std::endl;
-        gridFactory.insertJson(file_name, true, {i, j});
-        try {
-          auto grid = gridFactory.createGrid();
-          drawGrid(grid.get(), "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(j) + ".gif");
-        } catch (Dune::GridError&) {
-          t.check(false) << "Grid Creation failed ...\n";
-        }
+    for (int i = min; i <= max; i++) {
+      auto name = file_name.substr(file_name.find_last_of('/') + 1);
+      std::cout << "Testing now " << name << " (Refinement " << i << ", " << i << ")" << std::endl;
+      gridFactory.insertJson(file_name, true, {i, i});
+      try {
+        auto grid = gridFactory.createGrid();
+        drawGrid(grid.get(), "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i) + ".gif");
+      } catch (Dune::GridError&) {
+        t.check(false) << "Grid Creation failed ...\n";
       }
+    }
   }
 
   return t;

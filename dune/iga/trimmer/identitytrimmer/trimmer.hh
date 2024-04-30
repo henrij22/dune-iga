@@ -201,25 +201,25 @@ namespace IdentityTrim {
     // First level intersection
     [[nodiscard]] PatchGridLevelIntersectionIterator<const GridImp> ilevelbegin(const Entity<0>& ent) const {
       return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(ent.impl().getHostEntity()));
+          grid_, parameterSpaceGrid().levelGridView(ent.level()).ibegin(ent.impl().getLocalEntity()));
     }
 
     // Reference to one past the last neighbor
     PatchGridLevelIntersectionIterator<const GridImp> ilevelend(const Entity<0>& ent) const {
       return PatchGridLevelIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().levelGridView(ent.level()).iend(ent.impl().getHostEntity()));
+          grid_, parameterSpaceGrid().levelGridView(ent.level()).iend(ent.impl().getLocalEntity()));
     }
 
     // First leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafbegin(const Entity<0>& ent) const {
       return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().ibegin(ent.impl().getHostEntity()));
+          grid_, parameterSpaceGrid().leafGridView().ibegin(ent.impl().getLocalEntity()));
     }
 
     // Reference to one past the last leaf intersection
     PatchGridLeafIntersectionIterator<const GridImp> ileafend(const Entity<0>& ent) const {
       return PatchGridLeafIntersectionIterator<const GridImp>(
-          grid_, parameterSpaceGrid().leafGridView().iend(ent.impl().getHostEntity()));
+          grid_, parameterSpaceGrid().leafGridView().iend(ent.impl().getLocalEntity()));
     }
 
     /**

@@ -250,10 +250,40 @@ auto testPlate() {
 }
 
 template <template <int, int, typename> typename GridFamily>
+requires IGANEW::Concept::Trimmer<typename GridFamily<2, 2, double>::Trimmer>
+auto testPlateWithHole() {
+  constexpr int gridDim  = 2;
+  constexpr int dimworld = 2;
+
+  TestSuite t;
+
+  using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto gridFactory = GridFactory();
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
+  gridFactory.insertJson("auxiliaryfiles/surface-hole.ibra", true, {1, 1});
+
+  auto grid = gridFactory.createGrid();
+  t.subTest(thoroughGridCheck(*grid));
+
+  std::cout << "\n*************\nRefine 1\n\n";
+  grid->globalRefine(1);
+  t.subTest(thoroughGridCheck(*grid));
+
+  std::cout << "\n*************\nRefine 2\n\n";
+  grid->globalRefine(1);
+  t.subTest(thoroughGridCheck(*grid));
+
+  return t;
+}
+
+template <template <int, int, typename> typename GridFamily>
 auto testGrids() {
   TestSuite t("testTrimmedGrids");
 
   t.subTest(testPlate<GridFamily>());
+  t.subTest(testPlateWithHole<GridFamily>());
 
   return t;
 }
@@ -264,6 +294,7 @@ int main(int argc, char** argv) try {
   //  Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+
   t.subTest(testGrids<DefaultTrim::PatchGridFamily>());
 
   t.report();

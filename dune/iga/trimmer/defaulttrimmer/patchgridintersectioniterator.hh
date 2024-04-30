@@ -110,8 +110,8 @@ namespace Impl {
     }
 
   private:
-    auto findLocalIntersection(const auto& edgeInfo, const auto& edgeTrimInfo, bool isTrimmed) const
-        -> ParameterSpaceIntersection {
+    auto findLocalIntersection(const auto& edgeInfo, const auto& edgeTrimInfo,
+                               bool isTrimmed) const -> ParameterSpaceIntersection {
       for (const auto i : Dune::range(4)) {
         auto trimmedIdx = Transformations::mapToTrimmer(1, i);
         if (trimmedIdx == edgeTrimInfo.idx) {

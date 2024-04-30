@@ -7,9 +7,8 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/test/testsuite.hh>
-#include <dune/grid/yaspgrid.hh>
 #include <dune/grid/utility/structuredgridfactory.hh>
-
+#include <dune/grid/yaspgrid.hh>
 
 int main(int argc, char** argv) {
   Dune::MPIHelper::instance(argc, argv);
@@ -29,7 +28,6 @@ int main(int argc, char** argv) {
     std::cout << "Global: " << vGeo.global({}) << std::endl;
     std::cout << std::endl;
   }
-
 
   return 0;
 }

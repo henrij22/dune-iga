@@ -123,9 +123,9 @@ namespace Impl {
     // Here returned element is in GLOBAL coordinates of the element where iteration started.
     Geometry geometry() const {
       // @todo trim this will be wrong as soon as the intersection geometry has a special geoemtry
-      auto geo = typename Geometry::Implementation(
-          parameterSpaceIntersection_.geometry(),
-          patchGridGeometry().template localView<1, typename GridImp::Trimmer>());
+      auto geo =
+          typename Geometry::Implementation(parameterSpaceIntersection_.geometry(),
+                                            patchGridGeometry().template localView<1, typename GridImp::Trimmer>());
       return Geometry(geo);
     }
 
@@ -168,7 +168,7 @@ namespace Impl {
   private:
     auto& patchGridGeometry() const {
       if constexpr (type_ == IntersectionType::Leaf)
-        return  patchGrid_->patchGeometryAtBack();
+        return patchGrid_->patchGeometryAtBack();
       else
         return patchGrid_->patchGeometry(inside().level());
     }

@@ -17,7 +17,7 @@
 using namespace Dune;
 using namespace Dune::IGANEW;
 
-auto testElement1(Dune::TestSuite& t, int refLevel) {
+auto testElement1(Dune::TestSuite& t, const std::string& file_name, int refLevel) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
 
@@ -28,21 +28,22 @@ auto testElement1(Dune::TestSuite& t, int refLevel) {
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
-  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {refLevel, refLevel});
+  gridFactory.insertJson(file_name, true, {refLevel, refLevel});
 
   const auto grid = gridFactory.createGrid();
   auto gv         = grid->leafGridView();
+  auto parameters = IntegrationRuleGenerator::Parameters{.maxBoundaryDivisions = 20};
 
   double area{0};
   for (const auto& ele : elements(gv)) {
-    auto qR  = IntegrationRuleGenerator::createIntegrationRule(ele, grid.get(), 2 * gridDim);
+    auto qR  = IntegrationRuleGenerator::createIntegrationRule(ele, grid.get(), 2 * gridDim, parameters);
     auto geo = ele.geometry();
 
     for (auto [gp, w] : qR) {
       area += geo.integrationElement(gp) * w;
     }
   }
-  std::cout << "Area: " << area << std::endl;
+  std::cout << "Area: " << area << " (" << file_name << ")" << std::endl;
 }
 
 #include <cfenv>
@@ -53,8 +54,11 @@ int main(int argc, char** argv) try {
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  testElement1(t, 0);
-  testElement1(t, 1);
+  testElement1(t, "auxiliaryfiles/element_trim.ibra", 0);
+  testElement1(t, "auxiliaryfiles/element_trim.ibra", 1);
+
+  testElement1(t, "auxiliaryfiles/element_trim_xb.ibra", 0);
+  testElement1(t, "auxiliaryfiles/element_trim_xb.ibra", 1);
 
   t.report();
 

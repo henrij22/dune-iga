@@ -105,7 +105,7 @@ namespace Impl {
       return GeometryTypes::none(mydim);
     }
 
-    // todo not sure if we have to transform it to the reference cooridnate system
+    // todo
     LocalGeometry geometryInInside() const {
       return LocalGeometry(TrimmedLocalGeometry(geo_));
     }

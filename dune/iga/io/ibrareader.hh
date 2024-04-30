@@ -24,8 +24,8 @@ class IbraReader
   using ControlPointNetType = typename PatchData::ControlPointNetType;
 
 public:
-  static auto read(const std::string& fileName, const bool trim = true, std::array<int, 2> preKnotRefine = {0, 0})
-      -> std::tuple<PatchData, std::optional<PatchTrimData>> {
+  static auto read(const std::string& fileName, const bool trim = true,
+                   std::array<int, 2> preKnotRefine = {0, 0}) -> std::tuple<PatchData, std::optional<PatchTrimData>> {
     Ibra::Brep brep = readJson<dimworld>(fileName);
     // Each surface in a brep is one Patch, as for now only one brep is supported in NURBSGrid
     assert(brep.surfaces.size() == 1);

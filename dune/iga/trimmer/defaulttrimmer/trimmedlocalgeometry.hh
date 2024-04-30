@@ -13,8 +13,6 @@ enum class LocalGeometryTag
   InReferenceElement
 };
 
-// @todo DRY
-
 template <int mydim, int coorddim, class GridImp, LocalGeometryTag localGeometryTag>
 class TrimmedLocalGeometryImpl
 {
@@ -311,7 +309,6 @@ public:
   [[nodiscard]] Volume integrationElement(const LocalCoordinate& local) const {
     return 1;
   }
-
 
   [[nodiscard]] JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate& local) const {
     return JacobianInverseTransposed{};
