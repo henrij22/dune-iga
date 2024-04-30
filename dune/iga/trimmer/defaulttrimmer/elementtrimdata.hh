@@ -29,7 +29,7 @@ struct ElementTrimDataImpl
   static constexpr int dimworld = GridFamily::Trimmer::dimensionworld;
   using ctype                   = typename GridFamily::Trimmer::ctype;
 
-  using HostEntity = typename GridFamily::Trimmer::ParameterSpaceGrid::Traits::template Codim<0>::Entity;
+  using HostEntity = typename GridFamily::Trimmer::TrimmerTraits::YASPGridType::Traits::template Codim<0>::Entity;
 
   using EdgeTrimmedParameterSpaceGeometry =
       typename GridFamily::TrimmerTraits::template Codim<1>::TrimmedParameterSpaceGeometry;

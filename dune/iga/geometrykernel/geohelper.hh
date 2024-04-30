@@ -5,6 +5,7 @@
 #include <ranges>
 
 #include <dune/common/fvector.hh>
+#include <dune/common/float_cmp.hh>
 
 namespace Dune::IGANEW::Utilities {
 

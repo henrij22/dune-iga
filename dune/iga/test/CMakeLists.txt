@@ -14,6 +14,7 @@ set(TESTS
         testpatchgeometry
         testutillities
         testintersections
+        testintegrationrules
 )
 option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 

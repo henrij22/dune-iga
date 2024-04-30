@@ -208,10 +208,10 @@ auto thoroughGridCheck(auto& grid) {
   t.subTest(gvTest(grid.leafGridView()));
 
   gridcheck(grid);
-  //t.subTest(myGridCheck(grid));
+  // t.subTest(myGridCheck(grid));
 
   try {
-    //checkIntersectionIterator(grid);
+    // checkIntersectionIterator(grid);
     checkLeafIntersections(grid);
   } catch (const Dune::NotImplemented& e) {
     std::cout << e.what() << std::endl;
@@ -238,6 +238,11 @@ auto testPlate() {
   auto grid = gridFactory.createGrid();
   t.subTest(thoroughGridCheck(*grid));
 
+  std::cout << "\n*************\nRefine 1\n\n";
+  grid->globalRefine(1);
+  t.subTest(thoroughGridCheck(*grid));
+
+  std::cout << "\n*************\nRefine 2\n\n";
   grid->globalRefine(1);
   t.subTest(thoroughGridCheck(*grid));
 

@@ -98,18 +98,21 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createAndSaveElementInfo(
     fatherId = {.entityIdType = GlobalIdType::EntityIdType::host, .id = globalIdSetParameterSpace.id(ele.father())};
 
   GlobalIdType elementId = makeElementID(ele);
+  auto hostIndexInLvl    = untrimmedParameterSpaceGrid_->levelGridView(newLevel).indexSet().index(
+      parameterSpaceGrid_->template getHostEntity<0>(ele));
 
   EntityInfo<0> elementInfo = {
       .indexInLvlStorage   = trimmedElementIndex + unTrimmedElementIndex,
       .unTrimmedIndexInLvl = unTrimmedElementIndex,
       .trimmedIndexInLvl   = trimmedElementIndex,
-      .hostIndexInLvl      = indexSet.index(ele),
+      .hostIndexInLvl      = hostIndexInLvl,
       .lvl                 = newLevel,
       .trimmed             = trimmed,
       .id                  = elementId,
       .hostSeed            = ele.seed(),
       .fatherId            = fatherId,
   };
+  assert(trimmedElementIndex + unTrimmedElementIndex == indexSet.index(ele));
 
   entityContainer_.idToElementInfoMap.insert({elementId, elementInfo});
 
@@ -209,7 +212,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     GlobalIdType edgeId = {.entityIdType = GlobalIdType::EntityIdType::newId, .id = globalIdSet_->newFreeIndex()};
     elementEdgeIndices.emplace_back(edgeId);
 
-      EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
+    EntityInfo<1> edgeInfo{.indexInLvlStorage = entityContainer_.edgeCount.back()++,
                            .lvl               = level,
                            .trimmed           = true,
                            .id                = edgeId,

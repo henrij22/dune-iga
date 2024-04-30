@@ -13,6 +13,7 @@
 #include "elementtrimdata.hh"
 #include "entitycontainer.hh"
 #include "idset.hh"
+#include "integrationrules/simplexintegrationrulegenerator.hh"
 #include "patchgridentityseed.hh"
 #include "patchgridhierarchiciterator.hh"
 #include "patchgridindexsets.hh"
@@ -150,7 +151,7 @@ namespace DefaultTrim {
     // using TrimmedEntityGeometry =
     //     typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
 
-    using TrimInfo  = typename Traits::ElementTrimData::VertexInfo;
+    using TrimInfo = typename Traits::ElementTrimData::VertexInfo;
 
     unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
     int lvl{};
@@ -319,6 +320,8 @@ namespace DefaultTrim {
 
       using ElementTrimData = ElementTrimDataImpl<const Grid>; ///< Element trim data type.
 
+      using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const Grid>;
+
       template <int codim>
       struct Codim
       {
@@ -415,6 +418,9 @@ namespace DefaultTrim {
 
     template <int codim>
     using Entity = typename GridFamily::Traits::template Codim<codim>::Entity;
+
+    template <int codim>
+    using YASPEntity = typename GridFamily::Trimmer::TrimmerTraits::YASPGridType::Traits::template Codim<codim>::Entity;
 
     // First level intersection
     [[nodiscard]] PatchGridLevelIntersectionIterator<const GridImp> ilevelbegin(const Entity<0>& ent) const {
@@ -613,14 +619,14 @@ namespace DefaultTrim {
 
     /**
      * \brief Creates trimInfos for each element at the requested level (or max level if not specified)
-     * Question: Should this data be saved ?? @todo Add execution policy
+     * @todo Add execution policy
      * @param level_
      * @return
      */
     std::vector<ElementTrimData> trimElements(std::optional<int> level_ = std::nullopt) const {
       int level = level_.value_or(maxLevel());
       std::vector<ElementTrimData> elementTrimDatas;
-      auto gv = parameterSpaceGrid_->levelGridView(level);
+      auto gv = untrimmedParameterSpaceGrid_->levelGridView(level);
       for (const auto& ele : elements(gv)) {
         if (trimData_.has_value())
           elementTrimDatas.emplace_back(trimElement(ele, trimData_.value()));
@@ -655,7 +661,7 @@ namespace DefaultTrim {
     void refineParameterSpaceGrid(int refCount, bool initFlag = false);
 
     // The following are helper methods for `refineParameterSpaceGrid`
-    static ElementTrimData trimElement(const HostEntity<0>& element, const PatchTrimData& patchTrimData);
+    static ElementTrimData trimElement(const YASPEntity<0>& element, const PatchTrimData& patchTrimData);
 
     GlobalIdType makeElementID(const HostEntity<0>& ele);
     void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele,
