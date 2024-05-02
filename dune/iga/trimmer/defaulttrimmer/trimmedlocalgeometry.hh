@@ -18,6 +18,7 @@ class TrimmedLocalGeometryImpl
 {
 };
 
+/* elements */
 template <int coorddim, class GridImp, LocalGeometryTag localGeometryTag>
 class TrimmedLocalGeometryImpl<2, coorddim, GridImp, localGeometryTag>
 {

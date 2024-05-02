@@ -11,6 +11,7 @@
 #pragma once
 
 #include "elementtrimdata.hh"
+#include "entityinfo.hh"
 #include "entitycontainer.hh"
 #include "idset.hh"
 #include "integrationrules/simplexintegrationrulegenerator.hh"
@@ -131,126 +132,6 @@ namespace DefaultTrim {
     else
       return true;
   }
-
-  /**
-   *
-   * @tparam Traits The trimmer traits
-   * @tparam codim
-   */
-  template <typename Traits, int codim>
-  struct EntityInfoImpl
-  {
-  };
-
-  template <typename Traits>
-  struct EntityInfoImpl<Traits, 2>
-  {
-    static constexpr int codimension = 2;
-    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
-    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
-    // using TrimmedEntityGeometry =
-    //     typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
-
-    using TrimInfo = typename Traits::ElementTrimData::VertexInfo;
-
-    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
-    int lvl{};
-    bool trimmed{false};
-    IdType<HostIdType> id;
-    EntitySeedType hostSeed{};
-
-    std::optional<TrimInfo> trimInfo{};
-
-    bool isTrimmed() const {
-      return trimmed;
-    }
-
-    bool isValid() const {
-      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
-    }
-  };
-
-  template <typename Traits>
-  struct EntityInfoImpl<Traits, 1>
-  {
-    static constexpr int codimension = 1;
-    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
-    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
-    using TrimmedEntityGeometry =
-        typename Traits::template Codim<codimension>::TrimmedParameterSpaceGeometry::PatchGeometry;
-
-    using TrimInfo = typename Traits::ElementTrimData::EdgeInfo;
-
-    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
-    int lvl{};
-    bool trimmed{false};
-    IdType<HostIdType> id;
-    EntitySeedType hostSeed{};
-
-    struct GeometryMap
-    {
-      unsigned int indexOfInsideElementinLvl;
-      TrimmedEntityGeometry geometry;
-    };
-
-    TrimmedEntityGeometry geometryForIdx(unsigned int idx) const {
-      auto it = std::ranges::find_if(trimmedEntityGeometries,
-                                     [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
-      if (it != trimmedEntityGeometries.end())
-        return it->geometry;
-      DUNE_THROW(IOError, "geometryForIdx couldn't find geometry for idx");
-    }
-
-    // todo this is a very bad implementation
-    TrimmedEntityGeometry otherGeometryForIdx(unsigned int idx) const {
-      assert(trimmedEntityGeometries.size() == 2);
-      auto it = std::ranges::find_if_not(trimmedEntityGeometries,
-                                         [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
-      if (it != trimmedEntityGeometries.end())
-        return it->geometry;
-      DUNE_THROW(IOError, "geometryForIdx couldn't find other geometry for idx");
-    }
-
-    std::vector<GeometryMap> trimmedEntityGeometries{};
-    std::optional<TrimInfo> trimInfo{};
-
-    bool isTrimmed() const {
-      return trimmed;
-    }
-    bool isTrimmedHost() const {
-      return hostSeed.isValid() and isTrimmed();
-    }
-    bool isValid() const {
-      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
-    }
-  };
-
-  template <typename Traits>
-  struct EntityInfoImpl<Traits, 0>
-  {
-    static constexpr int codimension = 0;
-    using HostIdType                 = typename Traits::ParameterSpaceGrid::GlobalIdSet::IdType;
-    using EntitySeedType = typename Traits::ParameterSpaceGrid::template Codim<codimension>::Entity::EntitySeed;
-
-    unsigned int indexInLvlStorage{std::numeric_limits<unsigned int>::max()};
-    unsigned int unTrimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
-    unsigned int trimmedIndexInLvl{std::numeric_limits<unsigned int>::max()};
-    unsigned int hostIndexInLvl{std::numeric_limits<unsigned int>::max()};
-    int lvl{};
-    bool trimmed{false};
-    IdType<HostIdType> id{};
-    EntitySeedType hostSeed{};
-
-    auto isTrimmed() const {
-      return trimmed;
-    }
-    bool isValid() const {
-      return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
-    }
-
-    std::optional<IdType<HostIdType>> fatherId;
-    ReservedVector<IdType<HostIdType>, 4> decendantIds;
-  };
 
   /**
    * @brief Parameter struct representing parameters for the trimming operation.

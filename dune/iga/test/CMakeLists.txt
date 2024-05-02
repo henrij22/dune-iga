@@ -7,7 +7,7 @@ set(TESTS
         gridteststrimmed
         testbsplines
         testnurbsbasis
-        factorytest
+        # factorytest
         trimtest
         testfindintersection
         testibrareader

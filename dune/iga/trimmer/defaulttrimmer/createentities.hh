@@ -10,7 +10,7 @@
 namespace Dune::IGANEW::DefaultTrim {
 
 namespace Util {
-  auto sameCorner(const auto& corner1, const auto& corner2, double precision = 1e-8) -> bool {
+  auto sameCorner(const auto& corner1, const auto& corner2, double precision = 1e-10) -> bool {
     return std::ranges::all_of(Dune::range(2),
                                [&](auto i) -> bool { return Dune::FloatCmp::eq(corner1[i], corner2[i], precision); });
   };
@@ -68,7 +68,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::idForTrimmedHostEdge(
   for (auto& [edgeId, edgeInfo] : entityContainer_.idToEdgeInfoMap) {
     if (edgeId.hostId.has_value() and edgeInfo.id.hostId.value() == hostEdgeId) {
       // We have the same hostId, this doens't neccesarily mean that its the same edge
-      auto edgeGeo = edgeInfo.trimmedEntityGeometries.front().geometry;
+      auto edgeGeo = edgeInfo.edgeGeometries.front().geometry;
       if (Util::isSameEdgeGeometry(edgeGeo, trimmedEdge.geometry.value())) {
         alreadyThere = true;
         foundIndex   = edgeId.id;
@@ -168,7 +168,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     elementEdgeIndices.emplace_back(edgeId);
 
     if (entityContainer_.idToEdgeInfoMap.contains(edgeId)) {
-      entityContainer_.idToEdgeInfoMap.at(edgeId).trimmedEntityGeometries.emplace_back(
+      entityContainer_.idToEdgeInfoMap.at(edgeId).edgeGeometries.emplace_back(
           indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
       return;
     }
@@ -180,7 +180,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
                            .id                = edgeId,
                            .hostSeed          = edge.seed(),
                            .trimInfo          = edgeOfTrimmedElement};
-    edgeInfo.trimmedEntityGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
+    edgeInfo.edgeGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
 
     // store vertex ids of edges, for subIndex method of indexSet
@@ -222,7 +222,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
                            .trimmed           = true,
                            .id                = edgeId,
                            .trimInfo          = edgeOfTrimmedElement};
-    edgeInfo.trimmedEntityGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
+    edgeInfo.edgeGeometries.emplace_back(indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
     entityContainer_.idToEdgeInfoMap.insert({edgeId, edgeInfo});
 
     auto& edgeVertexIndices = entityContainer_.globalVertexIdOfEdgesMap_[edgeId];

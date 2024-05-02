@@ -122,7 +122,6 @@ auto myGridCheck(G& grid) {
   auto testGV = [&]<typename GV>(const GV& gv) {
     auto& indexSet = gv.indexSet();
     for (int eleIdx = 0; const auto& ele : elements(gv)) {
-      std::cout << "Element " << eleIdx << std::endl;
       const int numCorners  = ele.subEntities(2);
       const int numCorners2 = ele.geometry().corners();
 
@@ -141,21 +140,14 @@ auto myGridCheck(G& grid) {
       int intersectionCount{0};
       for (const auto& intersection : intersections(gv, ele)) {
         auto geometry = intersection.geometry();
-        std::cout << "Intersection Idx: " << intersectionCount << ", C: " << geometry.corner(0) << ", "
-                  << geometry.corner(1) << std::endl;
         ++intersectionCount;
       }
       const int numEdges = ele.subEntities(1);
-
-      std::cout << "Intersection Count: " << intersectionCount << "\t";
-      std::cout << "Edges Count: " << numEdges << std::endl;
 
       t.check(intersectionCount == numEdges) << "There should be as many edges as intersections";
 
       for (const auto i : Dune::range(numEdges)) {
         auto edge = ele.template subEntity<1>(i);
-        std::cout << "Edge Idx " << indexSet.index(edge) << ", C: " << edge.geometry().corner(0) << ", "
-                  << edge.geometry().corner(1) << std::endl;
       }
 
       ++eleIdx;
@@ -208,7 +200,7 @@ auto thoroughGridCheck(auto& grid) {
   t.subTest(gvTest(grid.leafGridView()));
 
   gridcheck(grid);
-  // t.subTest(myGridCheck(grid));
+  t.subTest(myGridCheck(grid));
 
   try {
     // checkIntersectionIterator(grid);
@@ -261,7 +253,7 @@ auto testPlateWithHole() {
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{150});
   gridFactory.insertJson("auxiliaryfiles/surface-hole.ibra", true, {1, 1});
 
   auto grid = gridFactory.createGrid();
@@ -290,8 +282,9 @@ auto testGrids() {
 
 #include <cfenv>
 int main(int argc, char** argv) try {
-  // feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
-  //  Initialize MPI, if necessary
+  feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+
+  // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
