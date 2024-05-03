@@ -6,6 +6,8 @@
 
 #include <dune/geometry/quadraturerules.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
+#include <dune/iga/geometrykernel/nurbspatchtransform.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 namespace Dune::IGANEW::DefaultTrim {
 
@@ -19,23 +21,52 @@ struct SimplexIntegrationRuleGenerator
   struct Parameters
   {
     int maxBoundaryDivisions{5};
-    double targetTolerance{1e-4}; // not used atm
+    double targetTolerance{1e-10}; // not used atm
   };
 
-  static auto createIntegrationRule(const PatchElement& element, GridImp* grid, int quadratureOrder,
+  static auto createIntegrationRule(const PatchElement& element, int quadratureOrder,
                                     const Parameters& parameters  = Parameters{},
                                     const QuadratureType::Enum qt = QuadratureType::GaussLegendre) {
-    auto gv = grid->levelGridView(element.level());
-
     std::vector<Point> vertices{};
     std::vector<Element> elements{};
 
-    for (const auto& intersection : intersections(gv, element)) {
-      auto geometryInInside = intersection.geometryInInside();
-
-      std::vector<Point> pointsT = splitBoundary(geometryInInside, parameters);
-      vertices.insert(vertices.end(), pointsT.begin(), pointsT.end());
+    if (not element.impl().getLocalEntity().isTrimmed()) {
+      return QuadratureRules<double, dim>::rule(element.type(), quadratureOrder, qt);
     }
+
+    auto& trimData  = element.impl().getLocalEntity().trimData();
+    auto hostEntity = element.impl().getLocalEntity().getHostEntity();
+
+    for (const auto& edgeInfo : trimData.edges()) {
+      if (edgeInfo.isTrimmed) {
+        auto localGeometry         = GeometryKernel::transformToSpan(edgeInfo.geometry.value(), hostEntity.geometry());
+        std::vector<Point> pointsT = splitBoundary(localGeometry, parameters);
+        vertices.insert(vertices.end(), pointsT.begin(), pointsT.end());
+      } else {
+        auto refElement = referenceElement(hostEntity);
+        switch (edgeInfo.idx) {
+          case 0:
+            vertices.push_back(refElement.template geometry<2>(0).center());
+            break;
+          case 1:
+            vertices.push_back(refElement.template geometry<2>(1).center());
+            break;
+          case 2:
+            vertices.push_back(refElement.template geometry<2>(3).center());
+            break;
+          case 3:
+            vertices.push_back(refElement.template geometry<2>(2).center());
+            break;
+          default:
+            assert(edgeInfo.idx < 4);
+            __builtin_unreachable();
+        }
+      }
+    }
+
+    // auto subRange =
+    //     std::ranges::unique(vertices, [](const auto& v1, const auto& v2) { return FloatCmp::eq(v1, v2, 1e-10); });
+    // vertices.erase(subRange.begin(), subRange.end());
 
     auto indices = triangulate(vertices);
     for (auto it = indices.begin(); it < indices.end(); it += 3)
@@ -52,12 +83,20 @@ private:
 
   static std::vector<Point> splitBoundary(const auto& localGeometry, const Parameters& parameters) {
     std::vector<Point> points;
+
+    if (localGeometry.affine()) {
+      points.push_back(localGeometry.global({0.0}));
+      return points;
+    }
+
     points.reserve(parameters.maxBoundaryDivisions);
 
     // todo at the moment only boundaryDivisions
     for (auto local : Utilities::linspace(0.0, 1.0, parameters.maxBoundaryDivisions))
       points.push_back(localGeometry.global({local}));
 
+    // Remove last element to avoid duplication
+    points.pop_back();
     return points;
   }
   static auto triangulate(const std::vector<Point>& points) -> std::vector<Index> {

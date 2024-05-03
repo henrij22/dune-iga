@@ -214,68 +214,48 @@ auto thoroughGridCheck(auto& grid) {
 
 template <template <int, int, typename> typename GridFamily>
 requires IGANEW::Concept::Trimmer<typename GridFamily<2, 2, double>::Trimmer>
-auto testPlate() {
+auto makeTestCases2d(TestSuite& t) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
 
-  TestSuite t;
+  const std::vector testCases{
+      std::tuple<std::string, int, int, unsigned int>{  "auxiliaryfiles/element_trim_xb.ibra", 0, 3, 100},
+      {     "auxiliaryfiles/element_trim.ibra", 0, 3, 100},
+      {      "auxiliaryfiles/trim_2edges.ibra", 0, 3, 100},
+      {       "auxiliaryfiles/trim_multi.ibra", 0, 3, 100},
+      {     "auxiliaryfiles/surface-hole.ibra", 1, 3, 150},
+      {"auxiliaryfiles/surface-hole-skew.ibra", 1, 3, 100},
+ //{"auxiliaryfiles/surface-hole-square.ibra", 1, 3, 100}
+  };
 
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
-  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {0, 0});
 
-  auto grid = gridFactory.createGrid();
-  t.subTest(thoroughGridCheck(*grid));
 
-  std::cout << "\n*************\nRefine 1\n\n";
-  grid->globalRefine(1);
-  t.subTest(thoroughGridCheck(*grid));
+  for (auto& [file_name, min, max, splitter] : testCases) {
+    auto name = file_name.substr(file_name.find_last_of('/') + 1);
 
-  std::cout << "\n*************\nRefine 2\n\n";
-  grid->globalRefine(1);
-  t.subTest(thoroughGridCheck(*grid));
+    gridFactory.insertJson(file_name, true, {min, min});
+    gridFactory.insertTrimParameters(GridFactory::TrimParameterType{splitter});
+    auto grid = gridFactory.createGrid();
 
-  return t;
-}
+    for (int i = min; i <= max; i++) {
+      std::cout << "Testing now " << name << " (Refinement " << i << ")" << std::endl;
+      if (i > min)
+        grid->globalRefine(1);
+      t.subTest(thoroughGridCheck(*grid));
+    }
+  }
 
-template <template <int, int, typename> typename GridFamily>
-requires IGANEW::Concept::Trimmer<typename GridFamily<2, 2, double>::Trimmer>
-auto testPlateWithHole() {
-  constexpr int gridDim  = 2;
-  constexpr int dimworld = 2;
-
-  TestSuite t;
-
-  using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
-  using GridFactory = Dune::GridFactory<PatchGrid>;
-
-  auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{150});
-  gridFactory.insertJson("auxiliaryfiles/surface-hole.ibra", true, {1, 1});
-
-  auto grid = gridFactory.createGrid();
-  t.subTest(thoroughGridCheck(*grid));
-
-  std::cout << "\n*************\nRefine 1\n\n";
-  grid->globalRefine(1);
-  t.subTest(thoroughGridCheck(*grid));
-
-  std::cout << "\n*************\nRefine 2\n\n";
-  grid->globalRefine(1);
-  t.subTest(thoroughGridCheck(*grid));
-
-  return t;
 }
 
 template <template <int, int, typename> typename GridFamily>
 auto testGrids() {
-  TestSuite t("testTrimmedGrids");
+  TestSuite t("testTrimmedGrids", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
 
-  t.subTest(testPlate<GridFamily>());
-  t.subTest(testPlateWithHole<GridFamily>());
+  makeTestCases2d<GridFamily>(t);
 
   return t;
 }
@@ -286,9 +266,9 @@ int main(int argc, char** argv) try {
 
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
-  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+  TestSuite t("testTrimmedGrids", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
 
-  t.subTest(testGrids<DefaultTrim::PatchGridFamily>());
+  makeTestCases2d<DefaultTrim::PatchGridFamily>(t);
 
   t.report();
 

@@ -9,6 +9,9 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/test/testsuite.hh>
+#include <dune/iga/geometrykernel/nurbspatchtransform.hh>
+#include <dune/iga/hierarchicpatch/patchgrid.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 using namespace Dune;
@@ -47,6 +50,38 @@ auto testTransformations() {
   return t;
 }
 
+// todo write a proper test
+auto testTransformToSpan() {
+  TestSuite t("Test TransformToSpan");
+
+  using PatchGrid   = IGANEW::PatchGrid<2, 2, IGANEW::DefaultTrim::PatchGridFamily>;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto igaGridFactory = GridFactory();
+  igaGridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {1, 1});
+  auto igaGrid = igaGridFactory.createGrid();
+
+  for (const auto& ele : Dune::elements(igaGrid->leafGridView()) |
+                             std::views::filter([](const auto& ele_) { return ele_.impl().isTrimmed(); })) {
+    auto trimEdges     = ele.impl().getLocalEntity().trimData().edges();
+    auto hostEntity = ele.impl().getLocalEntity().getHostEntity();
+   
+    for (const auto& edgeInfo :
+         trimEdges | std::views::filter([](const auto& edgeInfo_) { return edgeInfo_.geometry.has_value(); })) {
+      auto edgeGeo            = edgeInfo.geometry.value();
+      auto transformedEgdeGeo = transformToSpan(edgeInfo.geometry.value(), hostEntity.geometry());
+
+      for (const auto& cp : transformedEgdeGeo.patchData().controlPoints.directGetAll()) {
+        for (auto i : range(2))
+          t.check(FloatCmp::ge(cp.p[i], 0.0) and FloatCmp::le(cp.p[i], 1.0))
+              << "CP " << cp.p << " not in local reference space [0, 1]^2";
+      }
+    }
+  }
+
+  return t;
+}
+
 #include <cfenv>
 int main(int argc, char** argv) try {
   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
@@ -56,6 +91,7 @@ int main(int argc, char** argv) try {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
   t.subTest(testTransformations());
+  t.subTest(testTransformToSpan());
 
   t.report();
 

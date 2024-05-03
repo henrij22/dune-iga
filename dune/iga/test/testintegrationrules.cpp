@@ -17,7 +17,7 @@
 using namespace Dune;
 using namespace Dune::IGANEW;
 
-auto testElement1(Dune::TestSuite& t, const std::string& file_name, int refLevel) {
+auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int refLevel, double referenceArea) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
 
@@ -36,14 +36,15 @@ auto testElement1(Dune::TestSuite& t, const std::string& file_name, int refLevel
 
   double area{0};
   for (const auto& ele : elements(gv)) {
-    auto qR  = IntegrationRuleGenerator::createIntegrationRule(ele, grid.get(), 2 * gridDim, parameters);
+    auto qR  = IntegrationRuleGenerator::createIntegrationRule(ele, 2 * gridDim, parameters);
     auto geo = ele.geometry();
 
     for (auto [gp, w] : qR) {
       area += geo.integrationElement(gp) * w;
     }
   }
-  std::cout << "Area: " << area << " (" << file_name << ")" << std::endl;
+  t.check(FloatCmp::eq(area, referenceArea, power(10.0, -(refLevel + refLevel < 3 ? 1 : 0))))
+      << "Area is " << area << ", but should be " << referenceArea << " (" << file_name << ", " << refLevel << ")";
 }
 
 #include <cfenv>
@@ -54,11 +55,26 @@ int main(int argc, char** argv) try {
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  testElement1(t, "auxiliaryfiles/element_trim.ibra", 0);
-  testElement1(t, "auxiliaryfiles/element_trim.ibra", 1);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim.ibra", 0, 0.73688393);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim.ibra", 1, 0.73688393);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim.ibra", 2, 0.73688393);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim.ibra", 3, 0.73688393);
 
-  testElement1(t, "auxiliaryfiles/element_trim_xb.ibra", 0);
-  testElement1(t, "auxiliaryfiles/element_trim_xb.ibra", 1);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim_xb.ibra", 0, 0.464634714);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim_xb.ibra", 1, 0.464634714);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim_xb.ibra", 2, 0.464634714);
+  testAreaIntegration(t, "auxiliaryfiles/element_trim_xb.ibra", 3, 0.464634714);
+
+  testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 0, 65.9490597);
+  testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 1, 65.9490597);
+  testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 2, 65.9490597);
+  testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 3, 65.9490597);
+
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 1,  49.069565);
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 2,  49.069565);
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 3,  49.069565);
+
+
 
   t.report();
 

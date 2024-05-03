@@ -4,6 +4,7 @@
 #pragma once
 
 #include "patchgridintersections.hh"
+#include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 
 /** \file
  * @brief The TrimmedPatchGridLeafIntersection and TrimmedLevelIntersection classes
@@ -105,9 +106,9 @@ namespace Impl {
       return GeometryTypes::none(mydim);
     }
 
-    // todo
     LocalGeometry geometryInInside() const {
-      return LocalGeometry(TrimmedLocalGeometry(geo_));
+      auto localGeo = GeometryKernel::transformToSpan(geo_, inside().getHostEntity().geometry());
+      return LocalGeometry(TrimmedLocalGeometry(localGeo));
     }
 
     LocalGeometry geometryInOutside() const {
@@ -225,15 +226,15 @@ namespace Impl {
       return hostIntersection_.type();
     }
 
-    // todo not sure if we have to transform it to the reference cooridnate system
     LocalGeometry geometryInInside() const {
-      return LocalGeometry(TrimmedLocalGeometry(geo_));
+      auto localGeo = GeometryKernel::transformToSpan(geo_, inside().getHostEntity().geometry());
+      return LocalGeometry(TrimmedLocalGeometry(localGeo));
     }
 
-    // transform?
     LocalGeometry geometryInOutside() const {
       auto outsideGeo = edgeInfo_.otherGeometryForIdx(
           patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage);
+      auto localOutsideGeo = GeometryKernel::transformToSpan(geo_, outside().getHostEntity().geometry());
       return LocalGeometry(TrimmedLocalGeometry(outsideGeo));
     }
 

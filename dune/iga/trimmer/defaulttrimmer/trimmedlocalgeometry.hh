@@ -74,16 +74,21 @@ public:
     return trimData_.size(2);
   }
 
+  // @todo write a test for that
   GlobalCoordinate center() const {
-    return hostGeometry_.center();
+    // average of corners
+    GlobalCoordinate c{0, 0};
+    for (auto i : Dune::range(corners()))
+      c += corner(i);
+
+    return c / corners();
   }
 
   // access to coordinates of corners. Index is the number of the corner
   GlobalCoordinate corner(int i) const {
     auto vData = trimData_.vertex(i);
-    if (vData.isHost) {
+    if (vData.isHost)
       return hostGeometry_.corner(Transformations::mapToDune(2, vData.idx));
-    }
 
     return vData.geometry.value();
   }
@@ -112,15 +117,13 @@ public:
     return true;
   }
 
+  // @todo
   [[nodiscard]] Volume integrationElement(const LocalCoordinate& local) const {
     return hostGeometry_.volume();
   }
 
-  // The Jacobian matrix of the mapping from the reference element to this element
-  // @todo not yet implemented
   [[nodiscard]] JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate& local) const {
-    DUNE_THROW(Dune::NotImplemented, "jacobianInverseTransposed() not yet implemented");
-    return JacobianInverseTransposed{};
+    return hostGeometry_.jacobianInverseTransposed(local);
   }
 
 private:
