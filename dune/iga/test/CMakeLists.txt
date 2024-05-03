@@ -15,6 +15,8 @@ set(TESTS
         testutillities
         testintersections
         testintegrationrules
+        testvtkdatacollector
+        testnurbsbasistrimmed
 )
 option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
 

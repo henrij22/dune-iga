@@ -18,6 +18,9 @@ struct SimplexIntegrationRuleGenerator
 
   static constexpr int dim = GridImp::dimension;
 
+  using Point   = FieldVector<double, dim>;
+  using Element = MultiLinearGeometry<double, dim, dim>;
+  using Index   = std::uint64_t;
   struct Parameters
   {
     int maxBoundaryDivisions{5};
@@ -27,12 +30,18 @@ struct SimplexIntegrationRuleGenerator
   static auto createIntegrationRule(const PatchElement& element, int quadratureOrder,
                                     const Parameters& parameters  = Parameters{},
                                     const QuadratureType::Enum qt = QuadratureType::GaussLegendre) {
-    std::vector<Point> vertices{};
-    std::vector<Element> elements{};
-
     if (not element.impl().getLocalEntity().isTrimmed()) {
       return QuadratureRules<double, dim>::rule(element.type(), quadratureOrder, qt);
     }
+
+    auto [elements, vertices, indices] = createSimplicies(element, parameters);
+    return makeQuadratureRule(elements, quadratureOrder, qt);
+  }
+
+  static auto createSimplicies(const PatchElement& element, const Parameters& parameters = Parameters{})
+      -> std::tuple<std::vector<Element>, std::vector<Point>, std::vector<Index>> {
+    std::vector<Point> vertices{};
+    std::vector<Element> elements{};
 
     auto& trimData  = element.impl().getLocalEntity().trimData();
     auto hostEntity = element.impl().getLocalEntity().getHostEntity();
@@ -64,23 +73,15 @@ struct SimplexIntegrationRuleGenerator
       }
     }
 
-    // auto subRange =
-    //     std::ranges::unique(vertices, [](const auto& v1, const auto& v2) { return FloatCmp::eq(v1, v2, 1e-10); });
-    // vertices.erase(subRange.begin(), subRange.end());
-
     auto indices = triangulate(vertices);
     for (auto it = indices.begin(); it < indices.end(); it += 3)
       elements.emplace_back(GeometryTypes::triangle, std::vector<FieldVector<double, dim>>{
                                                          vertices[*it], vertices[*(it + 1)], vertices[*(it + 2)]});
 
-    return makeQuadratureRule(elements, quadratureOrder, qt);
+    return std::make_tuple(elements, vertices, indices);
   }
 
 private:
-  using Point   = FieldVector<double, dim>;
-  using Element = MultiLinearGeometry<double, dim, dim>;
-  using Index   = std::uint64_t;
-
   static std::vector<Point> splitBoundary(const auto& localGeometry, const Parameters& parameters) {
     std::vector<Point> points;
 

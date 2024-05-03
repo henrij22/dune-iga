@@ -11,8 +11,8 @@
 #pragma once
 
 #include "elementtrimdata.hh"
-#include "entityinfo.hh"
 #include "entitycontainer.hh"
+#include "entityinfo.hh"
 #include "idset.hh"
 #include "integrationrules/simplexintegrationrulegenerator.hh"
 #include "patchgridentityseed.hh"
@@ -49,10 +49,11 @@ struct std::hash<Dune::IGANEW::DefaultTrim::IdType<HostIdType>>
 
     // Compute individual hash values for first, second and third and combine them using XOR
     // and bit shifting:
-
-    return (hash<HostIdType>()(k.id) ^
-            hash<typename Dune::IGANEW::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1) >>
-           1;
+    // todo
+    // return (hash<HostIdType>()(k.id) ^
+    //         hash<typename Dune::IGANEW::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1) >>
+    //        1;
+    return (hash<HostIdType>()(k.id));
   }
 };
 

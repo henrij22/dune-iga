@@ -97,9 +97,9 @@ public:
   }
 
   auto index() const {
-    if constexpr (codim_ == 0)
-      return isTrimmed() ? entityInfo_.trimmedIndexInLvl : entityInfo_.unTrimmedIndexInLvl;
-    else
+    // if constexpr (codim_ == 0)
+    //   return isTrimmed() ? entityInfo_.trimmedIndexInLvl : entityInfo_.unTrimmedIndexInLvl;
+    // else
       return entityInfo_.indexInLvlStorage;
   }
 
