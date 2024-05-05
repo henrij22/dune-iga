@@ -22,6 +22,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
   for (int i = !initFlag; i < refCount + 1; ++i) {
     const int newLevel = oldLevel + i;
     entityContainer_.entityImps_.emplace_back();
+    entityContainer_.trimFlags_.emplace_back();
 
     auto gvu = untrimmedParameterSpaceGrid_->leafGridView();
     parameterSpaceGrid_->createBegin();
@@ -32,6 +33,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::refineParameterSpaceGrid(int refCou
     for (const auto& eleU : elements(gvu)) {
       const ElementTrimData& eleTrimData = elementTrimDatas[indexSet.index(eleU)];
       const ElementTrimFlag eleTrimFlag  = eleTrimData.flag();
+      entityContainer_.trimFlags_.back().emplace_back(eleTrimFlag);
 
       if (eleTrimFlag == ElementTrimFlag::full or eleTrimFlag == ElementTrimFlag::trimmed) {
         parameterSpaceGrid_->insertPartial(eleU);

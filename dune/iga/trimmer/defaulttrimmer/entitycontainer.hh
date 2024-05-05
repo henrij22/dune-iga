@@ -6,6 +6,8 @@
 #include <set>
 
 #include <dune/common/reservedvector.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+
 namespace Dune::IGANEW::DefaultTrim {
 template <typename GridImp>
 struct VectorEntityContainer
@@ -76,12 +78,17 @@ struct VectorEntityContainer
   }
 
   int outsideIntersectionIndex(const IdType& insideElementId, const IdType& outsideElementId, int indexInInside) const {
+    // if (not isElementTrimmed(insideElementId))
+    //   indexInInside = Transformations::mapToTrimmer(1, indexInInside);
     const IdType& insideSubId = subId(insideElementId, indexInInside, 1);
 
     for (const auto i : Dune::range(subIds(outsideElementId, 1))) {
       const IdType& outsideSubId = subId(outsideElementId, i, 1);
-      if (outsideSubId == insideSubId)
+      if (outsideSubId == insideSubId) {
+        // if (isElementTrimmed(outsideElementId))
         return i;
+        // return Transformations::mapToDune(1, i);
+      }
     }
     DUNE_THROW(GridError, "outsideIntersectionIndex not successfull");
   }
@@ -126,7 +133,6 @@ struct VectorEntityContainer
 
   // todo specialize for codim 0 and 2 to not need lvl
   template <int codim>
-
   requires(codim >= 0 and codim <= 2)
   const auto& infoFromId(const IdType& id, int lvl = std::numeric_limits<int>::max()) const {
     if constexpr (codim == 0)
@@ -252,6 +258,9 @@ struct VectorEntityContainer
   // store information to know what geometry types we have to return.
   std::vector<int> numberOfTrimmedElements{};
   std::vector<int> numberOfUnTrimmedElements{};
+
+  // Inserted by original Element Idx
+  std::vector<std::vector<ElementTrimFlag>> trimFlags_;
 
   // We store trimmed vertexIds for each level
   std::vector<std::map<IdType, FieldVector<double, 2>>> trimmedVertexIds_;

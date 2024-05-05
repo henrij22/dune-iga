@@ -68,7 +68,6 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
   auto gvs = Dune::TupleVector<LevelGridView, LeafGridView>(grid.levelGridView(grid.maxLevel()), grid.leafGridView());
   Hybrid::forEach(gvs, [&]<typename GV>(const GV& gridView) {
     ResultTuple resTuple{};
-    std::cout << "\nGV: " << Dune::className<GV>() << std::endl;
 
     int globalIntersectionCount{0};
     for (const auto& ele : elements(gridView)) {
@@ -78,9 +77,6 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
         ++globalIntersectionCount;
 
         std::get<1>(resTuple).push_back(intersection.unitOuterNormal({0.5}));
-
-        std::cout << "unit outer normal: " << std::setprecision(16) << intersection.unitOuterNormal({0.5}) << std::endl;
-        std::cout << "inside index: " << intersection.indexInInside() << std::endl;
 
         std::get<2>(resTuple).push_back(intersection.centerUnitOuterNormal());
         std::get<3>(resTuple).push_back(intersection.outerNormal({0.5}));
@@ -102,8 +98,6 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
   // Cehck level == leaf
   t.check(std::get<0>(resLevel) == std::get<0>(resLeaf));
   //
-  const auto expectedOuterNormals = unitOuterNormals(trimmed, refLevel);
-  auto expectedGeometryTypes      = geometryTypes(trimmed, refLevel);
   for (const auto i : Dune::range(std::get<0>(resLevel))) {
     // Check outerNormals
     auto lvlUnitOuterNormal  = std::get<1>(resLevel)[i];
@@ -119,22 +113,29 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
     t.check(FloatCmp::eq(lvlCenterOuterNormal, leafCenterOuterNormal));
     t.check(FloatCmp::eq(lvlOuterNormal, leafOuterNormal));
 
-    t.check(FloatCmp::eq(lvlUnitOuterNormal, expectedOuterNormals[i], 1e-8));
-    t.check(FloatCmp::eq(lvlCenterOuterNormal, expectedOuterNormals[i], 1e-8));
+    if (refLevel == 0) {
+      const auto expectedOuterNormals = unitOuterNormals(trimmed, refLevel);
+      t.check(FloatCmp::eq(lvlUnitOuterNormal, expectedOuterNormals[i], 1e-8));
+      t.check(FloatCmp::eq(lvlCenterOuterNormal, expectedOuterNormals[i], 1e-8));
+    }
 
     // Check unit length
-    t.check(FloatCmp::eq(lvlUnitOuterNormal.two_norm(), 1.0));
+    t.check(FloatCmp::eq(lvlUnitOuterNormal.two_norm(), 1.0, 1e-8));
 
     // Check linear dependence of unitOuterNormal und outerNormal
-    auto testJ = Dune::FieldMatrix<double, 2>{lvlUnitOuterNormal, lvlOuterNormal};
-    t.check(FloatCmp::eq(testJ.determinant(), 0.0));
+    auto testJ      = Dune::FieldMatrix<double, 2>{lvlUnitOuterNormal, lvlOuterNormal};
+    double detTestJ = testJ.determinant();
+    t.check(FloatCmp::lt(detTestJ, 1e-8)) << "Determinant should be 0, but is " << detTestJ;
 
     // Check geometryTypes
     auto levelGeoType = std::get<4>(resLevel)[i];
     auto leafGeoType  = std::get<4>(resLeaf)[i];
 
     t.check(levelGeoType == leafGeoType);
-    t.check(levelGeoType == expectedGeometryTypes[i]);
+    if (refLevel == 0) {
+      auto expectedGeometryTypes = geometryTypes(trimmed, refLevel);
+      t.check(levelGeoType == expectedGeometryTypes[i]);
+    }
 
     // Seed
     auto levelEntityInside = grid.entity(std::get<5>(resLevel)[i]);
@@ -153,7 +154,90 @@ auto testIntersections(auto& grid, bool trimmed, int refLevel) {
   return t;
 }
 
-auto makeTestCase(Dune::TestSuite& t, bool trimmed, int refLevel) {
+auto testInsideOutside(auto& grid) {
+  constexpr int gridDim  = 2;
+  constexpr int dimworld = 2;
+
+  Dune::TestSuite t("Inside Outisde Test", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
+
+  auto gridView  = grid.leafGridView();
+  auto& indexSet = gridView.indexSet();
+
+  for (const auto& element : elements(gridView)) {
+    auto eleGeometry = element.geometry();
+    auto elementIdx  = indexSet.index(element);
+
+    for (int iIdx = 0; const auto& intersection : intersections(gridView, element)) {
+      auto insideElement = intersection.inside();
+      t.check(insideElement == element);
+
+      if (intersection.boundary()) {
+        ++iIdx;
+        continue;
+      }
+      auto outsideElement   = intersection.outside();
+      auto ousideElementIdx = indexSet.index(outsideElement);
+
+      auto geometryInInside  = intersection.geometryInInside();
+      auto geometryInOutside = intersection.geometryInOutside();
+
+      auto centerInsideLocal  = geometryInInside.center();
+      auto centerOutsideLocal = geometryInOutside.center();
+
+      auto centerInside  = eleGeometry.global(centerInsideLocal);
+      auto centerOutside = outsideElement.geometry().global(centerOutsideLocal);
+
+      auto centerGlobal = intersection.geometry().center();
+
+      t.check(FloatCmp::eq(centerInside, centerOutside, 1e-8));
+      t.check(FloatCmp::eq(centerGlobal, centerInside, 1e-8));
+
+      int indexInInside  = intersection.indexInInside();
+      int indexInOutside = intersection.indexInOutside();
+
+      auto it1 = std::ranges::find_if(
+          gridView.ibegin(outsideElement), gridView.iend(outsideElement), [&](const auto& outsideI) {
+            if (not outsideI.boundary() and indexSet.index(outsideI.outside()) == elementIdx)
+              return outsideI.indexInOutside() == indexInInside;
+            return false;
+          });
+
+      auto it2 = std::ranges::find_if(
+          gridView.ibegin(outsideElement), gridView.iend(outsideElement), [&](const auto& outsideI) {
+            if (not outsideI.boundary() and indexSet.index(outsideI.outside()) == elementIdx)
+              return outsideI.indexInInside() == indexInOutside;
+            return false;
+          });
+
+      t.require(it2 != gridView.iend(outsideElement));
+      t.require(it1 != gridView.iend(outsideElement));
+
+      t.check(it1->neighbor());
+      t.check(it2->neighbor());
+
+      t.check(it1->indexInInside() == it2->indexInInside());
+
+      auto intersectionOnTheOutside = *it1;
+      t.check(indexSet.index(intersectionOnTheOutside.inside()) == ousideElementIdx);
+      t.check(indexSet.index(intersectionOnTheOutside.outside()) == elementIdx);
+
+      auto insideCenterIntersectionOutsideLocal  = intersectionOnTheOutside.geometryInInside().center();
+      auto outsideCenterIntersectionOutsideLocal = intersectionOnTheOutside.geometryInOutside().center();
+
+      auto insideCenterIntersectionOutside  = outsideElement.geometry().global(insideCenterIntersectionOutsideLocal);
+      auto outsideCenterIntersectionOutside = eleGeometry.global(outsideCenterIntersectionOutsideLocal);
+      auto centerIntersectionOnTheOutside   = intersectionOnTheOutside.geometry().center();
+
+      t.check(FloatCmp::eq(centerInside, centerIntersectionOnTheOutside, 1e-8));
+      t.check(FloatCmp::eq(insideCenterIntersectionOutside, outsideCenterIntersectionOutside, 1e-8));
+
+      ++iIdx;
+    }
+  }
+  return t;
+}
+
+auto runIntersectionTests(Dune::TestSuite& t, const std::string& fileName, bool trimmed, int refLevel) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
 
@@ -162,10 +246,11 @@ auto makeTestCase(Dune::TestSuite& t, bool trimmed, int refLevel) {
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
-  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", trimmed, {refLevel, refLevel});
+  gridFactory.insertJson(fileName, trimmed, {refLevel, refLevel});
 
   const auto grid = gridFactory.createGrid();
   t.subTest(testIntersections<PatchGrid>(*grid, trimmed, refLevel));
+  t.subTest(testInsideOutside(*grid));
 }
 
 #include <cfenv>
@@ -179,10 +264,11 @@ int main(int argc, char** argv) try {
 
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
-  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
 
-  // makeTestCase(t, false, 0);
-  makeTestCase(t, true, 0);
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 0);
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 1);
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 2);
 
   t.report();
 

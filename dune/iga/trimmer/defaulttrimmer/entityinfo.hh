@@ -69,26 +69,18 @@ struct EntityInfoImpl<Traits, 1>
   };
 
   /**
-   * \brief for a given inside index return the edge geometry in the inside element
-   * @param idx lvl index of inside element
+   *
+   * @return an oriented geometry (if trimmed Host)
    */
-  TrimmedEntityGeometry geometryForIdx(unsigned int idx) const {
-    if (auto it = iteratorForGeometryForIdx(idx); it != edgeGeometries.end())
-      return it->geometry;
-    DUNE_THROW(IOError, "geometryForIdx couldn't find geometry for idx");
-  }
+  TrimmedEntityGeometry intersectionGeometry() const {
+    assert(isTrimmed());
+    if (isTrimmedHost())
+      return edgeGeometries.front().geometry;
 
-  /**
-   * \brief for a given inside index return the edge geometry in the outside element
-   * @param idx lvl index of inside element
-   */
-  TrimmedEntityGeometry otherGeometryForIdx(unsigned int idx) const {
-    assert(edgeGeometries.size() == 2);
-    if (auto it = iteratorForGeometryForIdx(idx); it != edgeGeometries.end()) {
-      auto itD = std::ranges::distance(edgeGeometries.begin(), it);
-      return itD == 1 ? edgeGeometries[0].geometry : edgeGeometries[1].geometry;
-    }
-    DUNE_THROW(IOError, "otherGeometryForIdx couldn't find geometry for idx");
+    // Check if intersection is vertical or horizontally orientated
+    auto jac = edgeGeometries.front().geometry.jacobian({0.5});
+
+    return edgeGeometries.front().geometry;
   }
 
   std::vector<GeometryMap> edgeGeometries{};
@@ -102,12 +94,6 @@ struct EntityInfoImpl<Traits, 1>
   }
   bool isValid() const {
     return indexInLvlStorage != std::numeric_limits<unsigned int>::max();
-  }
-
-private:
-  auto iteratorForGeometryForIdx(unsigned int idx) const {
-    return std::ranges::find_if(edgeGeometries,
-                                [&](const auto& geoMap) { return geoMap.indexOfInsideElementinLvl == idx; });
   }
 };
 

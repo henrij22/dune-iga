@@ -100,7 +100,7 @@ public:
     // if constexpr (codim_ == 0)
     //   return isTrimmed() ? entityInfo_.trimmedIndexInLvl : entityInfo_.unTrimmedIndexInLvl;
     // else
-      return entityInfo_.indexInLvlStorage;
+    return entityInfo_.indexInLvlStorage;
   }
 
   auto subIndex(int i, int codim) const {
@@ -304,6 +304,12 @@ public:
 
   const auto& hostEntity() const {
     return hostEntity_;
+  }
+
+  template <typename = void>
+  requires(codim_ == 0)
+  unsigned int hostIndexInLvl() const {
+    return entityInfo_.hostIndexInLvl;
   }
 
   const GridImp* grid_;

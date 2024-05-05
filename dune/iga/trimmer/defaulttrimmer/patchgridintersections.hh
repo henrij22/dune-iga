@@ -4,6 +4,7 @@
 #pragma once
 
 #include "patchgridintersections.hh"
+
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 
 /** \file
@@ -71,8 +72,7 @@ namespace Impl {
         : patchGrid_(patchGrid),
           edgeInfo_(edgeInfo),
           insideElementId_(insideElementId),
-          geo_(edgeInfo_.geometryForIdx(
-              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId_).indexInLvlStorage)),
+          geo_(edgeInfo_.intersectionGeometry()),
           indexInInside_(indexInInside) {
       assert(geo_.domain()[0].isUnitDomain());
     }
@@ -191,8 +191,7 @@ namespace Impl {
         : patchGrid_(patchGrid),
           hostIntersection_(hostIntersection),
           edgeInfo_(edgeinfo),
-          geo_(edgeInfo_.geometryForIdx(
-              patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage)),
+          geo_(edgeInfo_.intersectionGeometry()),
           indexInInside_(indexInInside) {
       assert(geo_.domain()[0].isUnitDomain());
     }
@@ -232,10 +231,9 @@ namespace Impl {
     }
 
     LocalGeometry geometryInOutside() const {
-      auto outsideGeo = edgeInfo_.otherGeometryForIdx(
-          patchGrid_->trimmer().entityContainer_.idToElementInfoMap.at(insideElementId()).indexInLvlStorage);
-      auto localOutsideGeo = GeometryKernel::transformToSpan(geo_, outside().getHostEntity().geometry());
-      return LocalGeometry(TrimmedLocalGeometry(outsideGeo));
+      auto outsideGeo      = edgeInfo_.intersectionGeometry();
+      auto localOutsideGeo = GeometryKernel::transformToSpan(outsideGeo, outside().getHostEntity().geometry());
+      return LocalGeometry(TrimmedLocalGeometry(localOutsideGeo));
     }
 
     Geometry geometry() const {
@@ -247,8 +245,10 @@ namespace Impl {
     }
 
     int indexInOutside() const {
-      return patchGrid_->trimmer().entityContainer_.outsideIntersectionIndex(insideElementId(), outsideElementId(),
-                                                                             indexInInside());
+      if (patchGrid_->trimmer().entityContainer_.isElementTrimmed(outsideElementId()))
+        return patchGrid_->trimmer().entityContainer_.outsideIntersectionIndex(insideElementId(), outsideElementId(),
+                                                                               indexInInside());
+      return hostIntersection_.indexInOutside();
     }
 
     // Its fine to use the hostIntersection as we are in the parameter space, and host intersections are always constant

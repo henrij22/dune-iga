@@ -28,6 +28,7 @@
 #include <dune/geometry/type.hh>
 #include <dune/grid/common/rangegenerators.hh>
 // #include <dune/iga/trim/nurbstrimmer.hh>
+#include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
 #include <dune/localfunctions/common/localbasis.hh>
 #include <dune/localfunctions/common/localfiniteelementtraits.hh>
 #include <dune/localfunctions/common/localkey.hh>
@@ -586,9 +587,11 @@ public:
     }
     const auto order = patchData_.degree;
 
-    auto spanSize     = gridView_.impl().untrimmedElementNumbers();
-    auto extractIndex = std::views::transform([&](const auto& ele) { return gridView_.indexSet().index(ele); });
-    for (auto directIndex : elements(gridView_) | extractIndex) {
+    auto spanSize    = gridView_.impl().untrimmedElementNumbers();
+    auto numElements = std::accumulate(spanSize.begin(), spanSize.end(), 1u, std::multiplies());
+
+    // auto extractIndex = std::views::transform([&](const auto& ele) { return getDirectIndex(ele); });
+    for (auto directIndex : Dune::range(numElements)) {
       auto elementIdx = getIJK(directIndex, spanSize);
 
       std::array<int, dim> currentKnotSpan;
@@ -615,32 +618,52 @@ public:
     }
   }
 
+  auto getDirectIndex(const auto& ele) const {
+    if constexpr (TrimmerType::isAlwaysTrivial)
+      return gridView_.indexSet().index(ele);
+    else
+      return ele.impl().getLocalEntity().hostIndexInLvl();
+  }
+
   /// @brief Maps from subtree index set [0..size-1] to a globally unique multi index in global basis
   template <typename It>
   It indices(const Node& node, It it) const {
-    const auto eleIdx = gridView_.indexSet().index(node.element_);
+    const auto eleIdx = getDirectIndex(node.element_);
     for (size_type i = 0, end = node.size(); i < end; ++i, ++it) {
-      auto globalIndex = originalIndices_.at(eleIdx)[i]; // @todo this should is the trimmed indices
-      *it              = {{globalIndex}};
+      if constexpr (TrimmerType::isAlwaysTrivial) {
+        auto globalIndex = originalIndices_.at(eleIdx)[i];
+        *it              = {{globalIndex}};
+      } else {
+        auto globalIndex = indexMap_.at(originalIndices_.at(eleIdx)[i]);
+        *it              = {{globalIndex}};
+      }
     }
     return it;
   }
   void createTrimmedNodeIndices() {
     if constexpr (not TrimmerType::isAlwaysTrivial) {
-      // unsigned int n_ind_original = cachedSize_;
-      //
-      // std::set<size_type> indicesInTrim;
-      // for (auto directIndex : std::views::iota(0, gridView_.impl().getPatch().originalSize(0))) {
-      // IGA::ElementTrimFlag trimFlag = gridView_.impl().getPatch().getTrimFlagForDirectIndex(directIndex);
-      // if (trimFlag != IGA::ElementTrimFlag::empty)
-      //   std::ranges::copy(originalIndices_.at(directIndex), std::inserter(indicesInTrim, indicesInTrim.begin()));
-      // }
-      //
-      // unsigned int realIndexCounter = 0;
-      // for (unsigned int i = 0; i < n_ind_original; ++i) {
-      // if (std::ranges::find(indicesInTrim, i) != indicesInTrim.end()) indexMap_.emplace(i, realIndexCounter++);
-      // }
-      // cachedSize_ = realIndexCounter;
+      if (not gridView_.grid().trimmer().trimData_.has_value())
+        return;
+
+      unsigned int n_ind_original = cachedSize_;
+
+      auto spanSize    = gridView_.impl().untrimmedElementNumbers();
+      auto numElements = std::accumulate(spanSize.begin(), spanSize.end(), 1u, std::multiplies());
+
+      std::set<size_type> indicesInTrim;
+      for (auto directIndex : Dune::range(numElements)) {
+        auto trimFlag = gridView_.grid().trimmer().entityContainer_.trimFlags_[gridView_.impl().level()][directIndex];
+
+        if (trimFlag != IGANEW::DefaultTrim::ElementTrimFlag::empty)
+          std::ranges::copy(originalIndices_.at(directIndex), std::inserter(indicesInTrim, indicesInTrim.begin()));
+      }
+
+      unsigned int realIndexCounter = 0;
+      for (unsigned int i = 0; i < n_ind_original; ++i) {
+        if (std::ranges::find(indicesInTrim, i) != indicesInTrim.end())
+          indexMap_.emplace(i, realIndexCounter++);
+      }
+      cachedSize_ = realIndexCounter;
     }
   }
 
@@ -654,7 +677,7 @@ public:
   // @brief Total number of B-spline basis functions
   [[nodiscard]] unsigned int size() const {
     // assert(!std::isnan(cachedSize_));
-    return computeOriginalSize();
+    return cachedSize_;
   }
 
   // @brief Number of shape functions in one direction
@@ -729,7 +752,7 @@ public:
   /** @brief Number of grid elements in the different coordinate directions */
   std::array<int, dim> elements_;
 
-  unsigned int cachedSize_ = std::numeric_limits<unsigned int>::signaling_NaN();
+  unsigned int cachedSize_ = std::numeric_limits<unsigned int>::max();
   std::map<DirectIndex, std::vector<size_type>> originalIndices_;
 
   struct DummyEmpty
@@ -771,9 +794,9 @@ public:
 
   // Bind to element.
   void bind(const Element& e) {
-    element_          = e;
-    auto elementIndex = preBasis_->gridView().indexSet().index(e);
-    finiteElement_.bind(preBasis_->getIJK(elementIndex, preBasis_->elements_));
+    element_ = e;
+
+    finiteElement_.bind(preBasis_->getIJK(getDirectIndex(), preBasis_->elements_));
     this->setSize(finiteElement_.size());
   }
 
@@ -782,6 +805,14 @@ protected:
 
   FiniteElement finiteElement_;
   Element element_;
+
+  auto getDirectIndex() const {
+    using TrimmerType = typename std::remove_cvref_t<decltype(preBasis_->gridView())>::Implementation::TrimmerType;
+    if constexpr (TrimmerType::isAlwaysTrivial)
+      return preBasis_->gridView().indexSet().index(element_);
+    else
+      return element_.impl().getLocalEntity().hostIndexInLvl();
+  }
 };
 
 namespace BasisFactory {

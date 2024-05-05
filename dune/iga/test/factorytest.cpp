@@ -27,7 +27,6 @@
  *TODO This test is currently disabled as the interface in gridfactory cannot handle curve insertion atm (HJ)
  *********/
 
-
 using namespace Dune;
 using namespace Dune::IGANEW;
 
@@ -39,7 +38,6 @@ auto testFactoryWithTorus() {
   auto circle    = makeCircularArc(r);
   gridFactory.insertPatch(circle);
   auto grid = gridFactory.createGrid();
-
 
   return t;
 }

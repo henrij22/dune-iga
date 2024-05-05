@@ -168,8 +168,8 @@ void TrimmerImpl<dim, dimworld, ScalarType>::collectElementEdges(int level, cons
     elementEdgeIndices.emplace_back(edgeId);
 
     if (entityContainer_.idToEdgeInfoMap.contains(edgeId)) {
-      entityContainer_.idToEdgeInfoMap.at(edgeId).edgeGeometries.emplace_back(
-          indexSet.index(ele), edgeOfTrimmedElement.geometry.value());
+      entityContainer_.idToEdgeInfoMap.at(edgeId).edgeGeometries.emplace_back(indexSet.index(ele),
+                                                                              edgeOfTrimmedElement.geometry.value());
       return;
     }
 

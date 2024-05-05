@@ -36,7 +36,6 @@ struct PatchGridLevelGridView : DefaultLevelGridView<const GridImp>
   }
 
   const auto& unTrimmedPatch() const {
-    // @todo Trim
     return this->grid().patchGeometries[this->level_];
   }
 
@@ -46,6 +45,10 @@ struct PatchGridLevelGridView : DefaultLevelGridView<const GridImp>
 
   const auto& tensorProductCoordinates() const {
     return this->grid().tensorProductCoordinates(this->level_);
+  }
+
+  int level() const {
+    return this->level_;
   }
 };
 
@@ -69,15 +72,19 @@ struct PatchGridLeafGridView : public DefaultLeafGridView<const GridImp>
   }
 
   const auto& unTrimmedPatch() const {
-    // @todo Trim
     return this->grid().patchGeometries[this->grid().maxLevel()];
   }
+
   const auto& tensorProductCoordinates() const {
     return this->grid().tensorProductCoordinates(this->grid().maxLevel());
   }
 
   std::array<int, GridImp::dimension> untrimmedElementNumbers() const {
     return this->grid().untrimmedElementNumbers(this->grid().maxLevel());
+  }
+
+  int level() const {
+    return this->grid().maxLevel();
   }
 };
 

@@ -225,14 +225,13 @@ auto makeTestCases2d(TestSuite& t) {
       {       "auxiliaryfiles/trim_multi.ibra", 0, 3, 100},
       {     "auxiliaryfiles/surface-hole.ibra", 1, 3, 150},
       {"auxiliaryfiles/surface-hole-skew.ibra", 1, 3, 100},
- //{"auxiliaryfiles/surface-hole-square.ibra", 1, 3, 100}
+      //{"auxiliaryfiles/surface-hole-square.ibra", 1, 3, 100}
   };
 
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-
 
   for (auto& [file_name, min, max, splitter] : testCases) {
     auto name = file_name.substr(file_name.find_last_of('/') + 1);
@@ -248,7 +247,6 @@ auto makeTestCases2d(TestSuite& t) {
       t.subTest(thoroughGridCheck(*grid));
     }
   }
-
 }
 
 template <template <int, int, typename> typename GridFamily>

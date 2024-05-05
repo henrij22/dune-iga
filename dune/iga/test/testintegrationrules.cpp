@@ -70,11 +70,9 @@ int main(int argc, char** argv) try {
   testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 2, 65.9490597);
   testAreaIntegration(t, "auxiliaryfiles/trim_multi.ibra", 3, 65.9490597);
 
-  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 1,  49.069565);
-  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 2,  49.069565);
-  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 3,  49.069565);
-
-
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 1, 49.069565);
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 2, 49.069565);
+  testAreaIntegration(t, "auxiliaryfiles/surface-hole-skew.ibra", 3, 49.069565);
 
   t.report();
 

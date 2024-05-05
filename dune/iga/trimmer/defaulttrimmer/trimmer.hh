@@ -293,7 +293,7 @@ namespace DefaultTrim {
     template <int codim>
     static constexpr bool isLocalGeometryLinear =
         true; ///< boolean for the linearity of the local geometry, for the untrimmed case this is always true
-    static constexpr bool isAlwaysTrivial = true; ///< Boolean indicating if the trimming is always trivial, no
+    static constexpr bool isAlwaysTrivial = false; ///< Boolean indicating if the trimming is always trivial, no
     ///< trimming or simple deletion of element.
 
     template <int codim>

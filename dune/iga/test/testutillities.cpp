@@ -63,9 +63,9 @@ auto testTransformToSpan() {
 
   for (const auto& ele : Dune::elements(igaGrid->leafGridView()) |
                              std::views::filter([](const auto& ele_) { return ele_.impl().isTrimmed(); })) {
-    auto trimEdges     = ele.impl().getLocalEntity().trimData().edges();
+    auto trimEdges  = ele.impl().getLocalEntity().trimData().edges();
     auto hostEntity = ele.impl().getLocalEntity().getHostEntity();
-   
+
     for (const auto& edgeInfo :
          trimEdges | std::views::filter([](const auto& edgeInfo_) { return edgeInfo_.geometry.has_value(); })) {
       auto edgeGeo            = edgeInfo.geometry.value();
