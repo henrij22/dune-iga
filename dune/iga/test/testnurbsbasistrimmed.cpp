@@ -18,30 +18,18 @@
 
 using namespace Dune;
 
-auto testNurbsBasis() {
-  // Create test case
-  using PatchGrid   = IGANEW::PatchGrid<2, 2, IGANEW::DefaultTrim::PatchGridFamily>;
-  using GridFactory = Dune::GridFactory<PatchGrid>;
-
-  auto igaGridFactory = GridFactory();
-  igaGridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {2, 2});
-  auto grid = igaGridFactory.createGrid();
-
-  auto gridView = grid->leafGridView();
-
-  Dune::TestSuite test(TestSuite::ThrowPolicy::AlwaysThrow);
-
+auto testNurbsBasis(auto& grid) {
+  TestSuite t;
+  auto gridView  = grid.leafGridView();
   using GridView = decltype(gridView);
-  Dune::Functions::NurbsBasis<GridView> basis(gridView, gridView.impl().patchData());
 
-  // Test open knot vectors
-  std::cout << "  Testing B-spline basis with open knot vectors" << std::endl;
+  Dune::Functions::NurbsBasis<GridView> basis(gridView, gridView.impl().patchData());
 
   {
     using namespace Functions::BasisFactory;
     // Check basis created via its constructor
     Functions::NurbsBasis<GridView> basis2(gridView, nurbs());
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
 
     // This crashes for trimmed Elements
     // Dune::Functions::forEachBoundaryDOF(basis2, [](auto&& localIndex) {});
@@ -50,42 +38,53 @@ auto testNurbsBasis() {
   {
     // Check basis created via its constructor
     Functions::NurbsBasis<GridView> basis2(gridView);
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
   }
 
   {
     // Check basis created via makeBasis
     using namespace Functions::BasisFactory;
     auto basis2 = makeBasis(gridView, nurbs());
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
   }
 
   {
     // Check whether a B-Spline basis can be combined with other bases.
     using namespace Functions::BasisFactory;
     auto basis2 = makeBasis(gridView, power<2>(nurbs()));
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
   }
 
   {
-    grid->degreeElevateOnAllLevels({1, 1});
-    auto gridViewNew = grid->leafGridView();
+    grid.degreeElevateOnAllLevels({1, 1});
+    auto gridViewNew = grid.leafGridView();
     // Check lower order basis created via its constructor
     using namespace Functions::BasisFactory;
     Functions::NurbsBasis<GridView> basis2(gridViewNew, nurbs(degreeElevate(1, 1)));
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
   }
 
   {
-    grid->degreeElevateOnAllLevels({0, 1});
-    auto gridViewNew = grid->leafGridView();
+    grid.degreeElevateOnAllLevels({0, 1});
+    auto gridViewNew = grid.leafGridView();
     // Check lower order basis created via its constructor
     using namespace Functions::BasisFactory;
     Functions::NurbsBasis<GridView> basis2(gridViewNew, nurbs(degreeElevate(1, 0)));
-    test.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
+    t.subTest(checkBasis(basis2, EnableContinuityCheck(), EnableContinuityCheck()));
   }
+  return t;
+}
 
-  return test;
+auto runIntersectionTests(Dune::TestSuite& t, const std::string& fileName, bool trimmed, int refLevel) {
+  // Create test case
+  using PatchGrid   = IGANEW::PatchGrid<2, 2, IGANEW::DefaultTrim::PatchGridFamily>;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto igaGridFactory = GridFactory();
+  igaGridFactory.insertJson(fileName, trimmed, {refLevel, refLevel});
+  auto grid = igaGridFactory.createGrid();
+
+  t.subTest(testNurbsBasis(*grid));
 }
 
 int main(int argc, char** argv) try {
@@ -93,7 +92,9 @@ int main(int argc, char** argv) try {
   MPIHelper::instance(argc, argv);
 
   TestSuite t("");
-  t.subTest(testNurbsBasis());
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 0);
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 1);
+  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 2);
 
   return t.exit();
 } catch (Dune::Exception& e) {

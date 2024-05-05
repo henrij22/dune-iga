@@ -68,28 +68,38 @@ auto testIbraReader() {
   return t;
 }
 
-// auto testIbraReader3d() {
-//   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
-//
-//   using PatchGrid   = PatchGrid<2, 3, DefaultTrim::PatchGridFamily>;
-//   using GridFactory = Dune::GridFactory<PatchGrid>;
-//
-//   auto gridFactory = GridFactory();
-//   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{200});
-//
-//   const std::vector testCases{
-//       std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
-//   };
-//
-//   for (auto& [name, min, max] : testCases) {
-//     for (int i = min; i <= max; i++) {
-//       gridFactory.insertJson(name, true, {i, i});
-//       gridFactory.createGrid();
-//     }
-//   }
-//
-//   return t;
-// }
+auto testIbraReader3d() {
+  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+
+  using PatchGrid   = PatchGrid<2, 3, DefaultTrim::PatchGridFamily>;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto gridFactory = GridFactory();
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{200});
+
+  const std::vector testCases{
+      std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
+  };
+
+  for (auto& [file_name, min, max] : testCases) {
+    auto name = file_name.substr(0, file_name.find('.')).substr(file_name.find_last_of('/') + 1);
+
+    for (int i = min; i <= max; i++) {
+      gridFactory.insertJson(file_name, true, {i, i});
+      auto grid = gridFactory.createGrid();
+
+      auto outputFileName = "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
+      drawGrid(grid.get(), outputFileName + ".gif");
+
+      Dune::Vtk::DiscontinuousIgaDataCollector dataCollector(grid->leafGridView());
+      Dune::Vtk::UnstructuredGridWriter vtkWriter(dataCollector, Dune::Vtk::FormatTypes::ASCII);
+
+      vtkWriter.write(outputFileName);
+    }
+  }
+
+  return t;
+}
 
 int main(int argc, char** argv) try {
   // feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
@@ -101,7 +111,7 @@ int main(int argc, char** argv) try {
   createOutputFolder("out");
 
   t.subTest(testIbraReader());
-  // t.subTest(testIbraReader3d());
+  t.subTest(testIbraReader3d());
 
   t.report();
 
