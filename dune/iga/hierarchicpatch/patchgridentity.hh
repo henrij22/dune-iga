@@ -286,7 +286,6 @@ public:
    */
   template <int cc>
   [[nodiscard]] typename GridImp::template Codim<cc>::Entity subEntity(int i) const {
-    //@todo how to handout vertices and edges?
     return PatchGridEntity<cc, dim, GridImp>(patchGrid_, localEntity_.template subEntity<cc>(i));
   }
 
@@ -374,6 +373,7 @@ public:
     return localEntity_;
   }
 
+  template <typename IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const GridImp>>
   Dune::QuadratureRule<double, dim> getQuadratureRule(
       const std::optional<int>& p_order = std::nullopt,
       const QuadratureType::Enum qt     = QuadratureType::GaussLegendre) const
@@ -383,8 +383,6 @@ public:
     int order   = p_order.value_or(dimension * *std::ranges::max_element(degree));
     if (not isTrimmed())
       return Dune::QuadratureRules<double, dimension>::rule(this->type(), order, qt);
-
-    using IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const GridImp>;
 
     const auto parameters = typename IntegrationRuleGenerator::Parameters{
         .maxBoundaryDivisions = Preferences::getInstance().boundaryDivisions()};
