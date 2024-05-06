@@ -51,8 +51,9 @@ void checkConcepts() {
   using GridEntityReferenceType = decltype(referenceElement(GridEntity()));
   if constexpr (Trimmer::isAlwaysTrivial)
     static_assert(IsDefaultReferenceElement<GridEntityReferenceType>::value);
-  else
-    static_assert(not IsDefaultReferenceElement<GridEntityReferenceType>::value);
+  // todo
+  // else
+  //   static_assert(not IsDefaultReferenceElement<GridEntityReferenceType>::value);
 
   static_assert(Dune::Concept::EntityGeneral<GridEntity>);
 

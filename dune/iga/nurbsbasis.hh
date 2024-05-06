@@ -18,16 +18,10 @@
 
 #include <dune/iga/splines/bsplinealgorithms.hh>
 #include <dune/iga/splines/nurbsalgorithms.hh>
-// #include <dune/iga/trim/nurbstrimmer.hh>
-// #include <dune/iga/utils/concepts.hh>
 #include <dune/common/diagonalmatrix.hh>
-#include <dune/common/dynmatrix.hh>
 #include <dune/functions/functionspacebases/defaultglobalbasis.hh>
-#include <dune/functions/functionspacebases/flatmultiindex.hh>
 #include <dune/functions/functionspacebases/nodes.hh>
 #include <dune/geometry/type.hh>
-#include <dune/grid/common/rangegenerators.hh>
-// #include <dune/iga/trim/nurbstrimmer.hh>
 #include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
 #include <dune/localfunctions/common/localbasis.hh>
 #include <dune/localfunctions/common/localfiniteelementtraits.hh>

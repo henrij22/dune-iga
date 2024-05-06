@@ -82,6 +82,8 @@ auto runIntersectionTests(Dune::TestSuite& t, const std::string& fileName, bool 
 
   auto igaGridFactory = GridFactory();
   igaGridFactory.insertJson(fileName, trimmed, {refLevel, refLevel});
+  igaGridFactory.insertTrimParameters(GridFactory::TrimParameterType{120});
+
   auto grid = igaGridFactory.createGrid();
 
   t.subTest(testNurbsBasis(*grid));
@@ -95,6 +97,9 @@ int main(int argc, char** argv) try {
   runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 0);
   runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 1);
   runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 2);
+
+  runIntersectionTests(t, "auxiliaryfiles/surface-hole.ibra", true, 1);
+  runIntersectionTests(t, "auxiliaryfiles/surface-hole.ibra", true, 2);
 
   return t.exit();
 } catch (Dune::Exception& e) {
