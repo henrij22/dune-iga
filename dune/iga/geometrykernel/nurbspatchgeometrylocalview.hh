@@ -182,6 +182,16 @@ namespace GeometryKernel {
       return dgdt * dfdg;
     }
 
+    // todo check
+    auto secondFundamentalForm(const LocalCoordinate& local) const {
+      return patchGeometry_->secondFundamentalForm(local);
+    }
+
+    // // todo check
+    // auto zeroFirstAndSecondDerivativeOfPosition(const LocalCoordinate& local) const {
+    //   return patchGeometry_->zeroFirstAndSecondDerivativeOfPosition(local);
+    // }
+
     /**
      * @brief Get the Jacobian matrix at a local coordinate.
      * @param local Local coordinate, i.e. a tuple where each coordinate is in [0,1] domain for each local view

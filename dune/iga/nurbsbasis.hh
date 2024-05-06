@@ -699,7 +699,7 @@ public:
                         const std::array<int, dim>& currentKnotSpan) const {
     const auto dN = IGANEW::Splines::Nurbs<dim, ScalarType>::basisFunctionDerivatives(
         in, patchData_.knotSpans, patchData_.degree, IGANEW::Splines::extractWeights(patchData_.controlPoints), 1,
-        false, currentKnotSpan);
+        currentKnotSpan);
     out.resize(dN.get(std::array<int, dim>{}).size());
     for (int j = 0; j < dim; ++j) {
       std::array<int, dim> multiIndex{};

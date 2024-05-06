@@ -7,7 +7,7 @@
 #include <dune/geometry/quadraturerules.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
 
 namespace Dune::IGANEW::DefaultTrim {
 
