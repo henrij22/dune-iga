@@ -218,6 +218,22 @@ public:
     return zeroFirstAndSecondDerivativeOfPositionImpl(u, nurbsLocalView, cpNet);
   }
 
+  // todo @Alex is this correct? copied from
+  // https://github.com/rath3t/dune-iga/blob/3b7f7f50e71d157864961704af1815d1640d218d/dune/iga/nurbsgeometry.hh#L233
+  auto secondFundamentalForm(const LocalCoordinate& local) const
+  requires(mydimension == 2) && (coorddimension == 3)
+  {
+    auto [nurbsLocalView, cpNet, subNetStart] = calculateNurbsAndControlPointNet(local);
+
+    const auto secDerivatives = GeometryKernel::hessian(local, nurbsLocalView, cpNet);
+    const auto unitnormal     = unitNormal(local);
+    FieldMatrix<ctype, mydimension, mydimension> b;
+    b[0][0] = secDerivatives[0] * unitnormal;
+    b[1][1] = secDerivatives[1] * unitnormal;
+    b[0][1] = b[1][0] = secDerivatives[2] * unitnormal;
+    return b;
+  }
+
   /**
    * @brief Compute the Jacobian transposed matrix for a given local coordinate.
    * @param u Local coordinates for each dimension in the [knotSpan.front(), knotSpan.back()] domain.
@@ -471,6 +487,20 @@ public:
   }
 
 private:
+  [[nodiscard]] GlobalCoordinate unitNormal(const LocalCoordinate& local) const
+  requires(mydimension == 2) && (coorddimension == 3)
+  {
+    auto N = normal(local);
+    return N / N.two_norm();
+  }
+
+  [[nodiscard]] GlobalCoordinate normal(const LocalCoordinate& local) const
+  requires(mydimension == 2) && (coorddimension == 3)
+  {
+    auto J = jacobianTransposed(local);
+    return cross(J[0], J[1]);
+  }
+
   /* @brief Calculate NURBS and control point net for a given local coordinate. */
   auto calculateNurbsAndControlPointNet(const LocalCoordinate& u) const {
     auto subNetStart     = Splines::findSpan(patchData_.degree, u, patchData_.knotSpans);

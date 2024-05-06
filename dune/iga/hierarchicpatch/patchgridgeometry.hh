@@ -115,6 +115,10 @@ public:
     return geometryLocalView_.zeroFirstAndSecondDerivativeOfPosition(u);
   }
 
+  auto secondFundamentalForm(const LocalCoordinate& local) const {
+    return geometryLocalView_.secondFundamentalForm(local);
+  }
+
 private:
   ParameterSpaceGeometry localGeometry_;
   GeometryLocalView geometryLocalView_{};

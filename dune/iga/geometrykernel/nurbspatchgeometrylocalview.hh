@@ -196,6 +196,7 @@ namespace GeometryKernel {
      * @brief Compute the integration element at a local coordinate.
      * @param local Local coordinate, i.e. a tuple where each coordinate is in [0,1] domain for each local view
      * dimension
+     * dimension
      * @return Integration element.
      */
     [[nodiscard]] ctype integrationElement(const LocalCoordinate& local) const {
