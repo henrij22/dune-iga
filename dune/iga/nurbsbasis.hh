@@ -16,12 +16,12 @@
 #include <set>
 #include <vector>
 
-#include <dune/iga/splines/bsplinealgorithms.hh>
-#include <dune/iga/splines/nurbsalgorithms.hh>
 #include <dune/common/diagonalmatrix.hh>
 #include <dune/functions/functionspacebases/defaultglobalbasis.hh>
 #include <dune/functions/functionspacebases/nodes.hh>
 #include <dune/geometry/type.hh>
+#include <dune/iga/splines/bsplinealgorithms.hh>
+#include <dune/iga/splines/nurbsalgorithms.hh>
 #include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
 #include <dune/localfunctions/common/localbasis.hh>
 #include <dune/localfunctions/common/localfiniteelementtraits.hh>
@@ -698,8 +698,8 @@ public:
   void evaluateJacobian(const FieldVector<typename GV::ctype, dim>& in, std::vector<FieldMatrix<R, 1, dim>>& out,
                         const std::array<int, dim>& currentKnotSpan) const {
     const auto dN = IGANEW::Splines::Nurbs<dim, ScalarType>::basisFunctionDerivatives(
-        in, patchData_.knotSpans, patchData_.degree, extractWeights(patchData_.controlPoints), 1, false,
-        currentKnotSpan);
+        in, patchData_.knotSpans, patchData_.degree, IGANEW::Splines::extractWeights(patchData_.controlPoints), 1,
+        false, currentKnotSpan);
     out.resize(dN.get(std::array<int, dim>{}).size());
     for (int j = 0; j < dim; ++j) {
       std::array<int, dim> multiIndex{};
@@ -715,7 +715,7 @@ public:
   void partial(const std::array<unsigned int, dim>& order, const FieldVector<typename GV::ctype, dim>& in,
                std::vector<FieldVector<R, 1>>& out, const std::array<int, dim>& currentKnotSpan) const {
     const auto dN = IGANEW::Splines::Nurbs<dim, ScalarType>::basisFunctionDerivatives(
-        in, patchData_.knotSpans, patchData_.degree, extractWeights(patchData_.controlPoints),
+        in, patchData_.knotSpans, patchData_.degree, IGANEW::Splines::extractWeights(patchData_.controlPoints),
         std::accumulate(order.begin(), order.end(), 0));
 
     auto& dNpart = dN.get(order).directGetAll();

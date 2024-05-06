@@ -111,6 +111,10 @@ public:
     return geometryLocalView_.jacobianInverseTransposed(local);
   }
 
+  auto zeroFirstAndSecondDerivativeOfPosition(const LocalCoordinate& u) const {
+    return geometryLocalView_.zeroFirstAndSecondDerivativeOfPosition(u);
+  }
+
 private:
   ParameterSpaceGeometry localGeometry_;
   GeometryLocalView geometryLocalView_{};
