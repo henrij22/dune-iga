@@ -133,7 +133,7 @@ auto myGridCheck(G& grid) {
         auto corner  = ele.geometry().corner(c);
         auto corner2 = ele.template subEntity<2>(c).geometry().center();
         t.check(FloatCmp::eq(corner, corner2))
-            << "Ele: " << eleIdx << " Corner(i) from the element is not the same as subentity(i)";
+            << "Ele: " << eleIdx << "Position of corner(i) from the element is not the same as subentity(i)";
       }
 
       // Intersections
@@ -224,8 +224,8 @@ auto makeTestCases2d(TestSuite& t) {
       {    "auxiliaryfiles/trim_2edges.ibra", 0, 2, 100},
       {     "auxiliaryfiles/trim_multi.ibra", 0, 0, 100},
       {   "auxiliaryfiles/surface-hole.ibra", 1, 3, 150},
- // {"auxiliaryfiles/surface-hole-skew.ibra", 1, 3, 100},
-  // {"auxiliaryfiles/surface-hole-square.ibra", 1, 3, 100}
+      // {"auxiliaryfiles/surface-hole-skew.ibra", 1, 3, 100},
+      // {"auxiliaryfiles/surface-hole-square.ibra", 1, 3, 100}
   };
 
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;

@@ -38,7 +38,6 @@ auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int r
     Preferences::getInstance().boundaryDivisions(20);
   auto parameters = IntegrationRuleGenerator::Parameters{.maxBoundaryDivisions = 20};
 
-
   double area{0};
   for (const auto& ele : elements(gv)) {
     auto qR = [&]() {

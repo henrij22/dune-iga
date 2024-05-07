@@ -24,7 +24,7 @@ struct SimplexIntegrationRuleGenerator
   struct Parameters
   {
     int maxBoundaryDivisions{5};
-    double targetTolerance{1e-10}; // not used atm
+    double targetTolerance{1e-4}; // not used atm
   };
 
   static auto createIntegrationRule(const PatchElement& element, int quadratureOrder,

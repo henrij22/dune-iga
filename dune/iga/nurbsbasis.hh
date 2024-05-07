@@ -634,10 +634,11 @@ public:
     }
     return it;
   }
+
   void createTrimmedNodeIndices() {
     if constexpr (not TrimmerType::isAlwaysTrivial) {
-      if (not gridView_.grid().trimmer().trimData_.has_value())
-        return;
+      // if (not gridView_.grid().trimmer().trimData_.has_value())
+      //   return;
 
       unsigned int n_ind_original = cachedSize_;
 
