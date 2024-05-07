@@ -13,7 +13,7 @@
 #include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexintegrationrulegenerator.hh>
 #include <dune/iga/utils/igahelpers.hh>
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 // Forward declarations
 
@@ -409,4 +409,4 @@ auto referenceElement(
   return referenceElement(entity.impl());
 }
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

@@ -5,7 +5,7 @@
 
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 template <typename PatchGrid>
 void drawGrid(PatchGrid* grid, std::string&& file_name) {
@@ -21,4 +21,4 @@ void drawGrid(PatchGrid* grid, std::string&& file_name) {
   matplot::save(file_name, "gif");
 }
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

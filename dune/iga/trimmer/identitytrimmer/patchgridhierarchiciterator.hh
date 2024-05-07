@@ -7,7 +7,7 @@
  * @brief The PatchGridHierarchicIterator class
  */
 
-namespace Dune::IGANEW::IdentityTrim {
+namespace Dune::IGA::IdentityTrim {
 
 //**********************************************************************
 //
@@ -64,4 +64,4 @@ private:
   HostGridHierarchicIterator hostHierarchicIterator_;
 };
 
-} // namespace Dune::IGANEW::IdentityTrim
+} // namespace Dune::IGA::IdentityTrim

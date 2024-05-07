@@ -12,7 +12,7 @@
 #include <dune/common/fmatrix.hh>
 #include <dune/grid/common/geometry.hh>
 #include <dune/iga/geometrykernel/nurbspatchgeometry.hh>
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 template <int mydim, int coorddim, class GridImp>
 class PatchGridGeometry : public GeometryDefaultImplementation<mydim, coorddim, GridImp, PatchGridGeometry>
@@ -123,4 +123,4 @@ private:
   GeometryLocalView geometryLocalView_{};
 };
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

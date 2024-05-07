@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 
 template <class GridImp>
 class PatchGridHierarchicIterator;
@@ -313,4 +313,4 @@ private:
   std::optional<TrimInfo> trimData_{};
 };
 
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim

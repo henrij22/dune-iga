@@ -22,7 +22,7 @@
 #include <dune/iga/patchgrid.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 
-using namespace Dune::IGANEW;
+using namespace Dune::IGA;
 
 using Grid = PatchGrid<2, 2, DefaultTrim::PatchGridFamily>;
 

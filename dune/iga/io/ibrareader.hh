@@ -9,7 +9,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 template <int dim, int dimworld, typename PatchGrid>
 requires(dim == 2) && (dimworld == 2 || dimworld == 3) && (dim <= dimworld)
@@ -71,4 +71,4 @@ private:
   }
 };
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

@@ -11,7 +11,7 @@
  * @brief The TrimmedPatchGridLeafIntersection and TrimmedLevelIntersection classes
  */
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 
 // External forward declarations
 template <class Grid>
@@ -843,4 +843,4 @@ private:
   IntersectionImpl underlying_{};
 };
 
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim

@@ -21,7 +21,7 @@
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/vtk/vtkwriter.hh>
 
-using namespace Dune::IGANEW;
+using namespace Dune::IGA;
 
 auto testIbraReader() {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);

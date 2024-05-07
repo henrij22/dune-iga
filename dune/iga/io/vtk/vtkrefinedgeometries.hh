@@ -29,7 +29,7 @@ private:
     std::vector<Index> indices{};
   };
 
-  std::unordered_map<IDType, ElementData> trimmedElementData_;
+  std::unordered_map<IDType, ElementData> trimmedElementData_{};
   ElementData cubeData{};
 
 public:
@@ -37,9 +37,8 @@ public:
     assert(subSampleFull >= 0 and subSampleTrimmed >= 0 && "subSamples have to be zero or positive");
 
     using Trimmer = typename GridView::GridViewImp::TrimmerType;
-    static_assert(
-        std::is_same_v<Trimmer, IGANEW::DefaultTrim::TrimmerImpl<Trimmer::mydimension, Trimmer::dimensionworld,
-                                                                 typename Trimmer::ctype>>);
+    static_assert(std::is_same_v<Trimmer, IGA::DefaultTrim::TrimmerImpl<Trimmer::mydimension, Trimmer::dimensionworld,
+                                                                        typename Trimmer::ctype>>);
 
     createCubeRefinement(subSampleFull);
 
@@ -48,7 +47,7 @@ public:
     for (const auto& element : elements(gridView)) {
       if (element.impl().isTrimmed()) {
         auto [ele, vert, ind] =
-            IGANEW::DefaultTrim::SimplexIntegrationRuleGenerator<typename GridView::Grid>::createSimplicies(element);
+            IGA::DefaultTrim::SimplexIntegrationRuleGenerator<typename GridView::Grid>::createSimplicies(element);
         trimmedElementData_.emplace(idSet.id(element), ElementData{ele, vert, ind});
       }
     }

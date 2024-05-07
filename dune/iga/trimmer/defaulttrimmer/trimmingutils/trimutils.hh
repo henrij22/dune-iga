@@ -11,7 +11,7 @@
 #include <dune/common/float_cmp.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
 
-namespace Dune::IGANEW::DefaultTrim::Util {
+namespace Dune::IGA::DefaultTrim::Util {
 template <typename ScalarType, int dim>
 auto approxSamePoint(const Clipper2Lib::PointD& pt1, const FieldVector<ScalarType, dim>& pt2,
                      const double prec) -> bool {
@@ -71,4 +71,4 @@ auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip
   DUNE_THROW(Dune::GridError, "Couldn't find intersection Point");
 };
 
-} // namespace Dune::IGANEW::DefaultTrim::Util
+} // namespace Dune::IGA::DefaultTrim::Util

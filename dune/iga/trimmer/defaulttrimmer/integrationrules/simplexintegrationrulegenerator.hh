@@ -9,7 +9,7 @@
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 
 template <typename GridImp>
 struct SimplexIntegrationRuleGenerator
@@ -123,7 +123,7 @@ private:
   }
 };
 
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim
 
 // Add support for Dune::FieldVector in Earcut
 namespace mapbox::util {

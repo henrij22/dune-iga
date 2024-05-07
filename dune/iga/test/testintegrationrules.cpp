@@ -15,7 +15,7 @@
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 
 using namespace Dune;
-using namespace Dune::IGANEW;
+using namespace Dune::IGA;
 
 template <bool useEle>
 auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int refLevel, double referenceArea) {

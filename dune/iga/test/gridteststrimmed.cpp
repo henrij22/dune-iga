@@ -28,7 +28,7 @@
 #include <dune/subgrid/test/common.hh>
 
 using namespace Dune;
-using namespace Dune::IGANEW;
+using namespace Dune::IGA;
 
 auto checkUniqueEdges(const auto& gridView) {
   TestSuite t;
@@ -213,7 +213,7 @@ auto thoroughGridCheck(auto& grid) {
 }
 
 template <template <int, int, typename> typename GridFamily>
-requires IGANEW::Concept::Trimmer<typename GridFamily<2, 2, double>::Trimmer>
+requires IGA::Concept::Trimmer<typename GridFamily<2, 2, double>::Trimmer>
 auto makeTestCases2d(TestSuite& t) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;

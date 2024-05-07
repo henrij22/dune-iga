@@ -10,7 +10,7 @@
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/clipelementrectangle.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/trimutils.hh>
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 
 template <int dim, int dimworld, typename ScalarType>
 auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& element,
@@ -182,4 +182,4 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
   elementTrimData.finalize();
   return std::move(elementTrimData);
 }
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim

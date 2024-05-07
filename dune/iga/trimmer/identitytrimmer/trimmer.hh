@@ -25,7 +25,7 @@
 #include <dune/iga/hierarchicpatch/patchgridgeometry.hh>
 #include <dune/iga/hierarchicpatch/patchgridview.hh>
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 namespace GeometryKernel {
   template <int dim_, int dimworld_, typename ScalarType>
@@ -399,4 +399,4 @@ namespace IdentityTrim {
   };
 
 } // namespace IdentityTrim
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

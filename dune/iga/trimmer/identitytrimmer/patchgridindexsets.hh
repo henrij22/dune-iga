@@ -11,7 +11,7 @@
 
 #include <dune/grid/common/indexidset.hh>
 
-namespace Dune::IGANEW::IdentityTrim {
+namespace Dune::IGA::IdentityTrim {
 
 /** @todo Take the index types from the host grid */
 template <class GridImp>
@@ -242,4 +242,4 @@ public:
   const GridImp* grid_;
 };
 
-} // namespace Dune::IGANEW::IdentityTrim
+} // namespace Dune::IGA::IdentityTrim

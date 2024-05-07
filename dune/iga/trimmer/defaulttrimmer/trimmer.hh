@@ -37,27 +37,27 @@
 #include <dune/iga/trimmer/localgeometryvariant.hh>
 #include <dune/subgrid/subgrid.hh>
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 template <typename HostIdType>
 struct IdType;
 }
 template <typename HostIdType>
-struct std::hash<Dune::IGANEW::DefaultTrim::IdType<HostIdType>>
+struct std::hash<Dune::IGA::DefaultTrim::IdType<HostIdType>>
 {
-  std::size_t operator()(const Dune::IGANEW::DefaultTrim::IdType<HostIdType>& k) const {
+  std::size_t operator()(const Dune::IGA::DefaultTrim::IdType<HostIdType>& k) const {
     using std::hash;
 
     // Compute individual hash values for first, second and third and combine them using XOR
     // and bit shifting:
     // todo
     // return (hash<HostIdType>()(k.id) ^
-    //         hash<typename Dune::IGANEW::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1) >>
+    //         hash<typename Dune::IGA::DefaultTrim::IdType<HostIdType>::ElementState>()(k.entityIdType) << 1) >>
     //        1;
     return (hash<HostIdType>()(k.id));
   }
 };
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 namespace GeometryKernel {
   template <int dim_, int dimworld_, typename ScalarType>
   class NURBSPatch;
@@ -584,7 +584,7 @@ namespace DefaultTrim {
   };
 
 } // namespace DefaultTrim
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA
 
 #include "createentities.hh"
 #include "createlevel.hh"

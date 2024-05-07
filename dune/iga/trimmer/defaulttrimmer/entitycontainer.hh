@@ -8,7 +8,7 @@
 #include <dune/common/reservedvector.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 template <typename GridImp>
 struct VectorEntityContainer
 {
@@ -268,4 +268,4 @@ struct VectorEntityContainer
   std::vector<unsigned int> edgeCount;
   std::vector<unsigned int> vertexCount;
 };
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim

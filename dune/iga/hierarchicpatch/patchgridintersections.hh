@@ -9,7 +9,7 @@
  * @brief The PatchGridLeafIntersection and PatchGridLevelIntersection classes
  */
 
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 // External forward declarations
 template <class Grid>
@@ -394,4 +394,4 @@ private:
   Implementation impl_;
 };
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA

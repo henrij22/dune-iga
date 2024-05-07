@@ -12,7 +12,7 @@
 #include <dune/iga/geometrykernel/geohelper.hh>
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 
-namespace Dune::IGANEW::DefaultTrim {
+namespace Dune::IGA::DefaultTrim {
 
 enum class ElementTrimFlag
 {
@@ -291,4 +291,4 @@ private:
   int newEdgeCounter_   = 4;
 };
 
-} // namespace Dune::IGANEW::DefaultTrim
+} // namespace Dune::IGA::DefaultTrim

@@ -27,7 +27,7 @@ namespace Dune::Functions {
 template <typename GV, typename ScalarType>
 class NurbsPreBasis;
 }
-namespace Dune::IGANEW {
+namespace Dune::IGA {
 
 namespace IdentityTrim {
   template <int dim, int dimworld, typename ScalarType = double>
@@ -51,7 +51,7 @@ struct HostGridAccess;
  * @tparam ScalarType The type for the coordinates
  * Example Create surface in 3D space:
  * @code
- * using namespace Dune::IGANEW;
+ * using namespace Dune::IGA;
  *
  * // Define a NURBS patch data
  * const int dim = 2;
@@ -508,4 +508,4 @@ private:
 
 }; // end Class PatchGrid
 
-} // namespace Dune::IGANEW
+} // namespace Dune::IGA
