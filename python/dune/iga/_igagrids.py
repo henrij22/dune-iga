@@ -36,7 +36,7 @@ def IGAGrid(constructor, dimgrid=None, dimworld=None):
         )
 
     typeName = (
-        "Dune::IGA::NURBSGrid< " + str(dimgrid) + ", " + str(dimworld) + ",double>"
+        "Dune::IGA::PatchGrid< " + str(dimgrid) + ", " + str(dimworld) + ", Dune::IGA::DefaultTrim::PatchGridFamily, double>"
     )
 
     includes = ["dune/python/iga/grid.hh"]
@@ -44,7 +44,7 @@ def IGAGrid(constructor, dimgrid=None, dimworld=None):
     from dune.common.hashit import hashIt
 
     generator = SimpleGenerator("HierarchicalGrid", "Dune::Python::IGA")
-    moduleName = "NURBSGrid_" + hashIt(typeName)
+    moduleName = "PatchGrid_" + hashIt(typeName)
     kwargs = dict()
     kwargs["dynamicAttr"] = True
     kwargs["holder"] = "std::shared_ptr"

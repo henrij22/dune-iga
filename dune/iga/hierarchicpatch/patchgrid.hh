@@ -398,17 +398,17 @@ public:
 
   /** @brief returns true, if at least one entity is marked for adaption */
   bool preAdapt() {
-    return trimmer_->paramterSpaceGrid().preAdapt();
+    return trimmer_->parameterSpaceGrid().preAdapt();
   }
 
   // Triggers the grid refinement process
   bool adapt() {
-    return trimmer_->paramterSpaceGrid().adapt();
+    return trimmer_->parameterSpaceGrid().adapt();
   }
 
   /** @brief Clean up refinement markers */
   void postAdapt() {
-    return trimmer_->paramterSpaceGrid().postAdapt();
+    return trimmer_->parameterSpaceGrid().postAdapt();
   }
 
   /*@}*/

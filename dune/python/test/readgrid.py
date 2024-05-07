@@ -1,17 +1,15 @@
 # SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 # SPDX-License-Identifier: LGPL-3.0-or-later
 import sys
-import setpath
 import math
 
-setpath.set_path()
 
 import os
 
 # enable DUNE_SAVE_BUILD to test various output options
 os.environ["DUNE_LOG_LEVEL"] = "debug"
 os.environ["DUNE_SAVE_BUILD"] = "console"
-os.environ["ALUGRID_VERBOSITY_LEVEL"] = "0"
+
 
 from dune.iga import (
     IGAGrid,
