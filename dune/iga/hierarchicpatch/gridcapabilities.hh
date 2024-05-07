@@ -189,6 +189,8 @@ struct EnableLevelIntersectionIteratorCheck;
 //     : Dune::EnableBoundarySegmentIndexCheck<
 //           typename Dune::IGANEW::PatchGrid<dim, dimworld, GridFamilyTraits, ScalarType>::ParameterSpaceGrid> {};
 
+// Todo forward to gridFamilyTraits
+
 template <int dim, int dimworld, template <int, int, typename> typename GridFamilyTraits, typename ScalarType>
 struct Dune::EnableBoundarySegmentIndexCheck<Dune::IGANEW::PatchGrid<dim, dimworld, GridFamilyTraits, ScalarType>>
     : std::false_type
