@@ -3,6 +3,7 @@
 
 #include "dune/python/iga/gridenums.hh"
 #include <dune/python/pybind11/pybind11.h>
+
 PYBIND11_MODULE(_iga, m) {
   pybind11::enum_<Dune::Python::IGA::Reader> reader(m, "reader");
   reader.value("json", Dune::Python::IGA::Reader::json);

@@ -44,10 +44,15 @@ public:
 
     const auto& idSet = gridView.grid().globalIdSet();
 
+    using IntegrationRuleGenerator = IGA::DefaultTrim::SimplexIntegrationRuleGenerator<typename GridView::Grid>;
+
+    const auto parameters = typename IntegrationRuleGenerator::Parameters{
+        .boundaryDivisions = Preferences::getInstance().boundaryDivisions(),
+        .targetAccuracy    = Preferences::getInstance().targetAccuracy()};
+
     for (const auto& element : elements(gridView)) {
       if (element.impl().isTrimmed()) {
-        auto [ele, vert, ind] =
-            IGA::DefaultTrim::SimplexIntegrationRuleGenerator<typename GridView::Grid>::createSimplicies(element);
+        auto [ele, vert, ind] = IntegrationRuleGenerator::createSimplicies(element, parameters);
         trimmedElementData_.emplace(idSet.id(element), ElementData{ele, vert, ind});
       }
     }

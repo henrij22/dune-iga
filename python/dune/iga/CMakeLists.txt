@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 # SPDX-License-Identifier: LGPL-3.0-or-later
-add_subdirectory(basis)
 
 add_python_targets(iga __init__ _igagrids _nurbspatchdata _boundarypatch _nurbsalgorithms)
 
@@ -11,8 +10,7 @@ set_property(
            earcut_hpp::earcut_hpp
   APPEND
 )
-target_link_libraries(_iga PUBLIC Clipper2Z)
-target_compile_definitions(_iga PUBLIC ENABLE_CLIPPERLIB2=1)
+
 
 if(SKBUILD)
   install(TARGETS _iga LIBRARY DESTINATION python/dune/iga)

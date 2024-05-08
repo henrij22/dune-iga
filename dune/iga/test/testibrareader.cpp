@@ -30,7 +30,7 @@ auto testIbraReader() {
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{150});
 
   const std::vector testCases{
       std::tuple<std::string, int, int>{    "auxiliaryfiles/element_trim_xb.ibra", 0, 3},
@@ -109,6 +109,7 @@ int main(int argc, char** argv) try {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
   createOutputFolder("out");
+  Preferences::getInstance().targetAccuracy(1e-3);
 
   t.subTest(testIbraReader());
   t.subTest(testIbraReader3d());

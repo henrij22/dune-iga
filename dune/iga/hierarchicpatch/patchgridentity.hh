@@ -385,7 +385,8 @@ public:
       return Dune::QuadratureRules<double, dimension>::rule(this->type(), order, qt);
 
     const auto parameters = typename IntegrationRuleGenerator::Parameters{
-        .maxBoundaryDivisions = Preferences::getInstance().boundaryDivisions()};
+        .boundaryDivisions = Preferences::getInstance().boundaryDivisions(),
+        .targetAccuracy    = Preferences::getInstance().targetAccuracy()};
 
     return IntegrationRuleGenerator::createIntegrationRule(*this, order, parameters);
   }

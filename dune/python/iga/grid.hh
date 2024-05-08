@@ -5,18 +5,26 @@
 #include "dune/python/iga/gridenums.hh"
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
 #include <dune/iga/io/ibrareader.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/python/common/typeregistry.hh>
 #include <dune/python/grid/capabilities.hh>
 #include <dune/python/grid/enums.hh>
 #include <dune/python/grid/hierarchical.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/python/pybind11/pybind11.h>
+
 
 #if HAVE_DUNE_VTK
   #include <dune/iga/io/vtk/igadatacollector.hh>
   #include <dune/python/vtk/writer.hh>
   #include <dune/vtk/writers/vtkunstructuredgridwriter.hh>
 #endif
+
+namespace Dune {
+template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
+struct DGFGridFactory<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
+{
+};
+} // namespace Dune
 
 namespace Dune::Python {
 
@@ -36,27 +44,22 @@ namespace Dune::Python {
 // {
 // };
 
-template <int dim, int dimworld, template <int, int, typename> typename GridFamily_,
-          typename ScalarType>
-struct Capabilities::HasGridFactory<Dune::IGA::PatchGrid<dim, dimworld, GridFamily_,ScalarType>>
+template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
+struct Capabilities::HasGridFactory<Dune::IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
     : public std::integral_constant<bool, false>
 {
 };
 
-template <template <auto, auto,template <int, int, typename> typename, typename> class Type, typename>
+template <template <auto, auto, template <int, int, typename> typename, typename> class Type, typename>
 struct IsSpecializationTwoNonTypesTemplateAndType : std::false_type
 {
 };
 
-template <template <auto, auto,template <int, int, typename> typename, typename> class Type, auto T, auto T2,
-template <int, int, typename> typename GF, typename S>
+template <template <auto, auto, template <int, int, typename> typename, typename> class Type, auto T, auto T2,
+          template <int, int, typename> typename GF, typename S>
 struct IsSpecializationTwoNonTypesTemplateAndType<Type, Type<T, T2, GF, S>> : std::true_type
 {
 };
-
-
-template <typename Grid>
-concept hasTrimmer = requires { typename Grid::Trimmer; };
 
 } // namespace Dune::Python
 #endif
@@ -96,7 +99,7 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
       auto gridFactory = GridFactory();
       gridFactory.insertJson(file_path, trim, preKnotRefine);
 
-      //return gridFactory.createGrid();
+      // return gridFactory.createGrid();
       return {};
     }
     default:
@@ -116,8 +119,9 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
   // if constexpr (dimension == 2)
   //   module.def("reader", [](const pybind11::dict& args_) { return Dune::Python::IGA::reader<Grid>(args_); });
 
-  static_assert(IsSpecializationTwoNonTypesTemplateAndType<Dune::IGA::PatchGrid, Grid>::value);
- // static_assert(std::is_same_v<decltype(reader< Grid >( pybind11::dict() )),double>);
+  // static_assert(IsSpecializationTwoNonTypesTemplateAndType<Dune::IGA::PatchGrid, Grid>::value);
+  // static_assert(std::is_same_v<decltype(reader< Grid >( pybind11::dict() )),double>);
+  // static_assert(Impl::hasDGFGridFactory<Grid, std::string>);
 
   Dune::Python::registerHierarchicalGrid(module, cls);
 

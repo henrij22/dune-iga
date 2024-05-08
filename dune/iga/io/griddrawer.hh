@@ -16,7 +16,7 @@ void drawGrid(PatchGrid* grid, std::string&& file_name) {
   figure->size(1000, 1000);
 
   for (auto& eleTrimData : eleTrimDatas)
-    eleTrimData.drawResult("resName", false, false);
+    eleTrimData.drawResult("out/ele", false, false);
 
   matplot::save(file_name, "gif");
 }

@@ -42,9 +42,10 @@ public:
     parameters_ = par;
   }
 
-  void insertJson(const std::string& filename, const bool trim = true, std::array<int, 2> preKnotRefine = {0, 0}) {
+  void insertJson(const std::string& filename, const bool trim = true, std::array<int, 2> preKnotRefine = {0, 0},
+                  std::array<int, 2> degreeElevate = {0, 0}) {
     json_                      = filename;
-    auto [patchData, trimData] = IGA::IbraReader<dim, dimworld, PatchGrid>::read(filename, trim, preKnotRefine);
+    auto [patchData, trimData] = IGA::IbraReader<dim, dimworld, PatchGrid>::read(filename, trim, preKnotRefine, degreeElevate);
     insertPatch(patchData, trimData);
   }
 

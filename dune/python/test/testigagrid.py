@@ -1,5 +1,4 @@
 from dune.iga import reader as readeriga
-
 from dune.iga import IGAGrid
 
 if __name__ == "__main__":

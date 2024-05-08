@@ -13,7 +13,7 @@
 namespace Dune::IGA::DefaultTrim {
 
 template <int dim, int dimworld, typename ScalarType>
-auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& element,
+auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& element, const auto& gv,
                                                          const PatchTrimData& patchTrimData) -> ElementTrimData {
   auto geo = element.geometry();
 
@@ -21,6 +21,15 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
   std::array<FieldVector<double, 2>, numberOfCorners> corners;
   for (const auto i : Dune::range(numberOfCorners))
     corners[i] = geo.corner(Util::vertexIndexMapping[i]);
+
+  std::array<std::pair<bool, size_t>, numberOfCorners> boundarySegementIndices;
+  for (const auto& intersection : Dune::intersections(gv, element)) {
+    auto idx = Transformations::mapToTrimmer(1, intersection.indexInInside());
+    if (not intersection.boundary())
+      boundarySegementIndices[idx] = std::make_pair(false, std::numeric_limits<size_t>::max());
+    else
+      boundarySegementIndices[idx] = std::make_pair(false, intersection.boundarySegmentIndex());
+  }
 
   auto [flag, result] = Util::clipElementRectangle(element, patchTrimData);
 
@@ -36,12 +45,17 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
   };
 
   auto assertPoint = [&](const Clipper2Lib::PointD& ip, const FieldVector<ScalarType, dim>& curvePt,
-                         double prec = 0.1) {
+                         double prec = 0.01) {
     if (not(FloatCmp::eq(ip.x, curvePt[0], prec) and FloatCmp::eq(ip.y, curvePt[1], prec))) {
       std::cout << "Found ClipperPoint " << ip << " does not coincide with determined point on Curve " << curvePt
                 << std::endl;
       throwGridError();
     }
+  };
+
+  auto checkAndAddBoundarySegmentIdx = [&](int edgeIdx) {
+    if (boundarySegementIndices[edgeIdx].first)
+      elementTrimData.addBoundarySegmentIdxToLastEdge(boundarySegementIndices[edgeIdx].second);
   };
 
   using namespace Util;
@@ -65,6 +79,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
     // First case edge is completly untrimmed
     if (vV1.isHost() and vV2.isHost()) {
       elementTrimData.addEdge(Util::giveEdgeIdx(vV1.hostId(), vV2.hostId()));
+      checkAndAddBoundarySegmentIdx(Util::giveEdgeIdx(vV1.hostId(), vV2.hostId()));
       foundVertices.push_back({pt2.x, pt2.y});
     }
 
@@ -79,6 +94,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
           foundVertices.empty() ? FieldVector<ScalarType, dim>{pt1.x, pt1.y} : foundVertices.back();
       auto trimmedEdge = Util::createHostGeometry<TrimmingCurve>(p, curvePoint);
       elementTrimData.addEdgeHostNew(vV2.edgeId(), trimmedEdge, curvePoint);
+      checkAndAddBoundarySegmentIdx(vV2.edgeId());
       foundVertices.push_back(curvePoint);
 
       currentT = tParam;
@@ -112,12 +128,16 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
           if (curve.isConnectedAtBoundary(0)) {
             auto elementTrimmingCurve = Util::createTrimmingCurveSlice(curve, currentT, curve.domain()[0].back());
             elementTrimData.addEdgeNewNew(elementTrimmingCurve, curvePoint);
+            //checkAndAddBoundarySegmentIdx(/* TODO */);
+
             currentT = std::numeric_limits<double>::infinity();
             success  = true;
           }
         } else if (vV1.edgeId() == vV2.edgeId()) {
           auto trimmedEdge = Util::createHostGeometry<TrimmingCurve>(foundVertices.back(), curvePoint);
           elementTrimData.addEdgeNewNewOnHost(vV2.edgeId(), trimmedEdge, curvePoint);
+          //checkAndAddBoundarySegmentIdx(/* TODO */);
+
           currentT = tParam;
           success  = true;
         }
@@ -127,6 +147,8 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
         auto elementTrimmingCurve =
             Util::createTrimmingCurveSlice(patchTrimData.getCurve(currentCurveIdx), currentT, tParam);
         elementTrimData.addEdgeNewNew(elementTrimmingCurve, curvePoint);
+        //checkAndAddBoundarySegmentIdx(/* TODO */);
+
         currentT = std::numeric_limits<double>::infinity();
       }
 
@@ -146,6 +168,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
 
       auto trimmedEdge = Util::createHostGeometry<TrimmingCurve>(p, v2);
       elementTrimData.addEdgeNewHost(vV1.edgeId(), trimmedEdge, vV2.hostId());
+      checkAndAddBoundarySegmentIdx(vV1.edgeId());
 
       foundVertices.push_back(v2);
     }
@@ -165,6 +188,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
       auto elementTrimmingCurve = Util::createTrimmingCurveSlice(curve, currentT, tParam);
       auto curvePoint           = curve.corner(1);
       elementTrimData.addEdgeNewNew(elementTrimmingCurve, curvePoint);
+      //checkAndAddBoundarySegmentIdx(/* TODO */);
       foundVertices.push_back(curvePoint);
     } else if (vV1.isInside() and vV2.isNew()) {
       const auto& curve         = patchTrimData.loops()[vV1.loop()].curves()[vV1.subsequentCurve()];
@@ -174,6 +198,7 @@ auto TrimmerImpl<dim, dimworld, ScalarType>::trimElement(const YASPEntity<0>& el
 
       auto elementTrimmingCurve = Util::createTrimmingCurveSlice(curve, currentT, tParam);
       elementTrimData.addEdgeNewNew(elementTrimmingCurve, curvePoint);
+      //checkAndAddBoundarySegmentIdx(/* TODO */);
       foundVertices.push_back(curvePoint);
     } else {
       throwGridError();

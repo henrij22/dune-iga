@@ -203,10 +203,10 @@ protected:
   std::uint64_t numCells_  = 0;
 
   using PointSet = LagrangePointSet<typename GridView::ctype, GridView::dimension>;
-  std::map<GeometryType, PointSet> pointSets_;
-  std::vector<std::int64_t> indexMap_;
-  std::map<std::pair<IDType, std::size_t>, std::int64_t> vertexIndex_;
-  IGA::IGARefinedGeometries<GridView> geometries_;
+  std::map<GeometryType, PointSet> pointSets_{};
+  std::vector<std::int64_t> indexMap_{};
+  std::map<std::pair<IDType, std::size_t>, std::int64_t> vertexIndex_{};
+  IGA::IGARefinedGeometries<GridView> geometries_{};
 };
 
 } // namespace Dune::Vtk

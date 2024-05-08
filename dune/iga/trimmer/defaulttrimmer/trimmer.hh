@@ -509,7 +509,7 @@ namespace DefaultTrim {
       auto gv = untrimmedParameterSpaceGrid_->levelGridView(level);
       for (const auto& ele : elements(gv)) {
         if (trimData_.has_value())
-          elementTrimDatas.emplace_back(trimElement(ele, trimData_.value()));
+          elementTrimDatas.emplace_back(trimElement(ele, gv, trimData_.value()));
         else
           elementTrimDatas.emplace_back(ElementTrimFlag::full, ele);
       }
@@ -541,7 +541,7 @@ namespace DefaultTrim {
     void refineParameterSpaceGrid(int refCount, bool initFlag = false);
 
     // The following are helper methods for `refineParameterSpaceGrid`
-    static ElementTrimData trimElement(const YASPEntity<0>& element, const PatchTrimData& patchTrimData);
+    static ElementTrimData trimElement(const YASPEntity<0>& element, const auto& gv, const PatchTrimData& patchTrimData);
 
     GlobalIdType makeElementID(const HostEntity<0>& ele);
     void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele,
