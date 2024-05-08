@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <config.h>
+
 #include "dune/python/iga/gridenums.hh"
 #include <dune/python/pybind11/pybind11.h>
 
