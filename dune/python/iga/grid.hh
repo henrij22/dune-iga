@@ -99,8 +99,7 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
       auto gridFactory = GridFactory();
       gridFactory.insertJson(file_path, trim, preKnotRefine);
 
-      // return gridFactory.createGrid();
-      return {};
+      return gridFactory.createGrid();
     }
     default:
       DUNE_THROW(Dune::NotImplemented, "Your requested reader is not implemented");
@@ -116,12 +115,8 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
   static constexpr std::integral auto dimensionworld = Grid::dimensionworld;
   using ctype                                        = typename Grid::ctype;
 
-  // if constexpr (dimension == 2)
-  //   module.def("reader", [](const pybind11::dict& args_) { return Dune::Python::IGA::reader<Grid>(args_); });
-
-  // static_assert(IsSpecializationTwoNonTypesTemplateAndType<Dune::IGA::PatchGrid, Grid>::value);
-  // static_assert(std::is_same_v<decltype(reader< Grid >( pybind11::dict() )),double>);
-  // static_assert(Impl::hasDGFGridFactory<Grid, std::string>);
+  if constexpr (dimension == 2)
+    module.def("reader", [](const pybind11::dict& args_) { return Dune::Python::IGA::reader<Grid>(args_); });
 
   Dune::Python::registerHierarchicalGrid(module, cls);
 
