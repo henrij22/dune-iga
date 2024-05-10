@@ -10,7 +10,9 @@ namespace Dune::IGA {
 template <typename PatchGrid>
 void drawGrid(PatchGrid* grid, std::string&& file_name) {
   const typename PatchGrid::Trimmer& trimmer = grid->trimmer();
-  auto eleTrimDatas                          = trimmer.trimElements();
+  auto& nonConstTrimmer = const_cast<typename PatchGrid::Trimmer&>(trimmer);
+
+  auto eleTrimDatas                          = nonConstTrimmer.trimElements();
 
   auto figure = matplot::figure(true);
   figure->size(1000, 1000);

@@ -6,12 +6,12 @@
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
 #include <dune/iga/io/ibrareader.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/trimmer/identitytrimmer/trimmer.hh>
 #include <dune/python/common/typeregistry.hh>
 #include <dune/python/grid/capabilities.hh>
 #include <dune/python/grid/enums.hh>
 #include <dune/python/grid/hierarchical.hh>
 #include <dune/python/pybind11/pybind11.h>
-
 
 #if HAVE_DUNE_VTK
   #include <dune/iga/io/vtk/igadatacollector.hh>
@@ -24,6 +24,23 @@ template <int dim, int dimworld, template <int, int, typename> typename GridFami
 struct DGFGridFactory<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
 {
 };
+
+template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
+struct DGFGridInfo<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
+{
+  static int StepsForHalf() {
+    return 1;
+  }
+
+  static int refineStepsForHalf() {
+    return 1;
+  }
+
+  static double Weight() {
+    return std::pow(0.5, dim);
+  }
+};
+
 } // namespace Dune
 
 namespace Dune::Python {
@@ -34,15 +51,6 @@ namespace Dune::Python {
 // thus we use requires(IsSpecializationTwoNonTypesAndType<Dune::IGA::NURBSGrid,Grid>::value) to be sure this overload
 // is used
 // make sure this type is used if an iga grid is passed this is function is enabled and used by adl
-// template <template <auto, auto, typename> class Type, typename>
-// struct IsSpecializationTwoNonTypesAndType : std::false_type
-// {
-// };
-
-// template <template <auto, auto, typename> class Type, auto T, auto T2, typename S>
-// struct IsSpecializationTwoNonTypesAndType<Type, Type<T, T2, S>> : std::true_type
-// {
-// };
 
 template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
 struct Capabilities::HasGridFactory<Dune::IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
@@ -71,8 +79,8 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
   Dune::Python::IGA::Reader reader  = IGA::Reader::json;
   bool trim                         = true;
   std::array<int, 2> elevateDegree  = {0, 0};
-  std::array<int, 2> preKnotRefine  = {0, 0};
-  std::array<int, 2> postKnotRefine = {0, 0};
+  std::array<int, 2> preKnot  = {0, 0};
+  std::array<int, 2> postKnot = {0, 0};
   if (dict.contains("reader"))
     reader = dict["reader"].cast<Dune::Python::IGA::Reader>();
 
@@ -86,10 +94,10 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
         trim = dict["trim"].cast<bool>();
       if (dict.contains("elevate_degree"))
         elevateDegree = dict["elevate_degree"].cast<std::array<int, 2>>();
-      if (dict.contains("pre_knot_refine"))
-        preKnotRefine = dict["pre_knot_refine"].cast<std::array<int, 2>>();
-      if (dict.contains("post_knot_refine"))
-        postKnotRefine = dict["post_knot_refine"].cast<std::array<int, 2>>();
+      if (dict.contains("pre_knot_"))
+        preKnot = dict["pre_knot_"].cast<std::array<int, 2>>();
+      if (dict.contains("post_knot_"))
+        postKnot = dict["post_knot_"].cast<std::array<int, 2>>();
 
       static constexpr std::integral auto dim      = Grid::dimension;
       static constexpr std::integral auto dimworld = Grid::dimensionworld;
@@ -97,7 +105,7 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
       using GridFactory                            = Dune::GridFactory<Grid>;
 
       auto gridFactory = GridFactory();
-      gridFactory.insertJson(file_path, trim, preKnotRefine);
+      gridFactory.insertJson(file_path, trim, preKnot);
 
       return gridFactory.createGrid();
     }
@@ -163,8 +171,8 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
 
   cls.def(
       "globalRefineInDirection",
-      [](Grid& self, const std::array<int, dimension>& refines) { self.globalRefineInDirection(refines); },
-      pybind11::arg("refines"));
+      [](Grid& self, const std::array<int, dimension>& s) { self.globalRefineInDirection(s); },
+      pybind11::arg("s"));
 
   cls.def(
       "degreeElevate",

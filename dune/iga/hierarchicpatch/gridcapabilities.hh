@@ -64,7 +64,8 @@ namespace Capabilities {
   {
     using ParameterSpaceGrid = typename GridFamilyTraits<dim, dimworld, ScalarType>::TrimmerTraits::ParameterSpaceGrid;
 
-    static const bool v = canCommunicate<ParameterSpaceGrid, codim>::v;
+    //static const bool v = canCommunicate<ParameterSpaceGrid, codim>::v;
+    static const bool v = false;
   };
 
   template <int dim, int dimworld, typename ScalarType, template <int, int, typename> typename GridFamilyTraits,
@@ -74,7 +75,9 @@ namespace Capabilities {
       codim>
   {
     using ParameterSpaceGrid = typename GridFamilyTraits<dim, dimworld, ScalarType>::TrimmerTraits::ParameterSpaceGrid;
-    static const bool v      = canCommunicate<ParameterSpaceGrid, codim>::v;
+    // static const bool v      = canCommunicate<ParameterSpaceGrid, codim>::v;
+    static const bool v = false;
+
   };
 
   /** @brief has conforming level grids when host grid has

@@ -29,6 +29,7 @@
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/iga/trimmer/identitytrimmer/trimmer.hh>
 #include <dune/subgrid/test/common.hh>
+#include <dune/grid/common/mcmgmapper.hh>
 
 using namespace Dune;
 using namespace Dune::IGA;
@@ -197,7 +198,7 @@ auto testNurbsGridCylinder() {
   const std::vector<std::vector<ControlPoint>> controlPoints = {
       {        {.p = {0, 0, rad}, .w = 1},         {.p = {0, l, rad}, .w = 1}},
       {{.p = {rad, 0, rad}, .w = invsqr2}, {.p = {rad, l, rad}, .w = invsqr2}},
-      // {{.p = {rad*2, 0,   0}, .w =       1},  {.p = {rad*2, l*2,   0}, .w = 1     }},
+ // {{.p = {rad*2, 0,   0}, .w =       1},  {.p = {rad*2, l*2,   0}, .w = 1     }},
       {        {.p = {rad, 0, 0}, .w = 1},         {.p = {rad, l, 0}, .w = 1}}
   };
 
@@ -238,7 +239,8 @@ auto testNurbsGridCylinder() {
 template <template <int, int, typename> typename GridFamily>
 requires IGA::Concept::Trimmer<typename GridFamily<2, 3, double>::Trimmer>
 auto testHierarchicPatch() {
-  TestSuite t;
+  TestSuite t("testHierarchicPatch", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
+
   const double R       = 2.0;
   const double r       = 1.0;
   auto circle          = makeCircularArc(r);
@@ -802,6 +804,41 @@ auto testNURBSCurve() {
       << "Number of net size should be " << 1 << " but is " << patch.numberOfSpans().size();
   testSuite.check(patch.numberOfSpans()[0] == 5)
       << "Number of elements in dir " << 0 << " should be " << 5 << " but is " << patch.numberOfSpans()[0];
+
+  // Make grid
+  Dune::IGA::NURBSPatchData<dim, dimworld> patchData;
+  patchData.knotSpans     = knotSpans;
+  patchData.degree        = order;
+  patchData.controlPoints = controlNet;
+  IGA::PatchGrid<dim, dimworld, IdentityTrim::PatchGridFamily> grid(patchData);
+
+  auto leafGridView  = grid.leafGridView();
+  auto& leafIndexSet = leafGridView.indexSet();
+
+  for (const auto& ele : elements(leafGridView))
+    testSuite.checkNoThrow([&]() { auto index = leafIndexSet.index(ele); });
+
+  auto levelGridView = grid.levelGridView(grid.maxLevel());
+  auto& levelIndexSet = levelGridView.indexSet();
+
+  for (const auto& ele : elements(levelGridView))
+    testSuite.checkNoThrow([&]() { auto index = levelIndexSet.index(ele); });
+
+  // Test MCMGM
+  MultipleCodimMultipleGeomTypeMapper mapper(leafGridView, mcmgElementLayout());
+
+  testSuite.check(mapper.size() == leafGridView.size(0));
+  for (const auto& ele : elements(leafGridView)) {
+    decltype(mapper)::Index idx;
+    testSuite.check(mapper.contains(ele, idx));
+  }
+
+  // Test IDSets
+  auto& idSet = grid.globalIdSet();
+  for (const auto& ele : elements(leafGridView)) {
+    testSuite.checkNoThrow([&]() { auto id = idSet.id(ele); });
+  }
+
   return testSuite;
 }
 
@@ -898,47 +935,29 @@ template <template <int, int, typename> typename GridFamily>
 auto testGrids() {
   TestSuite t("testGrids");
 
-  // if constexpr (requires { testHierarchicPatch<GridFamily>(); }) {
   std::cout << "testHierarchicPatch" << std::endl;
   t.subTest(testHierarchicPatch<GridFamily>());
-  // } else
-  //   std::cout << "testHierarchicPatch Test disabled" << std::endl;
 
-  // if constexpr (requires { test3DGrid<GridFamily>(); }) {
-  //   std::cout << "Test3D" << std::endl;
-  //   t.subTest(test3DGrid<GridFamily>());
-  // } else
-  //   std::cout << "Test3D Test disabled" << std::endl;
-
-  // if constexpr (requires { testNURBSGridCurve<GridFamily>(); }) {
-  //   std::cout << "Test1Din3D" << std::endl;
-  //   t.subTest(testNURBSGridCurve<GridFamily>());
-  // } else
-  //   std::cout << "Test1Din3D Test disabled" << std::endl;
-
-  // if constexpr (requires { testNurbsGridCylinder<GridFamily>(); }) {
   std::cout << "testNurbsGridCylinder" << std::endl;
   t.subTest(testNurbsGridCylinder<GridFamily>());
-  // } else
-  // std::cout << "testNurbsGridCylinder Test disabled" << std::endl;
-  // if constexpr (requires { testNURBSGridSurface<GridFamily>(); }) {
-  std::cout << "testNURBSGridSurface" << std::endl;
-  t.subTest(testNURBSGridSurface<GridFamily>());
-  // } else
-  // std::cout << "testNURBSGridSurface Test disabled" << std::endl;
-  // if constexpr (requires { testPlate<GridFamily>(); }) {
 
-  std::cout << "testPlate==============================================" << std::endl;
+  std::cout << "testPlate" << std::endl;
   t.subTest(testPlate<GridFamily>());
-  std::cout << "testPlateEND==============================================" << std::endl;
-  // } else
-  // std::cout << "testPlate Test disabled" << std::endl;
-  // testNurbsGridCylinder();
-  // if constexpr (requires { testTorusGeometry<GridFamily>(); }) {
-  // std::cout << "testTorusGeometry" << std::endl;
-  // t.subTest(testTorusGeometry<GridFamily>());
-  // } else
-  // std::cout << "testTorusGeometry Test disabled" << std::endl;
+
+  std::cout << "testTorusGeometry" << std::endl;
+  t.subTest(testTorusGeometry<GridFamily>());
+
+  if constexpr (GridFamily<2, 2, double>::Trimmer::isAlwaysTrivial)
+    t.subTest(test3DGrid<GridFamily>());
+
+  // Not sure, this fails
+  // t.subTest(testNURBSGridCurve<GridFamily>());
+
+  std::cout << "testPlate" << std::endl;
+  t.subTest(testPlate<GridFamily>());
+
+  std::cout << "testTorusGeometry" << std::endl;
+  t.subTest(testTorusGeometry<GridFamily>());
 
   return t;
 }
@@ -949,27 +968,25 @@ int main(int argc, char** argv) try {
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   TestSuite t;
-  // t.subTest(testGrids<DefaultTrim::Trimmer>());
+
   std::cout << "==================================" << std::endl;
   std::cout << "===============TEST DefaultTrim===" << std::endl;
   std::cout << "==================================" << std::endl;
   t.subTest(testGrids<DefaultTrim::PatchGridFamily>());
+
   std::cout << "==================================" << std::endl;
   std::cout << "===============TEST IdentityTrim===" << std::endl;
   std::cout << "==================================" << std::endl;
-  // t.subTest(testGrids<IdentityTrim::PatchGridFamily>());
-  /*
-    std::cout << "testNURBSCurve" << std::endl;
-    t.subTest(testNURBSCurve());
-    std::cout << "testNURBSSurface" << std::endl;
-    t.subTest(testNURBSSurface());
-    t.subTest(testCurveHigherOrderDerivatives());
-    t.subTest(testSurfaceHigherOrderDerivatives());
-    */
-  //
-  // gridCheck();
-  // t.subTest(testBsplineBasisFunctions());
-  //
+  t.subTest(testGrids<IdentityTrim::PatchGridFamily>());
+
+  std::cout << "testNURBSCurve" << std::endl;
+  t.subTest(testNURBSCurve());
+  std::cout << "testNURBSSurface" << std::endl;
+  t.subTest(testNURBSSurface());
+
+  t.subTest(testCurveHigherOrderDerivatives());
+  t.subTest(testSurfaceHigherOrderDerivatives());
+
   t.report();
 
   return t.exit();

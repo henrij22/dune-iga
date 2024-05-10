@@ -504,8 +504,8 @@ namespace DefaultTrim {
      * @return
      */
     std::vector<ElementTrimData> trimElements(std::optional<int> level_ = std::nullopt) {
-      int level            = level_.value_or(maxLevel());
-      bool initFlag        = level == 0;
+      int level     = level_.value_or(maxLevel());
+      bool initFlag = level == 0;
       if (initFlag)
         numBoundarySegments_ = untrimmedParameterSpaceGrid_->numBoundarySegments();
 

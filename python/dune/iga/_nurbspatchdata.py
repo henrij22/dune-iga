@@ -22,7 +22,7 @@ def ControlPoint(coords, weight=1):
 
 
 def ControlPointNet(controlPoints):
-    generator = SimpleGenerator("MultiDimensionNet", "Dune::Python")
+    generator = SimpleGenerator("MultiDimensionalNet", "Dune::Python")
 
     try:
         controlPointType= controlPoints[0][0][0].cppTypeName
@@ -37,7 +37,7 @@ def ControlPointNet(controlPoints):
                 netDim=1
             except:
                 raise Exception("Controlpoint type not deducable from list")
-    element_type = f"Dune::IGA::MultiDimensionNet<{netDim},{controlPointType}>"
+    element_type = f"Dune::IGA::MultiDimensionalNet<{netDim},{controlPointType}>"
 
     includes = []
     includes += ["dune/python/iga/nurbspatchdata.hh"]
@@ -46,7 +46,7 @@ def ControlPointNet(controlPoints):
         includes=includes, typeName=element_type, moduleName=moduleName
     )
 
-    return module.MultiDimensionNet(controlPoints)
+    return module.MultiDimensionalNet(controlPoints)
 
 
 def NurbsPatchData(knotSpans, controlPointNet, degree):

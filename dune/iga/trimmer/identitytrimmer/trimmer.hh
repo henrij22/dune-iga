@@ -17,6 +17,7 @@
 #include "patchgridleafiterator.hh"
 #include "patchgridleveliterator.hh"
 #include "patchgridlocalgeometry.hh"
+#include "idSet.hh"
 
 #include "dune/iga/hierarchicpatch/patchgridfwd.hh"
 #include <dune/geometry/referenceelements.hh>
@@ -336,7 +337,7 @@ namespace IdentityTrim {
     typename GridFamily::Traits::template Codim<Entity::codimension>::EntitySeed seed(const Entity& ent) const {
       using EntitySeedImp = typename TrimmerTraits::template Codim<Entity::codimension>::EntitySeedImp;
 
-      return EntitySeedImp(ent.getHostEntity());
+      return EntitySeedImp(ent.getLocalEntity());
     }
 
     /**
@@ -346,9 +347,6 @@ namespace IdentityTrim {
     auto globalRefine(int refCount) {
       parameterSpaceGrid().globalRefine(refCount);
       update(grid_);
-
-      // @todo Trim move the refine here from the grid
-      ;
     }
 
   protected:

@@ -19,18 +19,22 @@
 #include <dune/iga/io/vtk/igadatacollector.hh>
 #include <dune/iga/patchgrid.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/trimmer/identitytrimmer/trimmer.hh>
 #include <dune/vtk/vtkwriter.hh>
 
 using namespace Dune::IGA;
 
+template <bool trimmed>
 auto testIbraReader() {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  using PatchGrid   = PatchGrid<2, 2, DefaultTrim::PatchGridFamily>;
+  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 2, DefaultTrim::PatchGridFamily>,
+                                         PatchGrid<2, 2>>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{150});
+  if constexpr (trimmed)
+    gridFactory.insertTrimParameters(typename GridFactory::TrimParameterType{150});
 
   const std::vector testCases{
       std::tuple<std::string, int, int>{    "auxiliaryfiles/element_trim_xb.ibra", 0, 3},
@@ -51,8 +55,9 @@ auto testIbraReader() {
       try {
         auto grid = gridFactory.createGrid();
 
-        auto outputFileName = "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
-        drawGrid(grid.get(), outputFileName + ".gif");
+        auto outputFileName = trimmed ? "out/" : "out_u/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
+        if constexpr (trimmed)
+          drawGrid(grid.get(), outputFileName + ".gif");
 
         Dune::Vtk::DiscontinuousIgaDataCollector dataCollector(grid->leafGridView());
         Dune::Vtk::UnstructuredGridWriter vtkWriter(dataCollector, Dune::Vtk::FormatTypes::ASCII);
@@ -68,14 +73,17 @@ auto testIbraReader() {
   return t;
 }
 
+template <bool trimmed>
 auto testIbraReader3d() {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  using PatchGrid   = PatchGrid<2, 3, DefaultTrim::PatchGridFamily>;
+  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 3, DefaultTrim::PatchGridFamily>,
+                                         PatchGrid<2, 3>>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{200});
+  if constexpr (trimmed)
+    gridFactory.insertTrimParameters(typename GridFactory::TrimParameterType{200});
 
   const std::vector testCases{
       std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
@@ -88,8 +96,9 @@ auto testIbraReader3d() {
       gridFactory.insertJson(file_name, true, {i, i});
       auto grid = gridFactory.createGrid();
 
-      auto outputFileName = "out/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
-      drawGrid(grid.get(), outputFileName + ".gif");
+      auto outputFileName = trimmed ? "out/" : "out_u/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
+      if constexpr (trimmed)
+        drawGrid(grid.get(), outputFileName + ".gif");
 
       Dune::Vtk::DiscontinuousIgaDataCollector dataCollector(grid->leafGridView());
       Dune::Vtk::UnstructuredGridWriter vtkWriter(dataCollector, Dune::Vtk::FormatTypes::ASCII);
@@ -109,10 +118,14 @@ int main(int argc, char** argv) try {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
   createOutputFolder("out");
+  createOutputFolder("out_u");
   Preferences::getInstance().targetAccuracy(1e-3);
 
-  t.subTest(testIbraReader());
-  t.subTest(testIbraReader3d());
+  t.subTest(testIbraReader<true>());
+  t.subTest(testIbraReader3d<true>());
+
+  t.subTest(testIbraReader<false>());
+  t.subTest(testIbraReader3d<false>());
 
   t.report();
 

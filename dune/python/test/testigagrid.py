@@ -1,5 +1,15 @@
+from dune.iga import (
+    IGAGrid,
+    ControlPointNet,
+    ControlPoint,
+    NurbsPatchData
+)
+
 from dune.iga import reader as readeriga
-from dune.iga import IGAGrid
+from dune.iga.basis import defaultGlobalBasis, Power, Lagrange, Nurbs
+from dune.common import FieldVector
+from dune.grid import gridFunction
+
 
 if __name__ == "__main__":
     inputParameter = dict(

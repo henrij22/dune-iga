@@ -33,13 +33,13 @@ public:
   // the default Constructor
   explicit PatchGridHierarchicIterator(const GridImp* parameterSpaceGrid, const Entity& startEntity, int maxLevel)
       : parameterSpaceGrid_(parameterSpaceGrid),
-        hostHierarchicIterator_(startEntity.impl().getHostEntity().hbegin(maxLevel)) {}
+        hostHierarchicIterator_(startEntity.impl().getLocalEntity().hbegin(maxLevel)) {}
 
   // @todo Please doc me !
   explicit PatchGridHierarchicIterator(const GridImp* parameterSpaceGrid, const Entity& startEntity, int maxLevel,
                                        [[maybe_unused]] bool endDummy)
       : parameterSpaceGrid_(parameterSpaceGrid),
-        hostHierarchicIterator_(startEntity.impl().getHostEntity().hend(maxLevel)) {}
+        hostHierarchicIterator_(startEntity.impl().getLocalEntity().hend(maxLevel)) {}
 
   // @todo Please doc me !
   void increment() {
