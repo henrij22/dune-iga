@@ -383,6 +383,10 @@ namespace IdentityTrim {
       return parameterSpaceGrid().maxLevel();
     }
 
+    size_t numBoundarySegments() const {
+      return parameterSpaceGrid_->numBoundarySegments();
+    }
+
     // Our set of level indices
     std::vector<std::unique_ptr<LevelIndexSet>> levelIndexSets_;
 

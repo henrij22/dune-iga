@@ -54,6 +54,7 @@ auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip
   auto dir = edgeDirections[edgeIdx];
 
   double lineGuess = (edgeIdx == 0 or edgeIdx == 2) ? (ip.x - pos[0]) / dir[0] : (ip.y - pos[1]) / dir[1];
+  // Todo use z-Value to get a good starting point, not brute-force
   auto guessTParam = FieldVector<double, 2>{findGoodStartingPoint(curvePatchGeo, ip), lineGuess};
 
   auto [success, tParam, curvePoint] = findIntersectionCurveAndLine(curvePatchGeo, pos, dir, guessTParam);
@@ -71,5 +72,16 @@ auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip
 
   DUNE_THROW(Dune::GridError, "Couldn't find intersection Point");
 };
+
+template <typename Entity>
+Entity coarsestFather(const Entity& ele) {
+  assert(ele.hasFather());
+  Entity father = ele.father();
+  while (father.hasFather()) {
+    father = father.father();
+  }
+  assert(father.level() == 0);
+  return father;
+}
 
 } // namespace Dune::IGA::DefaultTrim::Util

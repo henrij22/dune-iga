@@ -503,13 +503,17 @@ namespace DefaultTrim {
      * @param level_
      * @return
      */
-    std::vector<ElementTrimData> trimElements(std::optional<int> level_ = std::nullopt) const {
-      int level = level_.value_or(maxLevel());
+    std::vector<ElementTrimData> trimElements(std::optional<int> level_ = std::nullopt) {
+      int level            = level_.value_or(maxLevel());
+      bool initFlag        = level == 0;
+      if (initFlag)
+        numBoundarySegments_ = untrimmedParameterSpaceGrid_->numBoundarySegments();
+
       std::vector<ElementTrimData> elementTrimDatas;
       auto gv = untrimmedParameterSpaceGrid_->levelGridView(level);
       for (const auto& ele : elements(gv)) {
         if (trimData_.has_value())
-          elementTrimDatas.emplace_back(trimElement(ele, gv, trimData_.value()));
+          elementTrimDatas.emplace_back(trimElement(ele, gv, trimData_.value(), initFlag));
         else
           elementTrimDatas.emplace_back(ElementTrimFlag::full, ele);
       }
@@ -541,7 +545,8 @@ namespace DefaultTrim {
     void refineParameterSpaceGrid(int refCount, bool initFlag = false);
 
     // The following are helper methods for `refineParameterSpaceGrid`
-    static ElementTrimData trimElement(const YASPEntity<0>& element, const auto& gv, const PatchTrimData& patchTrimData);
+    ElementTrimData trimElement(const YASPEntity<0>& element, const auto& gv, const PatchTrimData& patchTrimData,
+                                bool initFlag);
 
     GlobalIdType makeElementID(const HostEntity<0>& ele);
     void createAndSaveElementInfo(const std::tuple<unsigned int, unsigned int, int>& indices, const HostEntity<0>& ele,
@@ -563,6 +568,11 @@ namespace DefaultTrim {
       return parameterSpaceGrid().maxLevel();
     }
 
+    size_t numBoundarySegments() const {
+      assert(numBoundarySegments_ != std::numeric_limits<size_t>::max());
+      return numBoundarySegments_;
+    }
+
     EntityContainer entityContainer_;
 
     // Our set of level indices
@@ -581,6 +591,11 @@ namespace DefaultTrim {
     std::optional<PatchTrimData> trimData_;
 
     ParameterType parameters_;
+
+    size_t numBoundarySegments_{std::numeric_limits<size_t>::max()};
+    std::map<typename TrimmerTraits::YASPGridType::GlobalIdSetType::IdType,
+             std::vector<std::tuple<Impl::CurveLoopIndexEncoder::IndexResult, double, double, size_t>>>
+        boundarySegmentsArchive_;
   };
 
 } // namespace DefaultTrim

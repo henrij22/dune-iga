@@ -235,8 +235,7 @@ public:
   /** @brief returns the number of boundary segments within the macro grid
    */
   [[nodiscard]] size_t numBoundarySegments() const {
-    // @todo Trim this is wrong another trimmer functionality should care about this
-    return trimmer_->parameterSpaceGrid().numBoundarySegments();
+    return trimmer_->numBoundarySegments();
   }
 
   // number of leaf entities per codim in this process
