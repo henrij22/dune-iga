@@ -76,11 +76,11 @@ template <class Grid>
 requires(IsSpecializationTwoNonTypesTemplateAndType<Dune::IGA::PatchGrid, Grid>::value)
 inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
   std::string file_path;
-  Dune::Python::IGA::Reader reader  = IGA::Reader::json;
-  bool trim                         = true;
-  std::array<int, 2> elevateDegree  = {0, 0};
-  std::array<int, 2> preKnot  = {0, 0};
-  std::array<int, 2> postKnot = {0, 0};
+  Dune::Python::IGA::Reader reader = IGA::Reader::json;
+  bool trim                        = true;
+  std::array<int, 2> elevateDegree = {0, 0};
+  std::array<int, 2> preKnot       = {0, 0};
+  std::array<int, 2> postKnot      = {0, 0};
   if (dict.contains("reader"))
     reader = dict["reader"].cast<Dune::Python::IGA::Reader>();
 
@@ -150,7 +150,7 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
         [](const LeafGridView& self, int subSample = 0) {
           auto dataCollector =
               std::make_shared<Dune::Vtk::DiscontinuousIgaDataCollector<LeafGridView>>(self, subSample);
-          return new Dune::VtkUnstructuredGridWriter(dataCollector, Vtk::FormatTypes::ASCII);
+          return new Dune::Vtk::UnstructuredGridWriter(dataCollector, Vtk::FormatTypes::ASCII);
         },
         pybind11::arg("subSample") = 0);
   }
@@ -171,8 +171,7 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
 
   cls.def(
       "globalRefineInDirection",
-      [](Grid& self, const std::array<int, dimension>& s) { self.globalRefineInDirection(s); },
-      pybind11::arg("s"));
+      [](Grid& self, const std::array<int, dimension>& s) { self.globalRefineInDirection(s); }, pybind11::arg("s"));
 
   cls.def(
       "degreeElevate",

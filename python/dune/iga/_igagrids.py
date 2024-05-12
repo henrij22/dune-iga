@@ -1,12 +1,17 @@
 # SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
+from enum import Enum
+
+IGAGridType = Enum('IGAGridType', ['Identity', 'Default'])
+
+
 """@package dune-iga
 Documentation for this module.
 
 More details.
 """
-def IGAGrid(constructor, dimgrid=None, dimworld=None):
+def IGAGrid(constructor, dimgrid=None, dimworld=None, gridType=IGAGridType.Identity):
     """
     Create an IGAGrid instance.
 
@@ -34,9 +39,11 @@ def IGAGrid(constructor, dimgrid=None, dimworld=None):
         raise Exception(
             "If you don't pass the patch data you have to pass dimgrid and dimworld"
         )
+    
+    trimmerType = "Dune::IGA::IdentityTrim::PatchGridFamily" if gridType == IGAGridType.Identity else "Dune::IGA::DefaultTrim::PatchGridFamily"
 
     typeName = (
-        "Dune::IGA::PatchGrid< " + str(dimgrid) + ", " + str(dimworld) + ", Dune::IGA::DefaultTrim::PatchGridFamily, double>"
+        "Dune::IGA::PatchGrid< " + str(dimgrid) + ", " + str(dimworld) + ", " + trimmerType + ", double>"
     )
 
     includes = ["dune/python/iga/grid.hh"]

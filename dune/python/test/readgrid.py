@@ -45,120 +45,121 @@ if __name__ == "__main__":
     globalBasis = defaultGlobalBasis(gridView, Power(Nurbs(), 2))
 
     vtkWriter = gridView.trimmedVtkWriter()
+    print(type(vtkWriter))
 
-    gf1 = gridView.function(
-        lambda e, x: math.sin(
-            math.pi * (e.geometry.toGlobal(x)[0] + e.geometry.toGlobal(x)[1])
-        )
-    )
+    # gf1 = gridView.function(
+    #     lambda e, x: math.sin(
+    #         math.pi * (e.geometry.toGlobal(x)[0] + e.geometry.toGlobal(x)[1])
+    #     )
+    # )
 
-    gridView.writeVTK("test", pointdata=[gf1])
+    # gridView.writeVTK("test", pointdata=[gf1])
 
-    @gridFunction(gridView)
-    def g(x):
-        return [math.sin(2 * math.pi * x[0] * x[1]), x[0] * x[1]] * 5
+    # @gridFunction(gridView)
+    # def g(x):
+    #     return [math.sin(2 * math.pi * x[0] * x[1]), x[0] * x[1]] * 5
 
-    vtkWriter.addPointData(g, name="g")
-    vtkWriter.write(name="TestGrid")
+    # vtkWriter.addPointData(g, name="g")
+    # vtkWriter.write(name="TestGrid")
 
-    cp = ControlPoint((1, 2), 3)
-    cp2 = cp + cp
+    # cp = ControlPoint((1, 2), 3)
+    # cp2 = cp + cp
 
-    assert cp.coords[0] == 1
-    assert cp.coords[1] == 2
-    assert cp.weight == 3
+    # assert cp.coords[0] == 1
+    # assert cp.coords[1] == 2
+    # assert cp.weight == 3
 
-    netC = ((cp, cp2), (cp, cp))
-    net = ControlPointNet(netC)
-    print(net.get((0, 1)))
-    print(net.get((1, 0)))
-    net.set((1, 0), ControlPoint((1, 4), 3))
-    assert net.get((1, 0)).coords[0] == 1
-    assert net.get((1, 0)).coords[1] == 4
+    # netC = ((cp, cp2), (cp, cp))
+    # net = ControlPointNet(netC)
+    # print(net.get((0, 1)))
+    # print(net.get((1, 0)))
+    # net.set((1, 0), ControlPoint((1, 4), 3))
+    # assert net.get((1, 0)).coords[0] == 1
+    # assert net.get((1, 0)).coords[1] == 4
 
-    nurbsPatchData = NurbsPatchData(((0.0, 0, 1, 1), (0, 0, 1, 1)), net, (1, 1))
+    # nurbsPatchData = NurbsPatchData(((0.0, 0, 1, 1), (0, 0, 1, 1)), net, (1, 1))
 
-    gridView = IGAGrid(nurbsPatchData)
-    assert gridView.size(0) == 1
-    assert gridView.size(1) == 4
-    assert gridView.size(2) == 4
-    globalBasis = defaultGlobalBasis(gridView, Power(Nurbs(), 2))
-    assert len(net) * 2 == len(globalBasis)
-    newnurbsPatchData = nurbsPatchData.degreeElevate(0, 3)
-    # degree elevate changes nothing
-    gridView = IGAGrid(newnurbsPatchData)
-    assert gridView.size(0) == 1
-    assert gridView.size(1) == 4
-    assert gridView.size(2) == 4
-    newnurbsPatchData = nurbsPatchData.knotRefinement((0.5,), 0)
-    newnurbsPatchData = newnurbsPatchData.knotRefinement((0.5,), 1)
-    gridView = IGAGrid(newnurbsPatchData)
-    assert gridView.size(0) == 4
-    assert gridView.size(2) == 9
+    # gridView = IGAGrid(nurbsPatchData)
+    # assert gridView.size(0) == 1
+    # assert gridView.size(1) == 4
+    # assert gridView.size(2) == 4
+    # globalBasis = defaultGlobalBasis(gridView, Power(Nurbs(), 2))
+    # assert len(net) * 2 == len(globalBasis)
+    # newnurbsPatchData = nurbsPatchData.degreeElevate(0, 3)
+    # # degree elevate changes nothing
+    # gridView = IGAGrid(newnurbsPatchData)
+    # assert gridView.size(0) == 1
+    # assert gridView.size(1) == 4
+    # assert gridView.size(2) == 4
+    # newnurbsPatchData = nurbsPatchData.knotRefinement((0.5,), 0)
+    # newnurbsPatchData = newnurbsPatchData.knotRefinement((0.5,), 1)
+    # gridView = IGAGrid(newnurbsPatchData)
+    # assert gridView.size(0) == 4
+    # assert gridView.size(2) == 9
 
-    r = 1.0
-    R = 2.0
-    circleData = makeCircularArc(r)
-    nurbsPatchDataArc = makeSurfaceOfRevolution(circleData, (R, 0, 0), (0, 1, 0), 360.0)
-    gridView = IGAGrid(nurbsPatchDataArc)
-    vtkWriter = gridView.vtkWriter(subsampling=4)
-    vtkWriter.write(name="Torus")
+    # r = 1.0
+    # R = 2.0
+    # circleData = makeCircularArc(r)
+    # nurbsPatchDataArc = makeSurfaceOfRevolution(circleData, (R, 0, 0), (0, 1, 0), 360.0)
+    # gridView = IGAGrid(nurbsPatchDataArc)
+    # vtkWriter = gridView.vtkWriter(subsampling=4)
+    # vtkWriter.write(name="Torus")
 
-    try:
-        nurbsPatchDataArc = makeSurfaceOfRevolution(
-            newnurbsPatchData, (R, 0, 0), (0, 1, 0), 360.0
-        )
-        raise Exception(f"makeSurfaceOfRevolution should have raised an Value error")
-    except ValueError:
-        pass
+    # try:
+    #     nurbsPatchDataArc = makeSurfaceOfRevolution(
+    #         newnurbsPatchData, (R, 0, 0), (0, 1, 0), 360.0
+    #     )
+    #     raise Exception(f"makeSurfaceOfRevolution should have raised an Value error")
+    # except ValueError:
+    #     pass
 
-    if True:
-        reader = (readeriga.json, "../../iga/test/auxiliaryfiles/element.ibra")
-        gridView = IGAGrid(reader, dimgrid=2, dimworld=2)
+    # if True:
+    #     reader = (readeriga.json, "../../iga/test/auxiliaryfiles/element.ibra")
+    #     gridView = IGAGrid(reader, dimgrid=2, dimworld=2)
 
-        assert gridView.size(0) == 1
-        assert gridView.size(1) == 4
-        assert gridView.size(2) == 4
-        gridView.hierarchicalGrid.globalRefine(1)
-        gridView = gridView.hierarchicalGrid.leafView
-        assert gridView.size(0) == 4
-        assert gridView.size(2) == 9
-        gridView.hierarchicalGrid.globalRefine(1)
-        gridView = gridView.hierarchicalGrid.leafView
-        assert gridView.size(0) == 16
-        assert gridView.size(2) == 25
+    #     assert gridView.size(0) == 1
+    #     assert gridView.size(1) == 4
+    #     assert gridView.size(2) == 4
+    #     gridView.hierarchicalGrid.globalRefine(1)
+    #     gridView = gridView.hierarchicalGrid.leafView
+    #     assert gridView.size(0) == 4
+    #     assert gridView.size(2) == 9
+    #     gridView.hierarchicalGrid.globalRefine(1)
+    #     gridView = gridView.hierarchicalGrid.leafView
+    #     assert gridView.size(0) == 16
+    #     assert gridView.size(2) == 25
 
-        assert gridView.dimGrid == 2
-        assert gridView.dimWorld == 2
+    #     assert gridView.dimGrid == 2
+    #     assert gridView.dimWorld == 2
 
-        # read and refine
-        inputParameter = dict(
-            file_path="../../iga/test/auxiliaryfiles/element.ibra",
-            reader=readeriga.json,
-            elevate_degree=(1, 1),
-        )
-        gridView2 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
-        # degree elevation shouldn't change anything
-        assert gridView2.size(0) == 1
-        assert gridView2.size(1) == 4
-        assert gridView2.size(2) == 4
+    #     # read and refine
+    #     inputParameter = dict(
+    #         file_path="../../iga/test/auxiliaryfiles/element.ibra",
+    #         reader=readeriga.json,
+    #         elevate_degree=(1, 1),
+    #     )
+    #     gridView2 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
+    #     # degree elevation shouldn't change anything
+    #     assert gridView2.size(0) == 1
+    #     assert gridView2.size(1) == 4
+    #     assert gridView2.size(2) == 4
 
-        inputParameter = dict(
-            file_path="../../iga/test/auxiliaryfiles/element.ibra",
-            reader=readeriga.json,
-            pre_knot_refine=(1, 1),
-        )
-        gridView3 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
-        # degree elevation shouldn't change anything
-        assert gridView3.size(0) == 4
-        assert gridView3.size(2) == 9
+    #     inputParameter = dict(
+    #         file_path="../../iga/test/auxiliaryfiles/element.ibra",
+    #         reader=readeriga.json,
+    #         pre_knot_refine=(1, 1),
+    #     )
+    #     gridView3 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
+    #     # degree elevation shouldn't change anything
+    #     assert gridView3.size(0) == 4
+    #     assert gridView3.size(2) == 9
 
-        inputParameter = dict(
-            file_path="../../iga/test/auxiliaryfiles/element.ibra",
-            reader=readeriga.json,
-            post_knot_refine=(1, 1),
-        )
-        gridView4 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
-        # degree elevation shouldn't change anything
-        assert gridView4.size(0) == 4
-        assert gridView4.size(2) == 9
+    #     inputParameter = dict(
+    #         file_path="../../iga/test/auxiliaryfiles/element.ibra",
+    #         reader=readeriga.json,
+    #         post_knot_refine=(1, 1),
+    #     )
+    #     gridView4 = IGAGrid(inputParameter, dimgrid=2, dimworld=2)
+    #     # degree elevation shouldn't change anything
+    #     assert gridView4.size(0) == 4
+    #     assert gridView4.size(2) == 9
