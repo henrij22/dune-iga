@@ -1,5 +1,8 @@
-from dune.iga import IGAGrid, IGAGridType, ControlPointNet, ControlPoint, NurbsPatchData
 
+import os
+os.environ['DUNE_LOG_LEVEL'] = 'debug'
+os.environ['DUNE_SAVE_BUILD'] = 'console'
+from dune.iga import IGAGrid, IGAGridType, ControlPointNet, ControlPoint, NurbsPatchData
 from dune.iga import reader as readeriga
 
 if __name__ == "__main__":

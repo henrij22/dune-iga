@@ -43,6 +43,27 @@ struct DGFGridInfo<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
 
 } // namespace Dune
 
+namespace Dune
+{
+
+  // DGFGridInfo
+  // -----------
+
+template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
+  struct DGFGridInfo< IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType> >
+  {
+    static int refineStepsForHalf ()
+    {
+      return 1;
+    }
+
+    static double refineWeight ()
+    {
+      return 0.5;
+    }
+  };
+}
+
 namespace Dune::Python {
 
 #ifndef DOXYGEN
