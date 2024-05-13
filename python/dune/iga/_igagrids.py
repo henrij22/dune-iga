@@ -2,6 +2,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
 from .generator import MySimpleGenerator
+
+from enum import Enum
+
+IGAGridType = Enum('IGAGridType', ['Identity', 'Default'])
+
 """@package dune-iga
 Documentation for this module.
 
@@ -35,7 +40,7 @@ def IGAGrid(constructor, dimgrid=None, dimworld=None, gridType=IGAGridType.Ident
         raise Exception(
             "If you don't pass the patch data you have to pass dimgrid and dimworld"
         )
-    
+
     trimmerType = "Dune::IGA::IdentityTrim::PatchGridFamily" if gridType == IGAGridType.Identity else "Dune::IGA::DefaultTrim::PatchGridFamily"
 
     typeName = (

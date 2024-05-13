@@ -25,27 +25,6 @@ struct DGFGridFactory<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
 {
 };
 
-template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
-struct DGFGridInfo<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
-{
-  static int StepsForHalf() {
-    return 1;
-  }
-
-  static int refineStepsForHalf() {
-    return 1;
-  }
-
-  static double Weight() {
-    return std::pow(0.5, dim);
-  }
-};
-
-} // namespace Dune
-
-namespace Dune
-{
-
   // DGFGridInfo
   // -----------
 
