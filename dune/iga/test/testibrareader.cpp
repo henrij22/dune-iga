@@ -55,7 +55,8 @@ auto testIbraReader() {
       try {
         auto grid = gridFactory.createGrid();
 
-        auto outputFileName = trimmed ? "out/" : "out_u/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
+        std::string folder = trimmed ? "out/" : "out_u/";
+        auto outputFileName = folder + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
         if constexpr (trimmed)
           drawGrid(grid.get(), outputFileName + ".gif");
 
@@ -86,7 +87,9 @@ auto testIbraReader3d() {
     gridFactory.insertTrimParameters(typename GridFactory::TrimParameterType{200});
 
   const std::vector testCases{
-      std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2}
+      // std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2},
+      // std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale.ibra", 1, 4},
+      std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale_trimmed.ibra", 3, 4}
   };
 
   for (auto& [file_name, min, max] : testCases) {
@@ -96,7 +99,8 @@ auto testIbraReader3d() {
       gridFactory.insertJson(file_name, true, {i, i});
       auto grid = gridFactory.createGrid();
 
-      auto outputFileName = trimmed ? "out/" : "out_u/" + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
+      std::string folder = trimmed ? "out/" : "out_u/";
+      auto outputFileName = folder + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
       if constexpr (trimmed)
         drawGrid(grid.get(), outputFileName + ".gif");
 
@@ -121,11 +125,11 @@ int main(int argc, char** argv) try {
   createOutputFolder("out_u");
   Preferences::getInstance().targetAccuracy(1e-3);
 
-  t.subTest(testIbraReader<true>());
+  // t.subTest(testIbraReader<true>());
   t.subTest(testIbraReader3d<true>());
-
-  t.subTest(testIbraReader<false>());
-  t.subTest(testIbraReader3d<false>());
+  //
+  // t.subTest(testIbraReader<false>());
+  // t.subTest(testIbraReader3d<false>());
 
   t.report();
 

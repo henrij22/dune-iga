@@ -10,6 +10,8 @@
 #include <dune/python/pybind11/functional.h>
 #include <dune/python/pybind11/pybind11.h>
 #include <dune/python/pybind11/stl.h>
+#include <dune/iga/utils/mdnet.hh>
+#include <dune/iga/geometrykernel/controlpoint.hh>
 
 
 namespace Dune::Python {

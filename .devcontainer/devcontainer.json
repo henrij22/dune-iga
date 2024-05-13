@@ -10,7 +10,8 @@
 			"extensions": [
 				"llvm-vs-code-extensions.vscode-clangd",
 				"ms-vscode.cpptools",
-				"ms-vscode.cmake-tools"
+				"ms-vscode.cmake-tools",
+				"ms-python.python"
 			],
 			"settings": {
 				"C_Cpp.intelliSenseEngine": "disabled",

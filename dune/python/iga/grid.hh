@@ -78,9 +78,8 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
   std::string file_path;
   Dune::Python::IGA::Reader reader = IGA::Reader::json;
   bool trim                        = true;
-  std::array<int, 2> elevateDegree = {0, 0};
+  std::array<int, 2> degreeElevate = {0, 0};
   std::array<int, 2> preKnot       = {0, 0};
-  std::array<int, 2> postKnot      = {0, 0};
   if (dict.contains("reader"))
     reader = dict["reader"].cast<Dune::Python::IGA::Reader>();
 
@@ -92,20 +91,16 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
         DUNE_THROW(Dune::IOError, "No field in dict with name file_path. Unable to read grid");
       if (dict.contains("trim"))
         trim = dict["trim"].cast<bool>();
-      if (dict.contains("elevate_degree"))
-        elevateDegree = dict["elevate_degree"].cast<std::array<int, 2>>();
-      if (dict.contains("pre_knot_"))
-        preKnot = dict["pre_knot_"].cast<std::array<int, 2>>();
-      if (dict.contains("post_knot_"))
-        postKnot = dict["post_knot_"].cast<std::array<int, 2>>();
+      if (dict.contains("degree_elevate"))
+        degreeElevate = dict["degree_elevate"].cast<std::array<int, 2>>();
+      if (dict.contains("pre_knot_refine"))
+        preKnot = dict["pre_knot_refine"].cast<std::array<int, 2>>();
 
-      static constexpr std::integral auto dim      = Grid::dimension;
-      static constexpr std::integral auto dimworld = Grid::dimensionworld;
       using ScalarType                             = typename Grid::ctype;
       using GridFactory                            = Dune::GridFactory<Grid>;
 
       auto gridFactory = GridFactory();
-      gridFactory.insertJson(file_path, trim, preKnot);
+      gridFactory.insertJson(file_path, trim, preKnot, degreeElevate);
 
       return gridFactory.createGrid();
     }
@@ -159,13 +154,14 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
   using PatchData = Dune::IGA::NURBSPatchData<dimension, dimensionworld, ctype>;
 
   using ControlPointNetType = typename PatchData::ControlPointNetType;
-  // using NURBSPatchDataType  = typename PatchData::NURBSPatchDataType;
 
   // cls.def(pybind11::init(
   //     [](const std::array<std::vector<double>, dimension>& knotSpans, const ControlPointNetType& controlPoints,
   //        const std::array<int, dimension>& order) { return new Grid(knotSpans, controlPoints, order); }));
 
   cls.def(pybind11::init([](const PatchData& nurbsPatchData) { return new Grid(nurbsPatchData); }));
+
+  cls.def("patchData", [](Grid& self){return self.patchGeometryAtBack().patchData();});
 
   cls.def("globalRefine", [](Grid& self, int refCount) { self.globalRefine(refCount); }, pybind11::arg("refCount"));
 

@@ -22,7 +22,7 @@ def ControlPoint(coords, weight=1):
 
 
 def ControlPointNet(controlPoints):
-    generator = MySimpleGenerator("MultiDimensionNet", "Dune::Python")
+    generator = MySimpleGenerator("MultiDimensionalNet", "Dune::Python")
 
     try:
         controlPointType= controlPoints[0][0][0].cppTypeName
@@ -41,7 +41,7 @@ def ControlPointNet(controlPoints):
 
     includes = []
     includes += ["dune/python/iga/nurbspatchdata.hh"]
-    moduleName = "NurbsPatchData_" + hashIt(element_type)
+    moduleName = "ControlPointNet_" + hashIt(element_type)
     module = generator.load(
         includes=includes, typeName=element_type, moduleName=moduleName
     )
