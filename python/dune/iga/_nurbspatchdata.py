@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 from dune.common.hashit import hashIt
 from dune.common import FieldVector
-from dune.generator.generator import SimpleGenerator
+from .generator import MySimpleGenerator
 
 
 def ControlPoint(coords, weight=1):
     fv = FieldVector(coords)
-    generator = SimpleGenerator("ControlPoint", "Dune::Python")
+    generator = MySimpleGenerator("ControlPoint", "Dune::Python")
 
     element_type = f"Dune::IGA::ControlPoint<{fv.cppTypeName}>"
 
@@ -22,7 +22,7 @@ def ControlPoint(coords, weight=1):
 
 
 def ControlPointNet(controlPoints):
-    generator = SimpleGenerator("MultiDimensionalNet", "Dune::Python")
+    generator = MySimpleGenerator("MultiDimensionNet", "Dune::Python")
 
     try:
         controlPointType= controlPoints[0][0][0].cppTypeName
@@ -50,7 +50,7 @@ def ControlPointNet(controlPoints):
 
 
 def NurbsPatchData(knotSpans, controlPointNet, degree):
-    generator = SimpleGenerator("NurbsPatchData", "Dune::Python")
+    generator = MySimpleGenerator("NurbsPatchData", "Dune::Python")
 
     worldDim = len(controlPointNet.directGet( 0).coords)
     dim = controlPointNet.netDim
@@ -72,7 +72,7 @@ def NurbsPatchData(knotSpans, controlPointNet, degree):
 
 
 def NurbsPatchDataDefault(dim, worldDim):
-    generator = SimpleGenerator("NurbsPatchData", "Dune::Python")
+    generator = MySimpleGenerator("NurbsPatchData", "Dune::Python")
 
     element_type = f"Dune::IGA::NURBSPatchData<{dim},{worldDim},double>"
     includes = []

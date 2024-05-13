@@ -3,7 +3,7 @@
 
 add_subdirectory(basis)
 
-add_python_targets(iga __init__ _igagrids _nurbspatchdata _boundarypatch _nurbsalgorithms)
+add_python_targets(iga __init__ _igagrids _nurbspatchdata _boundarypatch _nurbsalgorithms generator)
 
 dune_add_pybind11_module(NAME _iga)
 set_property(
@@ -12,7 +12,9 @@ set_property(
            earcut_hpp::earcut_hpp
   APPEND
 )
-
+    target_link_libraries(
+            _iga PRIVATE Clipper2Z nlohmann_json::nlohmann_json earcut_hpp::earcut_hpp
+    )
 
 if(SKBUILD)
   install(TARGETS _iga LIBRARY DESTINATION python/dune/iga)

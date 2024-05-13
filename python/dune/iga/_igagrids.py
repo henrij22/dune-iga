@@ -1,11 +1,7 @@
 # SPDX-FileCopyrightText: 2023 The dune-iga developers mueller@ibb.uni-stuttgart.de
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from enum import Enum
-
-IGAGridType = Enum('IGAGridType', ['Identity', 'Default'])
-
-
+from .generator import MySimpleGenerator
 """@package dune-iga
 Documentation for this module.
 
@@ -47,10 +43,9 @@ def IGAGrid(constructor, dimgrid=None, dimworld=None, gridType=IGAGridType.Ident
     )
 
     includes = ["dune/python/iga/grid.hh"]
-    from dune.generator.generator import SimpleGenerator
     from dune.common.hashit import hashIt
 
-    generator = SimpleGenerator("HierarchicalGrid", "Dune::Python::IGA")
+    generator = MySimpleGenerator("HierarchicalGrid", "Dune::Python::IGA")
     moduleName = "PatchGrid_" + hashIt(typeName)
     kwargs = dict()
     kwargs["dynamicAttr"] = True
