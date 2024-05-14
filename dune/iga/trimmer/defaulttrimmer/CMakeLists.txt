@@ -6,10 +6,13 @@ add_subdirectory(trimmingutils)
 # install headers
 
 set(HEADERS
+        createentities.hh
         createlevel.hh
         elementtrimdata.hh
         entitycontainer.hh
+        entityinfo.hh
         idset.hh
+        patchgridentityseed.hh
         patchgridhierarchiciterator.hh
         patchgridindexsets.hh
         patchgridintersectioniterator.hh
@@ -21,6 +24,7 @@ set(HEADERS
         trimmedentity.hh
         trimmedlocalgeometry.hh
         trimmer.hh
+        trimmerpreferences.hh
 )
 
 install(FILES ${HEADERS}

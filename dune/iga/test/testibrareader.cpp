@@ -28,8 +28,7 @@ template <bool trimmed>
 auto testIbraReader() {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 2, DefaultTrim::PatchGridFamily>,
-                                         PatchGrid<2, 2>>;
+  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 2, DefaultTrim::PatchGridFamily>, PatchGrid<2, 2>>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
@@ -55,7 +54,7 @@ auto testIbraReader() {
       try {
         auto grid = gridFactory.createGrid();
 
-        std::string folder = trimmed ? "out/" : "out_u/";
+        std::string folder  = trimmed ? "out/" : "out_u/";
         auto outputFileName = folder + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
         if constexpr (trimmed)
           drawGrid(grid.get(), outputFileName + ".gif");
@@ -78,8 +77,7 @@ template <bool trimmed>
 auto testIbraReader3d() {
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 3, DefaultTrim::PatchGridFamily>,
-                                         PatchGrid<2, 3>>;
+  using PatchGrid   = std::conditional_t<trimmed, PatchGrid<2, 3, DefaultTrim::PatchGridFamily>, PatchGrid<2, 3>>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
@@ -87,9 +85,9 @@ auto testIbraReader3d() {
     gridFactory.insertTrimParameters(typename GridFactory::TrimParameterType{200});
 
   const std::vector testCases{
-      // std::tuple<std::string, int, int>{"auxiliaryfiles/shell-hole.ibra", 0, 2},
-      // std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale.ibra", 1, 4},
-      std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale_trimmed.ibra", 3, 4}
+      std::tuple<std::string, int, int>{ "auxiliaryfiles/shell-hole.ibra", 0, 2},
+      std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale.ibra", 1, 4},
+ //  std::tuple<std::string, int, int>{"auxiliaryfiles/kugelschale_trimmed.ibra", 0, 4}
   };
 
   for (auto& [file_name, min, max] : testCases) {
@@ -99,7 +97,7 @@ auto testIbraReader3d() {
       gridFactory.insertJson(file_name, true, {i, i});
       auto grid = gridFactory.createGrid();
 
-      std::string folder = trimmed ? "out/" : "out_u/";
+      std::string folder  = trimmed ? "out/" : "out_u/";
       auto outputFileName = folder + name + +"_" + std::to_string(i) + "_" + std::to_string(i);
       if constexpr (trimmed)
         drawGrid(grid.get(), outputFileName + ".gif");
@@ -125,11 +123,11 @@ int main(int argc, char** argv) try {
   createOutputFolder("out_u");
   Preferences::getInstance().targetAccuracy(1e-3);
 
-  // t.subTest(testIbraReader<true>());
+  t.subTest(testIbraReader<true>());
   t.subTest(testIbraReader3d<true>());
-  //
-  // t.subTest(testIbraReader<false>());
-  // t.subTest(testIbraReader3d<false>());
+
+  t.subTest(testIbraReader<false>());
+  t.subTest(testIbraReader3d<false>());
 
   t.report();
 

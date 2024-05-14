@@ -7,13 +7,9 @@
  * @brief The PatchGrid class
  */
 
-#include "concepts.hh"
-#include "enums.hh"
-#include "gridcapabilities.hh"
+
 #include "patchgridentity.hh"
 #include "patchgridfactory.hh"
-#include "patchgridfwd.hh"
-#include "patchgridgeometry.hh"
 #include "patchgridview.hh"
 #include "traits.hh"
 

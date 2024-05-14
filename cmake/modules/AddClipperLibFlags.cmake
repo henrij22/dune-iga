@@ -3,9 +3,12 @@
 
 # set HAVE_CLIPPERLIB2 for config.h
 set(HAVE_CLIPPERLIB2Z ${Clipper2Z_LIB_FOUND})
-
+message(STATUS "HAVE_CLIPPERLIB2Z" ${HAVE_CLIPPERLIB2Z})
+message(STATUS "Clipper2Z_LIB_FOUND" ${Clipper2Z_LIB_FOUND})
 # register all Clipper2 related flags
 if(Clipper2Z_LIB_FOUND)
+
+  message(STATUS "Clipper2Z_LIB_FOUND" ${Clipper2Z_LIB_FOUND})
   dune_register_package_flags(LIBRARIES Clipper2Z COMPILE_DEFINITIONS "ENABLE_CLIPPERLIB2Z=1")
 endif()
 
