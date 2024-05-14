@@ -7,9 +7,14 @@
  * @brief The PatchGrid class
  */
 
+// Do not delete "gridcapabilities.hh", even if clang-tidy says so"
 
+#include "concepts.hh"
+#include "gridcapabilities.hh"
 #include "patchgridentity.hh"
 #include "patchgridfactory.hh"
+#include "patchgridfwd.hh"
+#include "patchgridgeometry.hh"
 #include "patchgridview.hh"
 #include "traits.hh"
 
