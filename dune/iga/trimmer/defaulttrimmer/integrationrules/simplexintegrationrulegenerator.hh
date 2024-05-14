@@ -117,6 +117,7 @@ private:
                        parameters.targetAccuracy);
       }
     }
+    points.push_back(localGeometry.global({1.0}));
 
     // Remove last element to avoid duplication
     points.pop_back();
@@ -149,7 +150,7 @@ private:
   static double distance(const Point& p1, const Point& p2) {
     return std::sqrt(Dune::power(p2[0] - p1[0], 2) + Dune::power(p2[1] - p1[1], 2));
   }
-  
+
   static void refineSegments(std::vector<Point>& points, const auto& localGeometry, double t_start, double t_end,
                              double tolerance) {
     Point p1 = localGeometry.global({t_start});
@@ -160,7 +161,8 @@ private:
     Point p_mid  = localGeometry.global({t_mid});
 
     // Calculate the perpendicular distance from the midpoint to the line segment
-    double numerator       = std::abs((p2[1] - p1[1]) * p_mid[0] - (p2[0] - p1[0]) * p_mid[1] + p2[0] * p1[1] - p2[1] * p1[0]);
+    double numerator =
+        std::abs((p2[1] - p1[1]) * p_mid[0] - (p2[0] - p1[0]) * p_mid[1] + p2[0] * p1[1] - p2[1] * p1[0]);
     double denominator     = distance(p1, p2);
     double dist_to_segment = numerator / denominator;
 

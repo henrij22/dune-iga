@@ -25,23 +25,21 @@ struct DGFGridFactory<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
 {
 };
 
-  // DGFGridInfo
-  // -----------
+// DGFGridInfo
+// -----------
 
 template <int dim, int dimworld, template <int, int, typename> typename GridFamily_, typename ScalarType>
-  struct DGFGridInfo< IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType> >
-  {
-    static int refineStepsForHalf ()
-    {
-      return 1;
-    }
+struct DGFGridInfo<IGA::PatchGrid<dim, dimworld, GridFamily_, ScalarType>>
+{
+  static int refineStepsForHalf() {
+    return 1;
+  }
 
-    static double refineWeight ()
-    {
-      return 0.5;
-    }
-  };
-}
+  static double refineWeight() {
+    return 0.5;
+  }
+};
+} // namespace Dune
 
 namespace Dune::Python {
 
@@ -96,8 +94,8 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
       if (dict.contains("pre_knot_refine"))
         preKnot = dict["pre_knot_refine"].cast<std::array<int, 2>>();
 
-      using ScalarType                             = typename Grid::ctype;
-      using GridFactory                            = Dune::GridFactory<Grid>;
+      using ScalarType  = typename Grid::ctype;
+      using GridFactory = Dune::GridFactory<Grid>;
 
       auto gridFactory = GridFactory();
       gridFactory.insertJson(file_path, trim, preKnot, degreeElevate);
@@ -161,7 +159,7 @@ void registerHierarchicalGrid(pybind11::module module, pybind11::class_<Grid, op
 
   cls.def(pybind11::init([](const PatchData& nurbsPatchData) { return new Grid(nurbsPatchData); }));
 
-  cls.def("patchData", [](Grid& self){return self.patchGeometryAtBack().patchData();});
+  cls.def("patchData", [](Grid& self) { return self.patchGeometryAtBack().patchData(); });
 
   cls.def("globalRefine", [](Grid& self, int refCount) { self.globalRefine(refCount); }, pybind11::arg("refCount"));
 

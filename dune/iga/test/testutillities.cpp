@@ -12,6 +12,7 @@
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 using namespace Dune;
@@ -82,6 +83,26 @@ auto testTransformToSpan() {
   return t;
 }
 
+auto testClipUtils() {
+  TestSuite t("testClipUtils", TestSuite::ThrowPolicy::AlwaysThrow);
+
+  using IGA::DefaultTrim::Util::isConsecutive;
+
+  t.check(isConsecutive(0, 1));
+  t.check(isConsecutive(1, 2));
+  t.check(isConsecutive(2, 3));
+  t.check(isConsecutive(3, 0));
+
+  t.check(not isConsecutive(2, 0));
+  t.check(not isConsecutive(0, 3));
+  t.check(not isConsecutive(0, 2));
+  t.check(not isConsecutive(2, 1));
+  t.check(not isConsecutive(3, 1));
+  t.check(not isConsecutive(1, 3));
+
+  return t;
+}
+
 #include <cfenv>
 int main(int argc, char** argv) try {
   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
@@ -92,6 +113,7 @@ int main(int argc, char** argv) try {
 
   t.subTest(testTransformations());
   t.subTest(testTransformToSpan());
+  t.subTest(testClipUtils());
 
   t.report();
 
