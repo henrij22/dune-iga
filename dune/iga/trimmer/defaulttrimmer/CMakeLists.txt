@@ -22,6 +22,7 @@ set(HEADERS
         patchgridleveliterator.hh
         patchtrimdata.hh
         referenceelement.hh
+        trimelement.hh
         trimmedentity.hh
         trimmedlocalgeometry.hh
         trimmer.hh
