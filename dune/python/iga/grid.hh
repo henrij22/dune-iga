@@ -78,6 +78,7 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
   bool trim                        = true;
   std::array<int, 2> degreeElevate = {0, 0};
   std::array<int, 2> preKnot       = {0, 0};
+  std::array<int, 2> postKnot      = {0, 0};
   if (dict.contains("reader"))
     reader = dict["reader"].cast<Dune::Python::IGA::Reader>();
 
@@ -93,12 +94,14 @@ inline static std::shared_ptr<Grid> reader(const pybind11::dict& dict) {
         degreeElevate = dict["degree_elevate"].cast<std::array<int, 2>>();
       if (dict.contains("pre_knot_refine"))
         preKnot = dict["pre_knot_refine"].cast<std::array<int, 2>>();
+      if (dict.contains("post_knot_refinement"))
+        postKnot = dict["post_knot_refinement"].cast<std::array<int, 2>>();
 
       using ScalarType  = typename Grid::ctype;
       using GridFactory = Dune::GridFactory<Grid>;
 
       auto gridFactory = GridFactory();
-      gridFactory.insertJson(file_path, trim, preKnot, degreeElevate);
+      gridFactory.insertJson(file_path, trim, preKnot, degreeElevate, postKnot);
 
       return gridFactory.createGrid();
     }

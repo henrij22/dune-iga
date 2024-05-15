@@ -32,4 +32,5 @@ if __name__ == "__main__":
     assert gridView_trimmed.size(0) == 4
     assert gridView_trimmed.size(2) == 10
 
+    gridView_trimmed.hierarchicalGrid.globalRefine(1)
 

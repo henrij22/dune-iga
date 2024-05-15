@@ -178,22 +178,6 @@ struct ClippingResult
         it != vertices_.end())
       std::ranges::rotate(vertices_, it);
 
-    // Now we have to handle the case where two hostindices are not consecutive
-    if (const auto it = std::ranges::adjacent_find(vertices_,
-                                                   [](const Vertex& vV1, const Vertex& vV2) {
-                                                     if (not vV1.isHost() or not vV2.isHost())
-                                                       return false;
-                                                     return not isConsecutive(vV1.hostId(), vV2.hostId());
-                                                   });
-        it != vertices_.end()) {
-      std::cout << "Non consecutive indices detected " << std::endl;
-      auto vV1 = *it;
-      auto vV2 = *(it + 1);
-
-      assert(vV1.additionalZValue().value());
-      assert(vV2.additionalZValue().value());
-    }
-
     // Now resort InsideVertices (sometimes they end up on the wrong position)
     for (const auto i : std::views::iota(0ul, vertices_.size())) {
       if (vertices_[i].isInside()) {
