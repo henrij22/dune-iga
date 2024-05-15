@@ -753,7 +753,7 @@ public:
   struct DummyEmpty
   {
   };
-  [[no_unique_address]] std::conditional_t<TrimmerType::isAlwaysTrivial, DummyEmpty, std::map<DirectIndex, RealIndex>>
+  std::conditional_t<TrimmerType::isAlwaysTrivial, DummyEmpty, std::map<DirectIndex, RealIndex>>
       indexMap_;
 };
 
