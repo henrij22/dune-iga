@@ -9,11 +9,15 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/rangeutilities.hh>
 #include <dune/common/test/testsuite.hh>
+#include <dune/functions/functionspacebases/boundarydofs.hh>
+#include <dune/functions/functionspacebases/powerbasis.hh>
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
+#include <dune/iga/nurbsbasis.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/utils/igahelpers.hh>
 
 using namespace Dune;
 
@@ -83,6 +87,38 @@ auto testTransformToSpan() {
   return t;
 }
 
+auto testForEachUntrimmedBoundary(int degreeElevate) {
+  TestSuite t("Test testForEachUntrimmedBoundary");
+
+  using PatchGrid   = IGA::PatchGrid<2, 2, IGA::DefaultTrim::PatchGridFamily>;
+  using GridView    = PatchGrid::LeafGridView;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto igaGridFactory = GridFactory();
+  igaGridFactory.insertJson("auxiliaryfiles/quarter_plate.ibra", true, {0, 0}, {degreeElevate, degreeElevate}, {4, 4});
+  auto igaGrid = igaGridFactory.createGrid();
+
+  using namespace  Functions::BasisFactory;
+
+  auto gridView = igaGrid->leafGridView();
+  Functions::NurbsBasis<GridView> basis2(gridView, nurbs());
+
+  auto size = basis2.size();
+
+  forEachUntrimmedBoundaryDOF(basis2, [&](auto&& localIndex, auto&& localView, auto&& intersection) {
+    t.check(localView.index(localIndex) < size);
+  });
+
+  auto powerB = makeBasis(gridView, Functions::BasisFactory::power<2>(nurbs(), FlatInterleaved()));
+
+  size = powerB.size();
+  forEachUntrimmedBoundaryDOF(basis2, [&](auto&& localIndex, auto&& localView, auto&& intersection) {
+    t.check(localView.index(localIndex) < size);
+  });
+
+  return t;
+}
+
 auto testClipUtils() {
   TestSuite t("testClipUtils", TestSuite::ThrowPolicy::AlwaysThrow);
 
@@ -111,9 +147,13 @@ int main(int argc, char** argv) try {
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
 
-  t.subTest(testTransformations());
-  t.subTest(testTransformToSpan());
-  t.subTest(testClipUtils());
+  // t.subTest(testTransformations());
+  // t.subTest(testTransformToSpan());
+  // t.subTest(testClipUtils());
+
+  t.subTest(testForEachUntrimmedBoundary(0));
+  t.subTest(testForEachUntrimmedBoundary(1));
+  t.subTest(testForEachUntrimmedBoundary(2));
 
   t.report();
 

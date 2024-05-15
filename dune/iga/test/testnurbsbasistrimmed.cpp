@@ -49,6 +49,12 @@ auto testNurbsBasis(auto& grid) {
   }
 
   {
+    // Check power Basis
+    auto powerB = Dune::Functions::BasisFactory::makeBasis(gridView, Functions::BasisFactory::power(Functions::BasisFactory::nurbs(), 2));
+    t.subTest(checkBasis(powerB, EnableContinuityCheck()));
+
+  }
+  {
     // Check whether a B-Spline basis can be combined with other bases.
     using namespace Functions::BasisFactory;
     auto basis2 = makeBasis(gridView, power<2>(nurbs()));
