@@ -75,7 +75,7 @@ auto testNurbsBasis(auto& grid) {
   return t;
 }
 
-auto runIntersectionTests(Dune::TestSuite& t, const std::string& fileName, bool trimmed, int refLevel) {
+auto runBasisTest(Dune::TestSuite& t, const std::string& fileName, bool trimmed, int refLevel) {
   // Create test case
   using PatchGrid   = IGA::PatchGrid<2, 2, IGA::DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
@@ -94,12 +94,16 @@ int main(int argc, char** argv) try {
   MPIHelper::instance(argc, argv);
 
   TestSuite t("");
-  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 0);
-  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 1);
-  runIntersectionTests(t, "auxiliaryfiles/element_trim.ibra", true, 2);
+  runBasisTest(t, "auxiliaryfiles/element_trim.ibra", true, 0);
+  runBasisTest(t, "auxiliaryfiles/element_trim.ibra", true, 1);
+  runBasisTest(t, "auxiliaryfiles/element_trim.ibra", true, 2);
 
-  runIntersectionTests(t, "auxiliaryfiles/surface-hole.ibra", true, 1);
-  runIntersectionTests(t, "auxiliaryfiles/surface-hole.ibra", true, 2);
+  runBasisTest(t, "auxiliaryfiles/surface-hole.ibra", true, 1);
+  runBasisTest(t, "auxiliaryfiles/surface-hole.ibra", true, 2);
+
+  runBasisTest(t, "auxiliaryfiles/quarter_plate.ibra", true, 2);
+  runBasisTest(t, "auxiliaryfiles/quarter_plate.ibra", true, 3);
+  runBasisTest(t, "auxiliaryfiles/quarter_plate.ibra", true, 4);
 
   return t.exit();
 } catch (Dune::Exception& e) {
