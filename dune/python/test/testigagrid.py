@@ -3,6 +3,7 @@ import logging
 
 os.environ["DUNE_LOG_LEVEL"] = "warning"
 os.environ["DUNE_SAVE_BUILD"] = "console"
+import dune.iga
 from dune.iga import IGAGrid, IGAGridType, ControlPointNet, ControlPoint, NurbsPatchData
 from dune.iga import reader as readeriga
 
@@ -20,6 +21,8 @@ if __name__ == "__main__":
     gridView_trimmed = IGAGrid(
         inputParameter, dimgrid=2, dimworld=2, gridType=IGAGridType.Default
     )
+
+    dune.iga.registerTrimmerPreferences(targetAccuracy=0.001)
 
     ## test grids
 
