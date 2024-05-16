@@ -125,10 +125,10 @@ int main(int argc, char** argv) try {
   Preferences::getInstance().targetAccuracy(1e-3);
 
   t.subTest(testIbraReader<true>());
-  // t.subTest(testIbraReader3d<true>());
-  //
-  // t.subTest(testIbraReader<false>());
-  // t.subTest(testIbraReader3d<false>());
+  t.subTest(testIbraReader3d<true>());
+
+  t.subTest(testIbraReader<false>());
+  t.subTest(testIbraReader3d<false>());
 
   t.report();
 

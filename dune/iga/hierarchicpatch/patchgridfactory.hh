@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <dune/grid/common/gridfactory.hh>
+#include <dune/iga/io/createUnstructuredGrid.hh>
 
 namespace Dune {
 
@@ -61,6 +62,16 @@ public:
     }
     auto grid = std::make_unique<PatchGrid>(patchData_);
     return grid;
+  }
+
+  template <typename UnstructuredGrid>
+  std::unique_ptr<UnstructuredGrid> createUnstructedGrid() const {
+    if (patchTrimData_.has_value()) {
+      auto patchGrid = std::make_unique<PatchGrid>(patchData_, patchTrimData_, parameters_);
+      return createUnstructuredGridImpl<UnstructuredGrid>(patchGrid.get());
+    }
+    auto patchGrid = std::make_unique<PatchGrid>(patchData_);
+    return createUnstructuredGridImpl<UnstructuredGrid>(patchGrid.get());
   }
 
   IGA::NURBSPatchData<dim, dimworld, ctype> patchData_;
