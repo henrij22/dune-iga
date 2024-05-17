@@ -240,7 +240,7 @@ auto testInsideOutside(auto& grid) {
 auto testReportFullIntersections() {
   TestSuite t;
 
-  Preferences::getInstance().reportTrimmedIntersections(false);
+  Preferences::getInstance().reconstructTrimmedLocalGeometry(false);
 
   using PatchGrid   = PatchGrid<2, 2, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
@@ -266,7 +266,7 @@ auto testReportFullIntersections() {
   for (const auto& ele : elements(leafGridView))
     t.check(count(ele, levelGridView) == 4);
 
-  Preferences::getInstance().reportTrimmedIntersections(true);
+  Preferences::getInstance().reconstructTrimmedLocalGeometry(true);
 
   return t;
 }

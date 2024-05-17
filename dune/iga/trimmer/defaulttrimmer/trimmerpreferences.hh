@@ -44,13 +44,13 @@ public:
     this->reportTrimmedElementGeometryTypeAsNone_ = _reportTrimmedElementGeometryTypeAsNone;
   }
 
-  bool reportTrimmedIntersections() const {
-    return reportTrimmedIntersections_;
+  bool reconstructTrimmedLocalGeometry() const {
+    return reconstructTrimmedLocalGeometry_;
   }
 
-  void reportTrimmedIntersections(bool _reportTrimmedIntersections_) {
+  void reconstructTrimmedLocalGeometry(bool _reconstructTrimmedLocalGeometry) {
     std::lock_guard lock(mtx);
-    this->reportTrimmedIntersections_ = _reportTrimmedIntersections_;
+    this->reconstructTrimmedLocalGeometry_ = _reconstructTrimmedLocalGeometry;
   }
 
 private:
@@ -63,5 +63,5 @@ private:
   int boundaryDivisions_;
   double targetAccuracy_;
   bool reportTrimmedElementGeometryTypeAsNone_{true};
-  bool reportTrimmedIntersections_{true};
+  bool reconstructTrimmedLocalGeometry_{true};
 };
