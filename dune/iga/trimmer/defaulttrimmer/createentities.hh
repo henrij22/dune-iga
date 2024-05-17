@@ -324,7 +324,7 @@ void TrimmerImpl<dim, dimworld, ScalarType>::createElements(int level, const std
   for (auto& [eleId, eleInfo] :
        elementMap | std::ranges::views::filter([level](const auto& pair) { return pair.second.lvl == level; })) {
     auto ele = parameterSpaceGrid_->entity(eleInfo.hostSeed);
-    if (not eleInfo.trimmed or not Preferences::getInstance().reconstructTrimmedLocalGeometry()) {
+    if (not eleInfo.trimmed) {
       elementContainer[eleInfo.indexInLvlStorage] = ElementEntity{grid_, ele, eleInfo};
     } else {
       elementContainer[eleInfo.indexInLvlStorage] =
