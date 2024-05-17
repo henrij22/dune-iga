@@ -18,8 +18,7 @@ public:
   Preferences(const Preferences&)            = delete;
   Preferences& operator=(const Preferences&) = delete;
 
-  int boundaryDivisions() {
-    std::lock_guard lock(mtx);
+  int boundaryDivisions() const {
     return boundaryDivisions_;
   }
 
@@ -28,13 +27,30 @@ public:
     this->boundaryDivisions_ = _boundaryDivisions;
   }
 
-  double targetAccuracy() {
-    std::lock_guard lock(mtx);
+  double targetAccuracy() const {
     return targetAccuracy_;
   }
   void targetAccuracy(double _targetAccuracy) {
     std::lock_guard lock(mtx);
     this->targetAccuracy_ = _targetAccuracy;
+  }
+
+  bool reportTrimmedElementGeometryTypeAsNone() const {
+    return reportTrimmedElementGeometryTypeAsNone_;
+  }
+
+  void reportTrimmedElementGeometryTypeAsNone(bool _reportTrimmedElementGeometryTypeAsNone) {
+    std::lock_guard lock(mtx);
+    this->reportTrimmedElementGeometryTypeAsNone_ = _reportTrimmedElementGeometryTypeAsNone;
+  }
+
+  bool reportTrimmedIntersections() const {
+    return reportTrimmedIntersections_;
+  }
+
+  void reportTrimmedIntersections(bool _reportTrimmedIntersections_) {
+    std::lock_guard lock(mtx);
+    this->reportTrimmedIntersections_ = _reportTrimmedIntersections_;
   }
 
 private:
@@ -46,4 +62,6 @@ private:
   std::mutex mtx; // Mutex for thread safety
   int boundaryDivisions_;
   double targetAccuracy_;
+  bool reportTrimmedElementGeometryTypeAsNone_{true};
+  bool reportTrimmedIntersections_{true};
 };
