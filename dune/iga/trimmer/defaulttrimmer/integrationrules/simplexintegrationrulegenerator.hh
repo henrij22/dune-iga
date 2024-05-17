@@ -53,8 +53,7 @@ struct SimplexIntegrationRuleGenerator
     for (const auto& edgeInfo : trimData.edges()) {
       if (edgeInfo.isTrimmed) {
         auto localGeometry         = GeometryKernel::transformToSpan(edgeInfo.geometry.value(), hostEntity.geometry());
-        std::vector<Point> pointsT = splitBoundary(localGeometry, parameters);
-        vertices.insert(vertices.end(), pointsT.begin(), pointsT.end());
+        splitBoundary(localGeometry, parameters, vertices);
       } else {
         auto refElement = referenceElement(hostEntity);
         switch (edgeInfo.idx) {
@@ -86,12 +85,11 @@ struct SimplexIntegrationRuleGenerator
   }
 
 private:
-  static std::vector<Point> splitBoundary(const auto& localGeometry, const Parameters& parameters) {
-    std::vector<Point> points;
+  static void splitBoundary(const auto& localGeometry, const Parameters& parameters, std::vector<Point>& points) {
 
     if (localGeometry.affine()) {
       points.push_back(localGeometry.global({0.0}));
-      return points;
+      return;
     }
 
     if (not parameters.useAdaptiveDivisions()) {
@@ -121,7 +119,6 @@ private:
 
     // Remove last element to avoid duplication
     points.pop_back();
-    return points;
   }
 
   static auto triangulate(const std::vector<Point>& points) -> std::vector<Index> {
