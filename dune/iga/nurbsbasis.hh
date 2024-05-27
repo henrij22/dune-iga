@@ -753,8 +753,7 @@ public:
   struct DummyEmpty
   {
   };
-  std::conditional_t<TrimmerType::isAlwaysTrivial, DummyEmpty, std::map<DirectIndex, RealIndex>>
-      indexMap_;
+  std::conditional_t<TrimmerType::isAlwaysTrivial, DummyEmpty, std::map<DirectIndex, RealIndex>> indexMap_;
 };
 
 template <typename GV>

@@ -7,12 +7,11 @@
 #endif
 
 #include <dune/common/test/testsuite.hh>
-#include <dune/iga/hierarchicpatch/gridcapabilities.hh>
-
 #include <dune/functions/functionspacebases/lagrangebasis.hh>
 #include <dune/functions/functionspacebases/powerbasis.hh>
 #include <dune/functions/functionspacebases/test/basistest.hh>
 #include <dune/grid/test/gridcheck.hh>
+#include <dune/iga/hierarchicpatch/gridcapabilities.hh>
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
 #include <dune/iga/nurbsbasis.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
@@ -27,7 +26,6 @@ auto test(int refinement) {
   std::cout << "\n*********************\n";
   std::cout << "Reinement " << refinement << std::endl;
   std::cout << "*********************\n\n";
-
 
   using PatchGrid   = PatchGrid<2, 2, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
@@ -58,9 +56,7 @@ auto test(int refinement) {
   auto lagrangeBasis2 = makeBasis(gridView, lagrange<2>());
   t.subTest(checkBasis(lagrangeBasis2, EnableContinuityCheck()));
 
-
   return t;
-
 }
 
 int main(int argc, char** argv) try {
@@ -69,7 +65,6 @@ int main(int argc, char** argv) try {
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
   Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
-
 
   Preferences::getInstance().targetAccuracy(1e-3);
   Preferences::getInstance().reconstructTrimmedLocalGeometry(false);
