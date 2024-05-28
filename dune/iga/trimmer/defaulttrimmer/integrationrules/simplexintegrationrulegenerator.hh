@@ -97,7 +97,7 @@ private:
         points.push_back(localGeometry.global({local}));
     } else {
       // Guess initial amount of segments (a linear segment of lenght 1 should be devided by 1 divions)
-      double curveLength = localGeometry.curveLength();
+      double curveLength = computeCurveLength(localGeometry);
       auto segments      = static_cast<unsigned int>(std::ceil(1 * curveLength * localGeometry.degree()[0]));
 
       bool converged = false;
@@ -140,22 +140,33 @@ private:
 
   // Function to calculate the distance between two points
 
-  static auto checkForConvergence(const auto& localGeometry, unsigned int numSegements, double curveLength,
+  static auto checkForConvergence(const auto& localGeometry, unsigned int numSegments, double curveLength,
                                   double targetAccuracy) -> std::pair<bool, std::vector<Point>> {
+    auto [totalDistance, points] = getPointsAndDistance(localGeometry, numSegments);
+    auto converged               = std::abs((totalDistance - curveLength) / curveLength) < targetAccuracy;
+    return std::make_pair(converged, points);
+  }
+  static auto computeCurveLength(const auto& localGeometry) -> double {
+    unsigned int numSegments = localGeometry.degree()[0] * 25;
+
+    return std::get<0>(getPointsAndDistance(localGeometry, numSegments));
+  }
+
+  static auto getPointsAndDistance(const auto& localGeometry, unsigned int numSegments)
+      -> std::pair<double, std::vector<Point>> {
     auto distance = [](const Point& p1, const Point& p2) {
       return std::sqrt(Dune::power(p2[0] - p1[0], 2) + Dune::power(p2[1] - p1[1], 2));
     };
 
     std::vector<Point> points;
-    for (auto local : Utilities::linspace(0.0, 1.0, numSegements + 1))
+    for (auto local : Utilities::linspace(0.0, 1.0, numSegments + 1))
       points.push_back(localGeometry.global({local}));
 
     double totalDistance = 0.0;
     for (auto i : Dune::range(1ul, points.size()))
       totalDistance += distance(points[i - 1], points[i]);
 
-    auto converged = std::abs((totalDistance - curveLength) / curveLength) < targetAccuracy;
-    return std::make_pair(converged, points);
+    return std::make_pair(totalDistance, points);
   }
 };
 

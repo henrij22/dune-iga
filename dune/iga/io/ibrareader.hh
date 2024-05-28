@@ -85,7 +85,7 @@ public:
     // Optional postKnot refinement
     for (const auto i : Dune::range(dim)) {
       if (postKnotRefine[i] > 0) {
-        auto newKnots = Splines::generateRefinedKnots(knotSpans, i, postKnotRefine[i]);
+        auto newKnots = Splines::generateRefinedKnots(_patchData.knotSpans, i, postKnotRefine[i]);
         _patchData    = Splines::knotRefinement(_patchData, newKnots, i);
       }
     }
@@ -160,7 +160,7 @@ public:
     // Optional postKnot refinement
     for (const auto i : Dune::range(dim)) {
       if (postKnotRefine[i] > 0) {
-        auto newKnots = Splines::generateRefinedKnots(knotSpans, i, postKnotRefine[i]);
+        auto newKnots = Splines::generateRefinedKnots(_patchData.knotSpans, i, postKnotRefine[i]);
         _patchData    = Splines::knotRefinement(_patchData, newKnots, i);
       }
     }

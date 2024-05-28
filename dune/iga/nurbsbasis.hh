@@ -860,6 +860,46 @@ namespace BasisFactory {
       std::array<int, dim> degreeElevate_{};
     };
 
+    template <int dim>
+    class NurbsPreBasisFactoryFromDegreeElevationAndRefinement
+    {
+    public:
+      static constexpr std::size_t requiredMultiIndexSize = 1;
+
+      explicit NurbsPreBasisFactoryFromDegreeElevationAndRefinement(const std::array<int, dim>& degreeElevate,
+                                                                    const std::array<int, dim>& globalRefinement)
+          : degreeElevate_(degreeElevate),
+            gloablRefinement_(globalRefinement) {}
+
+      template <class GridView>
+      auto operator()(const GridView& gridView) const {
+        static_assert(dim == GridView::dimension,
+                      "The degree elevation argument should have the same size as the grid dimensions");
+        auto patchData = gridView.impl().patchData();
+        const_cast<typename GridView::Grid&>(gridView.grid()).globalRefineInDirection(gloablRefinement_);
+        for (int dir = 0; auto elevatesInDirection : degreeElevate_) {
+          if (elevatesInDirection == 0) {
+            ++dir;
+            continue;
+          }
+          patchData = IGA::Splines::degreeElevate(patchData, dir, elevatesInDirection);
+          ++dir;
+        }
+        for (const auto i : Dune::range(dim)) {
+          if (gloablRefinement_[i] > 0) {
+            auto newKnots = IGA::Splines::generateRefinedKnots(patchData.knotSpans, i, gloablRefinement_[i]);
+            patchData     = IGA::Splines::knotRefinement(patchData, newKnots, i);
+          }
+        }
+
+        return NurbsPreBasis<GridView>(gridView, patchData);
+      }
+
+    private:
+      std::array<int, dim> degreeElevate_{};
+      std::array<int, dim> gloablRefinement_{};
+    };
+
   } // namespace Impl
 
   /**
@@ -878,9 +918,19 @@ namespace BasisFactory {
     return {std::forward<Types>(t)...};
   }
 
+  template <class... Types>
+  constexpr std::array<int, sizeof...(Types)> globalRefinement(Types&&... t) {
+    return {std::forward<Types>(t)...};
+  }
+
   template <size_t dim>
   auto nurbs(const std::array<int, dim>& degreeElevate) {
     return Impl::NurbsPreBasisFactoryFromDegreeElevation<dim>(degreeElevate);
+  }
+
+  template <size_t dim>
+  auto nurbs(const std::array<int, dim>& degreeElevate, const std::array<int, dim>& globalRefinement) {
+    return Impl::NurbsPreBasisFactoryFromDegreeElevationAndRefinement<dim>(degreeElevate, globalRefinement);
   }
 
   inline auto nurbs() {
