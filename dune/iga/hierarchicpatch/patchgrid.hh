@@ -307,9 +307,10 @@ public:
 
       patchGeometries_.emplace_back(newfinestPatchData, newUniqueKnotVecs);
       patchGeometriesUnElevated.emplace_back(patchGeometries_.back());
+
+      trimmer_->globalRefine(1);
     }
-    // Here it is exploited that the knot refinem above is in sync with the globaRefine of the trimmer
-    trimmer_->globalRefine(refCount);
+
   }
 
   /**

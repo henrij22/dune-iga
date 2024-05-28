@@ -124,12 +124,13 @@ auto testNurbsBasis() {
   return test;
 }
 
+template <template <int, int, typename> typename GridFamily>
 auto testPrePostDegreeRefinement() {
   TestSuite t("", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
   using namespace Functions::BasisFactory;
 
-  using PatchGrid   = IGA::PatchGrid<2, 2, IGA::IdentityTrim::PatchGridFamily>;
-  using GridView    = PatchGrid::LeafGridView;
+  using PatchGrid   = IGA::PatchGrid<2, 2, GridFamily>;
+  using GridView    = typename PatchGrid::LeafGridView;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
   auto gridFactory = GridFactory();
@@ -253,7 +254,8 @@ int main(int argc, char** argv) try {
 
   //t.subTest(testNurbsBasis<IGA::DefaultTrim::PatchGridFamily>());
 
-  t.subTest(testPrePostDegreeRefinement());
+  t.subTest(testPrePostDegreeRefinement<IGA::IdentityTrim::PatchGridFamily>());
+  t.subTest(testPrePostDegreeRefinement<IGA::DefaultTrim::PatchGridFamily>());
 
   return t.exit();
 } catch (Dune::Exception& e) {
