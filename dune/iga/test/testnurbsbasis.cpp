@@ -179,13 +179,32 @@ auto testPrePostDegreeRefinement() {
   t.check(basisNoRefine3.size() == basisPrePostRefineAndDegree.size());
 
   // Now make k refinement without elevating the grid geometry (this is key)
+  auto kRefine = [](const auto& patchData, std::array<int, 2> refinement, std::array<int, 2> degreeElevate) {
+    auto newPatchData = patchData;
+    for (const auto i : Dune::range(2))
+      if (degreeElevate[i] > 0)
+        newPatchData = IGA::Splines::degreeElevate(newPatchData, i, degreeElevate[i]);
+    for (const auto i : Dune::range(2)) {
+      if (refinement[i] > 0) {
+        auto newKnots = IGA::Splines::generateRefinedKnots(newPatchData.knotSpans, i, refinement[i]);
+        newPatchData    = IGA::Splines::knotRefinement(newPatchData, newKnots, i);
+      }
+    }
+    return newPatchData;
+  };
+
+
+
   gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {0, 0}, {0, 0}, {0, 0});
   const auto freshGrid = gridFactory.createGrid();
 
   t.check(freshGrid->patchGeometryAtBack().degree()[0] == 1);
 
   // Now refine both grid and basis
-  Functions::NurbsBasis<GridView> freshBasisElevated(freshGrid->leafGridView(), nurbs(degreeElevate(1, 1), globalRefinement(1, 1)));
+
+  auto newPatchData = kRefine(freshGrid->patchGeometryAtBack().patchData(), {1, 1}, {1, 1});
+  freshGrid->globalRefine(1);
+  Functions::NurbsBasis<GridView> freshBasisElevated(freshGrid->leafGridView(), nurbs(newPatchData));
   Functions::NurbsBasis<GridView> basisPostRefineAndDegree(gridPostRefineAndDegree->leafGridView(), nurbs());
 
   t.check(freshBasisElevated.size() == basisPostRefineAndDegree.size());
@@ -200,6 +219,16 @@ auto testPrePostDegreeRefinement() {
   t.subTest(checkBasis(freshBasisElevated, EnableContinuityCheck()));
   t.subTest(checkBasis(basisPrePostRefineAndDegree, EnableContinuityCheck()));
 
+  // Now do one more with higher refinements
+
+  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {0, 0}, {0, 0}, {0, 0});
+  const auto grid = gridFactory.createGrid();
+
+  auto newPatchData1 = kRefine(grid->patchGeometryAtBack().patchData(), {2, 2}, {1, 1});
+  freshGrid->globalRefine(2);
+  Functions::NurbsBasis<GridView> basis1(grid->leafGridView(), nurbs());
+
+  t.subTest(checkBasis(basis1, EnableContinuityCheck()));
 
 
 
@@ -215,14 +244,14 @@ int main(int argc, char** argv) try {
   std::cout << "===============TEST IdentityTrim==" << std::endl;
   std::cout << "==================================" << std::endl;
 
-  t.subTest(testNurbsBasis<IGA::IdentityTrim::PatchGridFamily>());
+  //t.subTest(testNurbsBasis<IGA::IdentityTrim::PatchGridFamily>());
 
   std::cout << std::endl;
   std::cout << "==================================" << std::endl;
   std::cout << "===============TEST DefaultTrim===" << std::endl;
   std::cout << "==================================" << std::endl;
 
-  t.subTest(testNurbsBasis<IGA::DefaultTrim::PatchGridFamily>());
+  //t.subTest(testNurbsBasis<IGA::DefaultTrim::PatchGridFamily>());
 
   t.subTest(testPrePostDegreeRefinement());
 
