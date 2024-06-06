@@ -497,12 +497,22 @@ public:
     return patchGeometries_.back();
   }
 
+  auto integrationRule() const {
+    return integrationRuleHolder_.integrationRule();
+  }
+  void integrationRule(typename DefaultTrim::IntegrationRuleHolder<PatchGrid>::FunctionType integrationRule) {
+    integrationRuleHolder_.integrationRule(integrationRule);
+  }
+
 private:
   PatchGrid() = default;
   std::vector<GeometryKernel::NURBSPatch<dim, dimworld, ctype>> patchGeometries_;
   std::vector<GeometryKernel::NURBSPatch<dim, dimworld, ctype>> patchGeometriesUnElevated;
 
   std::unique_ptr<Trimmer> trimmer_;
+
+  DefaultTrim::IntegrationRuleHolder<PatchGrid> integrationRuleHolder_{};
+
 
 private:
   // @todo Please doc me !

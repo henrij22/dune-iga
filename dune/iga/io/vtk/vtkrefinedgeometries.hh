@@ -5,7 +5,8 @@
 
 #include <dune/geometry/multilineargeometry.hh>
 #include <dune/geometry/virtualrefinement.hh>
-#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexintegrationrulegenerator.hh>
+#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexgenerator.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
 #include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
 
 namespace Dune::IGA {
@@ -44,15 +45,15 @@ public:
                                                                         typename Trimmer::ctype>>) {
       const auto& idSet = gridView.grid().globalIdSet();
 
-      using IntegrationRuleGenerator = IGA::DefaultTrim::SimplexIntegrationRuleGenerator<typename GridView::Grid>;
+      using SimplexGeneratorImpl = IGA::DefaultTrim::SimplexGenerator<typename GridView::Grid>;
 
-      const auto parameters = typename IntegrationRuleGenerator::Parameters{
-          .boundaryDivisions = Preferences::getInstance().boundaryDivisions(),
-          .targetAccuracy    = Preferences::getInstance().targetAccuracy()};
+      const auto parameters = typename SimplexGeneratorImpl::Parameters{
+          .boundaryDivisions = DefaultTrim::Preferences::getInstance().boundaryDivisions(),
+          .targetAccuracy    = DefaultTrim::Preferences::getInstance().targetAccuracy()};
 
       for (const auto& element : elements(gridView)) {
         if (element.impl().isTrimmed()) {
-          auto [ele, vert, ind] = IntegrationRuleGenerator::createSimplicies(element, parameters);
+          auto [ele, vert, ind] = SimplexGeneratorImpl::createSimplicies(element, parameters);
           trimmedElementData_.emplace(idSet.id(element), ElementData{ele, vert, ind});
         }
       }

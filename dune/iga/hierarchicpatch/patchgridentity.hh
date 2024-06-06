@@ -11,6 +11,7 @@
 
 #include "dune/iga/hierarchicpatch/patchgridfwd.hh"
 #include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexintegrationrulegenerator.hh>
+#include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
 #include <dune/iga/utils/igahelpers.hh>
 
 namespace Dune::IGA {
@@ -384,11 +385,7 @@ public:
     if (not isTrimmed())
       return Dune::QuadratureRules<double, dimension>::rule(this->type(), order, qt);
 
-    const auto parameters = typename IntegrationRuleGenerator::Parameters{
-        .boundaryDivisions = Preferences::getInstance().boundaryDivisions(),
-        .targetAccuracy    = Preferences::getInstance().targetAccuracy()};
-
-    return IntegrationRuleGenerator::createIntegrationRule(*this, order, parameters);
+    return patchGrid_->integrationRule()(*this, order, qt);
   }
 
 private:

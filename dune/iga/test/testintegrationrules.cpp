@@ -42,12 +42,12 @@ auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int r
   auto gv         = grid->leafGridView();
 
   if constexpr (useEle and not useBoundaryDivisions) {
-    Preferences::getInstance().boundaryDivisions(20);
-    Preferences::getInstance().targetAccuracy(1);
+    DefaultTrim::Preferences::getInstance().boundaryDivisions(20);
+    DefaultTrim::Preferences::getInstance().targetAccuracy(1);
   }
   if constexpr (useEle and useBoundaryDivisions) {
-    Preferences::getInstance().boundaryDivisions(5);
-    Preferences::getInstance().targetAccuracy(1e-6);
+    DefaultTrim::Preferences::getInstance().boundaryDivisions(5);
+    DefaultTrim::Preferences::getInstance().targetAccuracy(1e-6);
   }
 
   auto parameters = IntegrationRuleGenerator::Parameters{.boundaryDivisions = 20};
@@ -71,9 +71,9 @@ auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int r
 }
 
 auto testBoundaryDivisionsPreference() {
-  TestSuite t;
+  TestSuite t("", TestSuite::ThrowPolicy::AlwaysThrow);
 
-  Preferences::getInstance().targetAccuracy(2);
+  DefaultTrim::Preferences::getInstance().targetAccuracy(2);
 
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
@@ -97,7 +97,7 @@ auto testBoundaryDivisionsPreference() {
 
   auto lastnQP = 0ul;
   for (const auto i : Dune::range(5)) {
-    Preferences::getInstance().boundaryDivisions(i);
+    DefaultTrim::Preferences::getInstance().boundaryDivisions(i);
     const auto newQP = getNQP();
     t.check(newQP > lastnQP)
         << "There have to be more Quadrature Points for a higher number of prescribed boundary divisions";
@@ -108,7 +108,7 @@ auto testBoundaryDivisionsPreference() {
 }
 
 auto testTargetAccuracyPreference() {
-  TestSuite t;
+  TestSuite t("", TestSuite::ThrowPolicy::AlwaysThrow);
 
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
@@ -134,7 +134,7 @@ auto testTargetAccuracyPreference() {
 
   auto lastnQP = 0ul;
   for (const auto acc : testAccuracies) {
-    Preferences::getInstance().targetAccuracy(acc);
+    DefaultTrim::Preferences::getInstance().targetAccuracy(acc);
     const auto newQP = getNQP();
     t.check(newQP >= lastnQP)
         << "There have to be more Quadrature Points for a higher or same number of prescribed target accuracy.";
@@ -146,13 +146,64 @@ auto testTargetAccuracyPreference() {
   return t;
 }
 
+template <typename GridImp>
+struct AlternativetIntegrationRuleGenerator
+{
+  bool wasCalled{};
+  using Generator = DefaultTrim::SimplexIntegrationRuleGenerator<GridImp>;
+  auto integrationRule() {
+    return [&](const auto& element, int order, QuadratureType::Enum /* qt */) {
+      wasCalled = true;
+      std::cout << "This is the alternative IntegrationRuleGenerator" << std::endl;
+      return Generator::createIntegrationRule(element, order);
+    };
+  }
+};
+
+auto testIntegrationRulePolicy() {
+  TestSuite t("", TestSuite::ThrowPolicy::AlwaysThrow);
+
+  using PatchGrid   = PatchGrid<2, 2, DefaultTrim::PatchGridFamily>;
+  using GridFactory = Dune::GridFactory<PatchGrid>;
+
+  auto gridFactory = GridFactory();
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
+  gridFactory.insertJson("auxiliaryfiles/element_trim.ibra", true, {2, 2});
+
+  const auto grid = gridFactory.createGrid();
+  auto gridView   = grid->leafGridView();
+
+  auto ele =
+      *std::ranges::find_if(gridView.begin<0>(), gridView.end<0>(), [](const auto& e) { return e.impl().isTrimmed(); });
+
+  auto qr1 = ele.impl().getQuadratureRule();
+
+  auto alternativeRuleGenerator = AlternativetIntegrationRuleGenerator<PatchGrid>{};
+  grid->integrationRule(alternativeRuleGenerator.integrationRule());
+
+  auto qr2 = ele.impl().getQuadratureRule();
+  t.check(alternativeRuleGenerator.wasCalled);
+
+  // Pass lambda directly
+  auto emptyIntegrationRule = [](const auto& /* ele */, int /* order */, QuadratureType::Enum /* qt */) {
+    return QuadratureRule<double, 2>{};
+  };
+
+  grid->integrationRule(emptyIntegrationRule);
+  auto qr3 = ele.impl().getQuadratureRule();
+
+  t.check(qr3.empty());
+
+  return t;
+}
+
 #include <cfenv>
 int main(int argc, char** argv) try {
   // feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
 
   // Initialize MPI, if necessary
   Dune::MPIHelper::instance(argc, argv);
-  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::ThrowOnRequired);
+  Dune::TestSuite t("", Dune::TestSuite::ThrowPolicy::AlwaysThrow);
 
   testAreaIntegration<true>(t, "auxiliaryfiles/element_trim.ibra", 0, 0.73688393);
   testAreaIntegration<true>(t, "auxiliaryfiles/element_trim.ibra", 1, 0.73688393);
@@ -189,6 +240,8 @@ int main(int argc, char** argv) try {
 
   t.subTest(testBoundaryDivisionsPreference());
   t.subTest(testTargetAccuracyPreference());
+
+  t.subTest(testIntegrationRulePolicy());
 
   t.report();
 

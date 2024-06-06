@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include "integrationrules/simplexintegrationrulegenerator.hh"
+
 #include <mutex>
 
+namespace Dune::IGA::DefaultTrim {
 class Preferences
 {
 public:
@@ -65,3 +68,42 @@ private:
   bool reportTrimmedElementGeometryTypeAsNone_{true};
   bool reconstructTrimmedLocalGeometry_{true};
 };
+
+template <typename GridImp>
+struct DefaultIntegrationRuleGenerator
+{
+  using Generator = SimplexIntegrationRuleGenerator<GridImp>;
+  static auto integrationRule() {
+    return [](const auto& element, int order,
+                                QuadratureType::Enum qt =  QuadratureType::GaussLegendre) {
+      const auto parameters = typename Generator::Parameters{
+        .boundaryDivisions = Preferences::getInstance().boundaryDivisions(),
+        .targetAccuracy    = Preferences::getInstance().targetAccuracy()};
+      return Generator::createIntegrationRule(element, order, parameters, qt);
+    };
+  }
+};
+
+template <typename GridImp>
+struct IntegrationRuleHolder
+{
+  using PatchElement       = typename GridImp::Traits::template Codim<0>::Entity;
+  static constexpr int dim = GridImp::dimension;
+
+  using FunctionType = std::function<QuadratureRule<double, dim>(const PatchElement&, int, QuadratureType::Enum)>;
+
+  IntegrationRuleHolder()
+      : generator_(DefaultIntegrationRuleGenerator<GridImp>::integrationRule()) {}
+
+  void integrationRule(FunctionType generator) {
+    generator_ = generator;
+  }
+
+  FunctionType integrationRule() const {
+    return generator_;
+  }
+
+private:
+  FunctionType generator_;
+};
+} // namespace Dune::IGA::DefaultTrim
