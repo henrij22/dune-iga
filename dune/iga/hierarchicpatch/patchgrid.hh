@@ -21,6 +21,8 @@
 #include <map>
 #include <string>
 
+#include <dune/iga/integrationrules/integrationruleholder.hh>
+
 #include <dune/common/parallel/communication.hh>
 #include <dune/grid/common/grid.hh>
 
@@ -48,7 +50,7 @@ struct HostGridAccess;
  * @ingroup PatchGrid
  * @tparam dim The dimension of the grid
  * @tparam dimworld The dimension of the embedding space
- * @tparam TrimmerType_ The trimmer of the trimmer
+ * @tparam TrimmerType_ The parameterspace of the parameterspace
  * @tparam ScalarType The type for the coordinates
  * Example Create surface in 3D space:
  * @code
@@ -310,7 +312,6 @@ public:
 
       trimmer_->globalRefine(1);
     }
-
   }
 
   /**
@@ -497,10 +498,14 @@ public:
     return patchGeometries_.back();
   }
 
-  auto integrationRule() const {
+  auto integrationRule() const
+  requires(not Trimmer::isAlwaysTrivial and dim == 2)
+  {
     return integrationRuleHolder_.integrationRule();
   }
-  void integrationRule(typename DefaultTrim::IntegrationRuleHolder<PatchGrid>::FunctionType integrationRule) {
+  void integrationRule(typename IntegrationRuleHolder<PatchGrid>::FunctionType integrationRule)
+  requires(not Trimmer::isAlwaysTrivial and dim == 2)
+  {
     integrationRuleHolder_.integrationRule(integrationRule);
   }
 
@@ -511,8 +516,7 @@ private:
 
   std::unique_ptr<Trimmer> trimmer_;
 
-  DefaultTrim::IntegrationRuleHolder<PatchGrid> integrationRuleHolder_{};
-
+  IntegrationRuleHolder<PatchGrid> integrationRuleHolder_{};
 
 private:
   // @todo Please doc me !

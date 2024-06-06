@@ -5,10 +5,10 @@
 
 #include <dune/iga/geometrykernel/findintersection.hh>
 #include <dune/iga/geometrykernel/slicecurve.hh>
-#include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/clipelementrectangle.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/trimutils.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/elementtrimdata.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/clipelementrectangle.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/trimutils.hh>
 
 namespace Dune::IGA::DefaultTrim {
 

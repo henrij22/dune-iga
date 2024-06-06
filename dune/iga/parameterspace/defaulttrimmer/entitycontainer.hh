@@ -6,7 +6,7 @@
 #include <set>
 
 #include <dune/common/reservedvector.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 namespace Dune::IGA::DefaultTrim {
 template <typename GridImp>

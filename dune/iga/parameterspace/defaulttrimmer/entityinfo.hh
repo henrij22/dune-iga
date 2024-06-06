@@ -12,7 +12,7 @@ struct IdType;
 
 /**
  *
- * @tparam Traits The trimmer traits
+ * @tparam Traits The parameterspace traits
  * @tparam codim
  */
 template <typename Traits, int codim>

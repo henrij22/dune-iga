@@ -92,7 +92,7 @@ public:
   /**
    * @brief Get a local view of the NURBS patch.
    * @tparam codim Codimension of the patch.
-   * @tparam TrimmerType Type of the trimmer.
+   * @tparam TrimmerType Type of the parameterspace.
    * @return Local view of the patch.
    */
   template <int codim, typename TrimmerType, typename ParameterSpaceGeometry = void>

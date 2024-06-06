@@ -20,7 +20,7 @@
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 #include <dune/iga/hierarchicpatch/patchgridfactory.hh>
 #include <dune/iga/patchgrid.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 
 using namespace Dune::IGA;
 

@@ -16,8 +16,8 @@
 #include <dune/common/test/testsuite.hh>
 #include <dune/iga/io/vtk/igadatacollector.hh>
 #include <dune/iga/patchgrid.hh>
-#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexintegrationrulegenerator.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/integrationrules/simplexintegrationrulegenerator.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 #include <dune/vtk/vtkwriter.hh>
 
 using namespace Dune;
@@ -32,7 +32,7 @@ auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int r
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
-  using IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const PatchGrid>;
+  using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const PatchGrid>;
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
@@ -81,7 +81,7 @@ auto testBoundaryDivisionsPreference() {
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
-  using IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const PatchGrid>;
+  using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const PatchGrid>;
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
@@ -116,7 +116,6 @@ auto testTargetAccuracyPreference() {
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
 
-  using IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const PatchGrid>;
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
@@ -150,7 +149,7 @@ template <typename GridImp>
 struct AlternativetIntegrationRuleGenerator
 {
   bool wasCalled{};
-  using Generator = DefaultTrim::SimplexIntegrationRuleGenerator<GridImp>;
+  using Generator = SimplexIntegrationRuleGenerator<GridImp>;
   auto integrationRule() {
     return [&](const auto& element, int order, QuadratureType::Enum /* qt */) {
       wasCalled = true;

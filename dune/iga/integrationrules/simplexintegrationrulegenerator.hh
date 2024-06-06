@@ -3,10 +3,10 @@
 #pragma once
 
 #include <dune/geometry/quadraturerules.hh>
-#include <dune/iga/geometrykernel/nurbspatchtransform.hh>
-#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexgenerator.hh>
+#include <dune/iga/integrationrules/simplexgenerator.hh>
 
-namespace Dune::IGA::DefaultTrim {
+
+namespace Dune::IGA {
 
 template <typename GridImp>
 struct SimplexIntegrationRuleGenerator

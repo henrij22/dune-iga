@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
 add_subdirectory(trimmingutils)
-add_subdirectory(integrationrules)
 
 # install headers
 
@@ -30,5 +29,5 @@ set(HEADERS
 )
 
 install(FILES ${HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/trimmer/defaulttrimmer
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/parameterspace/defaulttrimmer
 )

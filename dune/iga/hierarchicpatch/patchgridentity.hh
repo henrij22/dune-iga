@@ -10,8 +10,7 @@
 #include "patchgridgeometry.hh"
 
 #include "dune/iga/hierarchicpatch/patchgridfwd.hh"
-#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexintegrationrulegenerator.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
+#include <dune/iga/integrationrules/simplexintegrationrulegenerator.hh>
 #include <dune/iga/utils/igahelpers.hh>
 
 namespace Dune::IGA {
@@ -374,10 +373,8 @@ public:
     return localEntity_;
   }
 
-  template <typename IntegrationRuleGenerator = DefaultTrim::SimplexIntegrationRuleGenerator<const GridImp>>
-  Dune::QuadratureRule<double, dim> getQuadratureRule(
-      const std::optional<int>& p_order = std::nullopt,
-      const QuadratureType::Enum qt     = QuadratureType::GaussLegendre) const
+  QuadratureRule<double, dim> getQuadratureRule(const std::optional<int>& p_order = std::nullopt,
+                                                const QuadratureType::Enum qt     = QuadratureType::GaussLegendre) const
   requires(not Trimmer::isAlwaysTrivial and dimension == 2)
   {
     auto degree = patchGrid_->patchGeometry(this->level()).degree();

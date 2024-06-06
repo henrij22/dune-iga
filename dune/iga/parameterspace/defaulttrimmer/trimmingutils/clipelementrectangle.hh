@@ -8,7 +8,7 @@
 #include <variant>
 
 #include "dune/iga/geometrykernel/algorithms.hh"
-#include "dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh"
+#include "dune/iga/parameterspace/defaulttrimmer/elementtrimdata.hh"
 #include <dune/common/float_cmp.hh>
 #include <dune/iga/geometrykernel/findintersection.hh>
 

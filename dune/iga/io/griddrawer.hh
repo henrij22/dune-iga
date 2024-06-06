@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 
 namespace Dune::IGA {
 

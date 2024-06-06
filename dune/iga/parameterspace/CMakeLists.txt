@@ -12,6 +12,6 @@ set(HEADERS
 )
 
 install(FILES ${HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/trimmer
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/parameterspace
 )
 

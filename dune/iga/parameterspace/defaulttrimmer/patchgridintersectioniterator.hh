@@ -6,7 +6,7 @@
 #include <dune/grid/common/intersection.hh>
 #include <dune/iga/hierarchicpatch/patchgridentity.hh>
 #include <dune/iga/hierarchicpatch/patchgridintersections.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/indextransformations.hh>
 
 /** \file
  * @brief The PatchGridLeafIntersectionIterator and PatchGridLevelIntersectionIterator classes

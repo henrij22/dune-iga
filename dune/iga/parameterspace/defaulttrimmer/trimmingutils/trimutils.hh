@@ -7,7 +7,7 @@
 
 #include "dune/iga/geometrykernel/findintersection.hh"
 #include "dune/iga/geometrykernel/nurbspatchgeometry.hh"
-#include "dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh"
+#include "dune/iga/parameterspace/defaulttrimmer/trimmingutils/cliputils.hh"
 #include <dune/common/float_cmp.hh>
 #include <dune/iga/geometrykernel/geohelper.hh>
 

@@ -49,7 +49,7 @@ namespace GeometryKernel {
    *
    * @tparam codim Codimension of the patch geometry.
    * @tparam PatchGeometry Type of the patch geometry.
-   * @tparam TrimmerType_ Type of the trimmer.
+   * @tparam TrimmerType_ Type of the parameterspace.
    */
   template <int codim, typename PatchGeometry, typename TrimmerType_, typename LocalParameterSpaceGeometry = void>
   struct PatchGeometryLocalView
@@ -61,7 +61,7 @@ namespace GeometryKernel {
         mydimension * (mydimension + 1) / 2; ///< Number of second derivatives of the local view.
     static constexpr int patchNumberOfSecondDerivatives =
         gridDimension * (gridDimension + 1) / 2;                     ///< Number of second derivatives for the patch.
-    using Trimmer            = TrimmerType_;                         ///< Type of the associated trimmer.
+    using Trimmer            = TrimmerType_;                         ///< Type of the associated parameterspace.
     using ParameterSpaceGrid = typename Trimmer::ParameterSpaceGrid; ///< Type of the parameter space grid.
 
     static constexpr std::integral auto worlddimension = PatchGeometry::worlddimension; ///< Dimension of the world.

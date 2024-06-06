@@ -253,7 +253,7 @@ public:
     assert(entityInfo_.fatherId.has_value());
     return grid_->trimmer().entityContainer_.template entity<0>(entityInfo_.fatherId.value(), this->level());
     // return TrimmedParameterSpaceGridEntity(grid_, hostEntity_.father(),
-    // grid_->trimmer().entityContainer_.idToElementInfoMap.at( entityInfo_.fatherId.value()));
+    // grid_->parameterspace().entityContainer_.idToElementInfoMap.at( entityInfo_.fatherId.value()));
   }
 
   /** @brief Location of this element relative to the reference element element of the father.

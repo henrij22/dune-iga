@@ -7,7 +7,7 @@
 #include <dune/iga/geometrykernel/geohelper.hh>
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 
-namespace Dune::IGA::DefaultTrim {
+namespace Dune::IGA {
 
 template <typename GridImp>
 struct SimplexGenerator

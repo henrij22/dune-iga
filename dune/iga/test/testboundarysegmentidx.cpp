@@ -15,7 +15,7 @@
 #include <dune/common/tupleutility.hh>
 #include <dune/common/tuplevector.hh>
 #include <dune/iga/patchgrid.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 
 using namespace Dune::IGA;
 using namespace Dune;

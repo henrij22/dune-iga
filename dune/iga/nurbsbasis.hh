@@ -22,7 +22,7 @@
 #include <dune/geometry/type.hh>
 #include <dune/iga/splines/bsplinealgorithms.hh>
 #include <dune/iga/splines/nurbsalgorithms.hh>
-#include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/elementtrimdata.hh>
 #include <dune/localfunctions/common/localbasis.hh>
 #include <dune/localfunctions/common/localfiniteelementtraits.hh>
 #include <dune/localfunctions/common/localkey.hh>
@@ -637,7 +637,7 @@ public:
 
   void createTrimmedNodeIndices() {
     if constexpr (not TrimmerType::isAlwaysTrivial) {
-      // if (not gridView_.grid().trimmer().trimData_.has_value())
+      // if (not gridView_.grid().parameterspace().trimData_.has_value())
       //   return;
 
       unsigned int n_ind_original = cachedSize_;

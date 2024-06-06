@@ -5,9 +5,9 @@
 
 #include <dune/geometry/multilineargeometry.hh>
 #include <dune/geometry/virtualrefinement.hh>
-#include <dune/iga/trimmer/defaulttrimmer/integrationrules/simplexgenerator.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmerpreferences.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/integrationrules/simplexgenerator.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmerpreferences.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 
 namespace Dune::IGA {
 
@@ -41,11 +41,11 @@ public:
 
     createCubeRefinement(subSampleFull);
 
-    if constexpr (std::is_same_v<Trimmer, IGA::DefaultTrim::TrimmerImpl<Trimmer::mydimension, Trimmer::dimensionworld,
+    if constexpr (std::is_same_v<Trimmer, DefaultTrim::TrimmerImpl<Trimmer::mydimension, Trimmer::dimensionworld,
                                                                         typename Trimmer::ctype>>) {
       const auto& idSet = gridView.grid().globalIdSet();
 
-      using SimplexGeneratorImpl = IGA::DefaultTrim::SimplexGenerator<typename GridView::Grid>;
+      using SimplexGeneratorImpl = SimplexGenerator<typename GridView::Grid>;
 
       const auto parameters = typename SimplexGeneratorImpl::Parameters{
           .boundaryDivisions = DefaultTrim::Preferences::getInstance().boundaryDivisions(),

@@ -14,9 +14,9 @@
 #include <dune/iga/geometrykernel/nurbspatchtransform.hh>
 #include <dune/iga/hierarchicpatch/patchgrid.hh>
 #include <dune/iga/nurbsbasis.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/cliputils.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/cliputils.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/indextransformations.hh>
 #include <dune/iga/utils/igahelpers.hh>
 
 using namespace Dune;

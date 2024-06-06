@@ -23,8 +23,8 @@
 #include <dune/grid/test/gridcheck.hh>
 #include <dune/iga/hierarchicpatch/gridcapabilities.hh>
 #include <dune/iga/patchgrid.hh>
-#include <dune/iga/trimmer/concepts.hh>
-#include <dune/iga/trimmer/defaulttrimmer/trimmer.hh>
+#include <dune/iga/parameterspace/concepts.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmer.hh>
 #include <dune/subgrid/test/common.hh>
 
 using namespace Dune;

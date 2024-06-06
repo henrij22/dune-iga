@@ -4,9 +4,11 @@
 # install headers
 
 set(HEADERS
+        simplexgenerator.hh
         simplexintegrationrulegenerator.hh
+        integrationruleholder.hh
 )
 
 install(FILES ${HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/trimmer/defaulttrimmer/integrationrules
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/iga/integrationrules
 )

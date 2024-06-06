@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <dune/iga/trimmer/defaulttrimmer/elementtrimdata.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/elementtrimdata.hh>
 
 namespace Dune::IGA::DefaultTrim {
 
