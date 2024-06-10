@@ -3,10 +3,10 @@
 
 #pragma once
 #include <map>
-#include <set>
 
 #include <dune/common/reservedvector.hh>
 #include <dune/iga/parameterspace/defaulttrimmer/trimmingutils/indextransformations.hh>
+#include <dune/iga/parameterspace/defaulttrimmer/trimmerpreferences.hh>
 
 namespace Dune::IGA::DefaultTrim {
 template <typename GridImp>

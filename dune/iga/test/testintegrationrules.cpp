@@ -25,7 +25,7 @@ using namespace Dune::IGA;
 
 template <bool useEle, bool useBoundaryDivisions = false>
 requires(!(!useEle and useBoundaryDivisions))
-auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int refLevel, double referenceArea) {
+auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int refLevel, double referenceArea, unsigned int splitter = 100) {
   constexpr int gridDim  = 2;
   constexpr int dimworld = 2;
 
@@ -35,7 +35,7 @@ auto testAreaIntegration(Dune::TestSuite& t, const std::string& file_name, int r
   using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const PatchGrid>;
 
   auto gridFactory = GridFactory();
-  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});
+  gridFactory.insertTrimParameters(GridFactory::TrimParameterType{splitter});
   gridFactory.insertJson(file_name, true, {refLevel, refLevel});
 
   const auto grid = gridFactory.createGrid();
@@ -80,8 +80,6 @@ auto testBoundaryDivisionsPreference() {
 
   using PatchGrid   = PatchGrid<gridDim, dimworld, DefaultTrim::PatchGridFamily>;
   using GridFactory = Dune::GridFactory<PatchGrid>;
-
-  using IntegrationRuleGenerator = SimplexIntegrationRuleGenerator<const PatchGrid>;
 
   auto gridFactory = GridFactory();
   gridFactory.insertTrimParameters(GridFactory::TrimParameterType{100});

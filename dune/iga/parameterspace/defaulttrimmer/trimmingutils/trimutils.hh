@@ -13,8 +13,8 @@
 
 namespace Dune::IGA::DefaultTrim::Util {
 template <typename ScalarType, int dim>
-auto approxSamePoint(const Clipper2Lib::PointD& pt1, const FieldVector<ScalarType, dim>& pt2,
-                     const double prec) -> bool {
+auto approxSamePoint(const Clipper2Lib::PointD& pt1, const FieldVector<ScalarType, dim>& pt2, const double prec)
+    -> bool {
   return FloatCmp::eq(pt1.x, pt2[0], prec) and FloatCmp::eq(pt1.y, pt2[1], prec);
 }
 
@@ -23,7 +23,7 @@ auto distance(const Clipper2Lib::PointD& p1, const auto& p2) -> double {
 }
 
 auto findGoodStartingPoint(const auto& curve, const Clipper2Lib::PointD& pt) -> double {
-  int N          = std::max(curve.numberOfControlPoints().front() * 15, 200);
+  int N          = std::max(curve.numberOfControlPoints().front() * 30, 200);
   auto linSpace  = Utilities::linspace(curve.domain().front(), N);
   auto distances = std::ranges::transform_view(linSpace, [&](const auto u) { return distance(pt, curve.global(u)); });
   auto min_idx   = std::ranges::distance(distances.begin(), std::ranges::min_element(distances));
@@ -48,12 +48,17 @@ auto createHostGeometry(auto& vertex1, auto& vertex2) -> TrimmingCurve {
   return GeometryKernel::NURBSPatch(patchData);
 }
 
-auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip,
-                          const auto& corners) -> std::pair<double, FieldVector<double, 2>> {
-  auto pos = corners[edgeIdx];
-  auto dir = edgeDirections[edgeIdx];
-
+auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip, const auto& corners)
+    -> std::pair<double, FieldVector<double, 2>> {
+  auto pos         = corners[edgeIdx];
+  auto dir         = edgeDirections[edgeIdx];
   double lineGuess = (edgeIdx == 0 or edgeIdx == 2) ? (ip.x - pos[0]) / dir[0] : (ip.y - pos[1]) / dir[1];
+
+  // Catch a trivial but difficult case
+  if (auto endPoint = curvePatchGeo.corner(1); approxSamePoint(ip, endPoint, 1e-8)) {
+    return std::make_pair(curvePatchGeo.domain()[0][1], endPoint);
+  }
+
   // Todo use z-Value to get a good starting point, not brute-force
   auto guessTParam = FieldVector<double, 2>{findGoodStartingPoint(curvePatchGeo, ip), lineGuess};
 
