@@ -55,9 +55,9 @@ auto callFindIntersection(const auto& curvePatchGeo, int edgeIdx, const auto& ip
   double lineGuess = (edgeIdx == 0 or edgeIdx == 2) ? (ip.x - pos[0]) / dir[0] : (ip.y - pos[1]) / dir[1];
 
   // Catch a trivial but difficult case
-  if (auto endPoint = curvePatchGeo.corner(1); approxSamePoint(ip, endPoint, 1e-8)) {
-    return std::make_pair(curvePatchGeo.domain()[0][1], endPoint);
-  }
+  // if (auto endPoint = curvePatchGeo.corner(1); approxSamePoint(ip, endPoint, 1e-8)) {
+  //   return std::make_pair(curvePatchGeo.domain()[0][1], endPoint);
+  // }
 
   // Todo use z-Value to get a good starting point, not brute-force
   auto guessTParam = FieldVector<double, 2>{findGoodStartingPoint(curvePatchGeo, ip), lineGuess};
